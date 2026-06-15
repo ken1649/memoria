@@ -152,7 +152,7 @@ fun MainScreen() {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
+                        .padding(scaffoldPadding)
                         .padding(16.dp)
                 ) {
                     // 標題輸入框
@@ -263,6 +263,7 @@ fun MainScreen() {
                         )
                     }
                 }
+            }
             }
         }
     }
