@@ -46,6 +46,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.layout.Row
 import com.guoyuan.memoria.data.AppDatabase
+import com.guoyuan.memoria.data.AppDao
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
 
@@ -53,7 +54,7 @@ import androidx.compose.material3.LocalTextStyle
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
-    val appDao = remember { AppDatabase.getDatabase(context).appDao() }
+    val appDao: AppDao = remember { AppDatabase.getDatabase(context).appDao() }
     val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(appDao))
     val uiState by viewModel.uiState.collectAsState()
     val allTexts by viewModel.allTexts.collectAsState()
