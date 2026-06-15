@@ -52,6 +52,11 @@ import com.guoyuan.memoria.data.AppDatabase
 import com.guoyuan.memoria.data.AppDao
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Pause
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -287,7 +292,7 @@ fun MainScreen() {
                                 enabled = uiState.previewParagraphIndex > 0
                             ) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Default.SkipPrevious,
+                                    imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowLeft,
                                     contentDescription = "上一步"
                                 )
                             }
