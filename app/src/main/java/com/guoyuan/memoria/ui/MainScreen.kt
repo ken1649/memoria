@@ -103,7 +103,7 @@ fun MainScreen() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Memoria") },
+                    title = { Text(uiState.currentTextTitle.ifEmpty { "Memoria" }) },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
