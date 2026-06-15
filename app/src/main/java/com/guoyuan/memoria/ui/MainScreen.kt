@@ -55,7 +55,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
-
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -344,7 +344,7 @@ fun MainScreen() {
                             Text("設定斷句符號")
                         }
                         Icon(
-                            imageVector = androidx.compose.material.icons.Icons.Default.ChevronRight,
+                            imageVector = Icons.Default.KeyboardArrowRight,
                             contentDescription = "前往"
                         )
                     }

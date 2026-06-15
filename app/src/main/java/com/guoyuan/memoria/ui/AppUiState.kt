@@ -14,5 +14,7 @@ data class AppUiState(
     val paragraphs: List<String> = emptyList(),
     val fullTextContent: String = "",
     val currentTextTitle: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val showSettingsDialog: Boolean = false,
+    val showPunctuationDialog: Boolean = false
 )
