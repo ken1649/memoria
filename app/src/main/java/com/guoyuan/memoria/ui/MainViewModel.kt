@@ -100,7 +100,8 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
                 val text = withContext(Dispatchers.IO) {
                     Jsoup.connect(url).get().text()
                 }
-                updateText("網頁內容", text)
+                updateEditTitle("網頁內容")
+                updateEditContent(text)
             } catch (e: Exception) {
                 e.printStackTrace()
                 setLoading(false)
