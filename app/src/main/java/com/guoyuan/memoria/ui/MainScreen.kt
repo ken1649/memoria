@@ -126,7 +126,7 @@ fun MainScreen() {
                         }
                     }
                 )
-            }
+            },
             floatingActionButton = {
                 if (uiState.currentMode != AppMode.EDIT) {
                     FloatingActionButton(
