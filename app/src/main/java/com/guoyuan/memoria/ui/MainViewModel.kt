@@ -140,7 +140,10 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
 
     private fun splitContentToParagraphs(content: String) {
         val newParagraphs = content.split("\n")
-            .map { it.trim() }
+            .mapIndexed { index, paragraph ->
+                val trimmed = paragraph.trim()
+                if (trimmed.isNotBlank()) "${index + 1}. $trimmed" else ""
+            }
             .filter { it.isNotBlank() }
         
         _uiState.update { currentState ->
