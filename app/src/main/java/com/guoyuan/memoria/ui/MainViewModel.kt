@@ -1,22 +1,34 @@
 package com.guoyuan.memoria.ui
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.guoyuan.memoria.data.AppDao
 import com.guoyuan.memoria.data.TextEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
 data class PunctuationItem(val symbol: String, val label: String, var isChecked: Boolean, val isCustom: Boolean = false)
 
-class MainViewModel(private val appDao: AppDao) : ViewModel() {
+class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore<Preferences>) : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
     
@@ -24,26 +36,73 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
     val allTexts: StateFlow<List<TextEntity>> = _allTexts.asStateFlow()
 
     val punctuationList = MutableStateFlow<List<PunctuationItem>>(emptyList())
+    private val gson = Gson()
+    private val PUNCTUATION_LIST_KEY = stringPreferencesKey("punctuation_list_json")
 
     init {
         viewModelScope.launch {
             loadAllTexts()
+            loadPunctuationListFromStore()
         }
-        // 初始化預設斷句符號
-        punctuationList.value = listOf(
-            PunctuationItem("，", "逗號", true),
-            PunctuationItem("。", "句號", true),
-            PunctuationItem("；", "分號", true),
-            PunctuationItem("？", "問號", true),
-            PunctuationItem("！", "驚嘆號", true),
-            PunctuationItem("：", "冒號", true),
-            PunctuationItem(" ", "空白", true)
-        )
     }
     
     private suspend fun loadAllTexts() {
         withContext(Dispatchers.IO) {
             _allTexts.value = appDao.getAllTexts()
+        }
+    }
+
+    private suspend fun loadPunctuationListFromStore() {
+        try {
+            val json = dataStore.data.map { preferences ->
+                preferences[PUNCTUATION_LIST_KEY]
+            }.first()
+
+            if (!json.isNullOrBlank()) {
+                val type = object : TypeToken<List<PunctuationItem>>() {}.type
+                val storedList: List<PunctuationItem> = gson.fromJson(json, type)
+                punctuationList.value = storedList
+            } else {
+                // 首次啟動使用預設值
+                val defaultList = listOf(
+                    PunctuationItem("，", "逗號", true),
+                    PunctuationItem("。", "句號", true),
+                    PunctuationItem("；", "分號", true),
+                    PunctuationItem("？", "問號", true),
+                    PunctuationItem("！", "驚嘆號", true),
+                    PunctuationItem("：", "冒號", true),
+                    PunctuationItem(" ", "空白", true)
+                )
+                punctuationList.value = defaultList
+                savePunctuationListToStore(defaultList)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // 解析失敗時使用預設值
+            val defaultList = listOf(
+                PunctuationItem("，", "逗號", true),
+                PunctuationItem("。", "句號", true),
+                PunctuationItem("；", "分號", true),
+                PunctuationItem("？", "問號", true),
+                PunctuationItem("！", "驚嘆號", true),
+                PunctuationItem("：", "冒號", true),
+                PunctuationItem(" ", "空白", true)
+            )
+            punctuationList.value = defaultList
+            savePunctuationListToStore(defaultList)
+        }
+    }
+
+    private fun savePunctuationListToStore(list: List<PunctuationItem>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val json = gson.toJson(list)
+                dataStore.edit { preferences ->
+                    preferences[PUNCTUATION_LIST_KEY] = json
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -226,6 +285,7 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
             val item = currentList[index]
             currentList[index] = item.copy(isChecked = !item.isChecked)
             punctuationList.value = currentList
+            savePunctuationListToStore(currentList)
         }
     }
 
@@ -238,16 +298,18 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         val exists = punctuationList.value.any { it.symbol == trimmedSymbol }
         if (!exists) {
             val newItem = PunctuationItem(trimmedSymbol, trimmedSymbol, true, true)
-            punctuationList.value = punctuationList.value + newItem
+            val updatedList = punctuationList.value + newItem
+            punctuationList.value = updatedList
+            savePunctuationListToStore(updatedList)
         }
     }
 }
 
-class MainViewModelFactory(private val appDao: AppDao) : ViewModelProvider.Factory {
+class MainViewModelFactory(private val appDao: AppDao, private val dataStore: DataStore<Preferences>) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(appDao) as T
+            return MainViewModel(appDao, dataStore) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
