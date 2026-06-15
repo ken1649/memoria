@@ -77,6 +77,8 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
                             isLoading = false
                         )
                     }
+                    // 保存後重新解析內容以更新顯示
+                    splitContentToParagraphs(content)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
