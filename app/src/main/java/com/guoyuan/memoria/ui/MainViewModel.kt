@@ -39,15 +39,52 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         }
     }
 
-    fun updateText(title: String, content: String) {
+    fun updateEditTitle(title: String) {
         _uiState.update { currentState ->
-            currentState.copy(
-                currentTextTitle = title,
-                fullTextContent = content,
-                isLoading = false
-            )
+            currentState.copy(currentTextTitle = title)
         }
-        splitContentToParagraphs(content)
+    }
+
+    fun updateEditContent(content: String) {
+        _uiState.update { currentState ->
+            currentState.copy(fullTextContent = content)
+        }
+    }
+
+    fun saveTextToDatabase() {
+        val title = _uiState.value.currentTextTitle
+        val content = _uiState.value.fullTextContent
+        if (title.isBlank() || content.isBlank()) {
+            return
+        }
+
+        _uiState.update { it.copy(isLoading = true) }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val textEntity = TextEntity(
+                    title = title,
+                    fullContent = content,
+                    sourceUrl = ""
+                )
+                appDao.insertText(textEntity)
+                loadAllTexts() // 重新加载文章列表
+
+                withContext(Dispatchers.Main) {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            currentMode = AppMode.READ,
+                            isLoading = false
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+            }
+        }
     }
 
     fun setLoading(isLoading: Boolean) {
