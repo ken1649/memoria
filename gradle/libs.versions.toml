@@ -7,8 +7,8 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 kotlin = "2.0.21"
-composeBom = "2024.09.00"
-room = "2.6.1"
+composeBom = "2025.05.00"
+room = "2.7.1"
 ksp = "2.0.21-1.0.28" # 請確認此版本對應您的 Kotlin 版本
 jsoup = "1.17.2"
 

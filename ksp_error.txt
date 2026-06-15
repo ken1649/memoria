@@ -1,0 +1,11 @@
+﻿./gradlew :  
+位於 線路:1 字元:1
++ ./gradlew :app:kspDebugKotlin --stacktrace 2>&1 | Out-File -Encoding  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH. 
+ 
+Please set the JAVA_HOME variable in your environment to match the 
+location of your Java installation. 
