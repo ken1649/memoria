@@ -134,7 +134,7 @@ fun MainScreen() {
                                 viewModel.updatePreviewIndex(0)
                             }
                         ) {
-                            Icon(Icons.Filled.PlayArrow, "開始播放")
+                            Text("開始")
                         }
                         AppMode.PLAY -> androidx.compose.material3.FloatingActionButton(
                             onClick = {
@@ -142,7 +142,7 @@ fun MainScreen() {
                                 viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
                             }
                         ) {
-                            Icon(Icons.Filled.Stop, "停止播放")
+                            Text("結束")
                         }
                         AppMode.EDIT -> {} // 編輯模式隱藏 FAB
                     }
