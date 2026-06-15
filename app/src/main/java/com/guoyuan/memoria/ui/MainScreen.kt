@@ -51,6 +51,7 @@ import androidx.compose.foundation.layout.Row
 import com.guoyuan.memoria.data.AppDatabase
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.foundation.layout.fillMaxHeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
