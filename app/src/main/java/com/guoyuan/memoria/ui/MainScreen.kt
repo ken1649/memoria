@@ -261,6 +261,55 @@ fun MainScreen() {
                             valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
                             modifier = Modifier.fillMaxWidth()
                         )
+                        
+                        // 播放控制按鈕組
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                        ) {
+                            // 清空按鈕
+                            IconButton(
+                                onClick = { viewModel.resetPlayback() },
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Default.Refresh,
+                                    contentDescription = "清空"
+                                )
+                            }
+                            
+                            // 上一步按鈕
+                            IconButton(
+                                onClick = { viewModel.moveToPrevious() },
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                                enabled = uiState.previewParagraphIndex > 0
+                            ) {
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Default.SkipPrevious,
+                                    contentDescription = "上一步"
+                                )
+                            }
+                            
+                            // 播放/暫停按鈕
+                            IconButton(
+                                onClick = { viewModel.togglePlay() },
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .size(48.dp) // 放大按鈕
+                            ) {
+                                Icon(
+                                    imageVector = if (uiState.isPlaying)
+                                        androidx.compose.material.icons.Icons.Default.Pause
+                                    else 
+                                        androidx.compose.material.icons.Icons.Default.PlayArrow,
+                                    contentDescription = if (uiState.isPlaying) "暫停" else "播放",
+                                    modifier = Modifier.size(36.dp) // 放大圖標
+                                )
+                            }
+                        }
+                        
                         Spacer(modifier = Modifier.height(80.dp)) // 避免FAB遮擋
                     }
                 }

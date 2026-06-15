@@ -127,6 +127,32 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         }
     }
     
+    fun togglePlay() {
+        _uiState.update { currentState ->
+            currentState.copy(isPlaying = !currentState.isPlaying)
+        }
+    }
+
+    fun moveToPrevious() {
+        _uiState.update { currentState ->
+            val newIndex = if (currentState.previewParagraphIndex > 0) {
+                currentState.previewParagraphIndex - 1
+            } else {
+                0
+            }
+            currentState.copy(previewParagraphIndex = newIndex)
+        }
+    }
+
+    fun resetPlayback() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                previewParagraphIndex = 0,
+                isPlaying = false
+            )
+        }
+    }
+    
     fun selectText(text: TextEntity) {
         _uiState.update { currentState ->
             currentState.copy(
