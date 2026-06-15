@@ -126,27 +126,27 @@ fun MainScreen() {
         ) { innerPadding ->
             Scaffold(
                 floatingActionButton = {
-                        when (uiState.currentMode) {
-                            AppMode.READ -> androidx.compose.material3.FloatingActionButton(
-                                onClick = {
-                                    viewModel.updateMode(AppMode.PLAY)
-                                    viewModel.updatePreviewIndex(0)
-                                }
-                            ) {
-                                Text("開始")
+                    when (uiState.currentMode) {
+                        AppMode.READ -> androidx.compose.material3.FloatingActionButton(
+                            onClick = {
+                                viewModel.updateMode(AppMode.PLAY)
+                                viewModel.updatePreviewIndex(0)
                             }
-                            AppMode.PLAY -> androidx.compose.material3.FloatingActionButton(
-                                onClick = {
-                                    viewModel.updateMode(AppMode.READ)
-                                    viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
-                                }
-                            ) {
-                                Text("結束")
-                            }
-                            AppMode.EDIT -> {} // 編輯模式隱藏 FAB
+                        ) {
+                            Text("開始")
                         }
+                        AppMode.PLAY -> androidx.compose.material3.FloatingActionButton(
+                            onClick = {
+                                viewModel.updateMode(AppMode.READ)
+                                viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
+                            }
+                        ) {
+                            Text("結束")
+                        }
+                        AppMode.EDIT -> {} // 編輯模式隱藏 FAB
                     }
-                ) { innerPadding ->
+                }
+            ) { scaffoldPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
                 Column(
