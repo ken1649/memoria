@@ -40,6 +40,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.DrawerValue
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.layout.Row
@@ -201,43 +203,29 @@ fun MainScreen() {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    // 文字顯示區域
-                    Text(
-                        text = if (uiState.isPlaying) {
-                            // 播放模式顯示當前段落
-                            if (uiState.paragraphs.isNotEmpty() && uiState.currentParagraphIndex < uiState.paragraphs.size) {
-                                uiState.paragraphs[uiState.currentParagraphIndex]
-                            } else {
-                                "無可用內容"
-                            }
-                        } else {
-                            // 非播放模式顯示已編號段落
-                            if (uiState.paragraphs.isNotEmpty()) {
-                                uiState.paragraphs.joinToString("\n")
-                            } else {
-                                uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
-                            }
-                        },
+                    // 可滾動的文字顯示區域
+                    androidx.compose.foundation.layout.Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f),
-                        textAlign = TextAlign.Start
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // 段落選擇滑桿
-                    if (uiState.paragraphs.isNotEmpty()) {
-                        Slider(
-                            value = uiState.previewParagraphIndex.toFloat(),
-                            onValueChange = { newValue ->
-                                viewModel.updatePreviewIndex(newValue.toInt())
+                            .weight(1f)
+                            .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                    ) {
+                        Text(
+                            text = if (uiState.isPlaying) {
+                                if (uiState.paragraphs.isNotEmpty() && uiState.currentParagraphIndex < uiState.paragraphs.size) {
+                                    uiState.paragraphs[uiState.currentParagraphIndex]
+                                } else {
+                                    "無可用內容"
+                                }
+                            } else {
+                                if (uiState.paragraphs.isNotEmpty()) {
+                                    uiState.paragraphs.joinToString("\n")
+                                } else {
+                                    uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
+                                }
                             },
-                            onValueChangeFinished = {
-                                viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
-                            },
-                            valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Start
                         )
                     }
                 }
