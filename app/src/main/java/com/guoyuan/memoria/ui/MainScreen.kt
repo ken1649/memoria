@@ -51,7 +51,6 @@ import androidx.compose.foundation.layout.Row
 import com.guoyuan.memoria.data.AppDatabase
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.foundation.layout.fillMaxHeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -150,7 +149,7 @@ fun MainScreen() {
                     }
                 },
             floatingActionButtonPosition = androidx.compose.material3.FabPosition.End
-        ) { scaffoldPadding ->
+        ) { innerPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
                 Column(
@@ -220,7 +219,7 @@ fun MainScreen() {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
+                        .padding(scaffoldPadding)
                         .padding(16.dp)
                 ) {
                     // 可滾動的文字顯示區域
