@@ -297,19 +297,17 @@ fun MainScreen() {
                                 )
                             }
                             
-                            // 播放/暫停按鈕
+                            // 播放按鈕 (只有播放功能)
                             IconButton(
-                                onClick = { viewModel.togglePlay() },
+                                onClick = { viewModel.startPlay() },
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp)
-                                    .size(48.dp) // 放大按鈕
+                                    .size(48.dp), // 放大按鈕
+                                enabled = !uiState.isPlaying
                             ) {
                                 Icon(
-                                    imageVector = if (uiState.isPlaying)
-                                        androidx.compose.material.icons.Icons.Default.Pause
-                                    else 
-                                        androidx.compose.material.icons.Icons.Default.PlayArrow,
-                                    contentDescription = if (uiState.isPlaying) "暫停" else "播放",
+                                    imageVector = androidx.compose.material.icons.Icons.Default.PlayArrow,
+                                    contentDescription = "播放",
                                     modifier = Modifier.size(36.dp) // 放大圖標
                                 )
                             }

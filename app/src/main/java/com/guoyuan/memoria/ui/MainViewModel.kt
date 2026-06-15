@@ -127,9 +127,9 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         }
     }
     
-    fun togglePlay() {
+    fun startPlay() {
         _uiState.update { currentState ->
-            currentState.copy(isPlaying = !currentState.isPlaying)
+            currentState.copy(isPlaying = true)
         }
     }
 
