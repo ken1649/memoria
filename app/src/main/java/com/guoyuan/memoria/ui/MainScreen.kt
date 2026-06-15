@@ -36,13 +36,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import androidx.compose.material3.DrawerValue
 import androidx.compose.foundation.clickable
+import androidx.compose.runtime.remember
+import com.guoyuan.memoria.data.AppDatabase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
     val appDao = remember { AppDatabase.getDatabase(context).appDao() }
-    val viewModel: MainViewModel = viewModel(factory = MainViewModel.Factory(appDao))
+    val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(appDao))
     val uiState by viewModel.uiState.collectAsState()
     val allTexts by viewModel.allTexts.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
