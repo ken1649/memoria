@@ -127,32 +127,32 @@ fun MainScreen() {
                     }
                 )
             }
-        floatingActionButton = {
-            if (uiState.currentMode != AppMode.EDIT) {
-                FloatingActionButton(
-                    onClick = {
-                        viewModel.updateMode(
-                            if (uiState.currentMode == AppMode.READ) AppMode.PLAY
-                            else AppMode.READ
+            floatingActionButton = {
+                if (uiState.currentMode != AppMode.EDIT) {
+                    FloatingActionButton(
+                        onClick = {
+                            viewModel.updateMode(
+                                if (uiState.currentMode == AppMode.READ) AppMode.PLAY
+                                else AppMode.READ
+                            )
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (uiState.currentMode == AppMode.READ) 
+                                Icons.Filled.PlayArrow 
+                            else 
+                                Icons.Filled.MenuBook,
+                            contentDescription = if (uiState.currentMode == AppMode.READ) 
+                                "進入播放模式" 
+                            else 
+                                "返回閱讀模式"
                         )
                     }
-                ) {
-                    Icon(
-                        imageVector = if (uiState.currentMode == AppMode.READ) 
-                            Icons.Filled.PlayArrow 
-                        else 
-                            Icons.Filled.MenuBook,
-                        contentDescription = if (uiState.currentMode == AppMode.READ) 
-                            "進入播放模式" 
-                        else 
-                            "返回閱讀模式"
-                    )
                 }
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End
-    ) { innerPadding ->
-        if (uiState.currentMode == AppMode.EDIT) {
+            },
+            floatingActionButtonPosition = FabPosition.End
+        ) { innerPadding ->
+            if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
                 Column(
                     modifier = Modifier
