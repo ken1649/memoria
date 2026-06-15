@@ -125,7 +125,7 @@ fun MainScreen() {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* 預留給設定頁面 */ }) {
+                        IconButton(onClick = { viewModel.openSettings() }) {
                             Icon(Icons.Filled.Settings, contentDescription = "設定")
                         }
                     }
@@ -318,5 +318,59 @@ fun MainScreen() {
                 }
             }
         }
+    }
+
+    // 系統設定總選單
+    if (uiState.showSettingsDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { viewModel.closeSettings() },
+            title = { Text("系統設定") },
+            text = {
+                Column {
+                    // 設定斷句符號選項
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.openPunctuationDialog() }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        androidx.compose.foundation.layout.Row {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Edit,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text("設定斷句符號")
+                        }
+                        Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.ChevronRight,
+                            contentDescription = "前往"
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { viewModel.closeSettings() }) {
+                    Text("關閉")
+                }
+            }
+        )
+    }
+
+    // 斷句符號設定彈窗
+    if (uiState.showPunctuationDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { viewModel.closePunctuationDialog() },
+            title = { Text("自定義斷句符號") },
+            text = {
+                Text("（等待下一步實作 Checkbox 列表）")
+            },
+            confirmButton = {
+                Button(onClick = { viewModel.closePunctuationDialog() }) {
+                    Text("關閉")
+                }
+            }
+        )
     }
 }

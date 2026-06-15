@@ -152,6 +152,30 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
             )
         }
     }
+
+    fun openSettings() {
+        _uiState.update { currentState ->
+            currentState.copy(showSettingsDialog = true)
+        }
+    }
+
+    fun closeSettings() {
+        _uiState.update { currentState ->
+            currentState.copy(showSettingsDialog = false)
+        }
+    }
+
+    fun openPunctuationDialog() {
+        _uiState.update { currentState ->
+            currentState.copy(showSettingsDialog = false, showPunctuationDialog = true)
+        }
+    }
+
+    fun closePunctuationDialog() {
+        _uiState.update { currentState ->
+            currentState.copy(showPunctuationDialog = false)
+        }
+    }
     
     fun selectText(text: TextEntity) {
         _uiState.update { currentState ->
