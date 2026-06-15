@@ -10,9 +10,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -249,7 +248,7 @@ fun MainScreen() {
                             textAlign = TextAlign.Start
                         )
                     }
-                    
+
                     // 只在播放模式顯示控制元件
                     if (uiState.currentMode == AppMode.PLAY) {
                         Spacer(modifier = Modifier.height(72.dp)) // 增加固定高度間距
@@ -264,13 +263,15 @@ fun MainScreen() {
                             valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
                             modifier = Modifier.fillMaxWidth()
                         )
-                        
+
                         // 新增控制按鈕列
                         androidx.compose.foundation.layout.Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                                8.dp
+                            )
                         ) {
                             Button(
                                 onClick = { viewModel.updateMode(AppMode.PLAY) },
@@ -278,9 +279,9 @@ fun MainScreen() {
                             ) {
                                 Text("播放")
                             }
-                            
+
                             Button(
-                                onClick = { 
+                                onClick = {
                                     if (uiState.previewParagraphIndex > 0) {
                                         viewModel.updatePreviewIndex(uiState.previewParagraphIndex - 1)
                                     }
@@ -289,9 +290,9 @@ fun MainScreen() {
                             ) {
                                 Text("上一步")
                             }
-                            
+
                             Button(
-                                onClick = { 
+                                onClick = {
                                     viewModel.updatePreviewIndex(0)
                                     viewModel.updateMode(AppMode.READ)
                                 },
@@ -306,6 +307,7 @@ fun MainScreen() {
                         Spacer(modifier = Modifier.height(72.dp)) // 在底部增加間距避免被FAB遮擋
                     }
                 }
+            }
             }
         }
     }
