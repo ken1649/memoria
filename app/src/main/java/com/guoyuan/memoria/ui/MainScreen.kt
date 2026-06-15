@@ -41,6 +41,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.layout.Row
 import com.guoyuan.memoria.data.AppDatabase
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
@@ -150,18 +151,37 @@ fun MainScreen() {
                         maxLines = Int.MAX_VALUE
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = {
-                            if (uiState.currentTextTitle.isBlank() || uiState.fullTextContent.isBlank()) {
-                                android.util.Log.w("Memoria", "標題與內文不能為空")
-                                return@Button
-                            }
-                            viewModel.saveTextToDatabase()
-                        },
+                    androidx.compose.foundation.layout.Row(
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !uiState.isLoading
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
                     ) {
-                        Text("儲存文章")
+                        Button(
+                            onClick = {
+                                if (uiState.currentTextTitle.isBlank() || uiState.fullTextContent.isBlank()) {
+                                    android.util.Log.w("Memoria", "標題與內文不能為空")
+                                    return@Button
+                                }
+                                viewModel.saveTextToDatabase()
+                            },
+                            modifier = Modifier.weight(1f),
+                            enabled = !uiState.isLoading
+                        ) {
+                            Text("儲存文章")
+                        }
+                        
+                        Button(
+                            onClick = {
+                                viewModel.updateMode(AppMode.READ)
+                                scope.launch { drawerState.close() }
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = androidx.compose.material3.MaterialTheme.colorScheme.errorContainer,
+                                contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        ) {
+                            Text("取消新增")
+                        }
                     }
                 }
             } else {
