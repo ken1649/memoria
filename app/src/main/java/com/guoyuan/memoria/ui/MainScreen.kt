@@ -233,7 +233,7 @@ fun MainScreen() {
                             text = if (uiState.currentMode == AppMode.PLAY) {
                                 // 播放模式顯示當前段落
                                 if (uiState.paragraphs.isNotEmpty() && uiState.previewParagraphIndex < uiState.paragraphs.size) {
-                                    uiState.paragraphs[uiState.previewParagraphIndex]
+                                    uiState.paragraphs[uiState.previewParagraphIndex] // 顯示預覽段落
                                 } else {
                                     "無可用內容"
                                 }
@@ -252,7 +252,7 @@ fun MainScreen() {
                     
                     // 只在播放模式顯示控制元件
                     if (uiState.currentMode == AppMode.PLAY) {
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.fillMaxHeight(0.1f)) // 增加 10% 高度間距
                         Slider(
                             value = uiState.previewParagraphIndex.toFloat(),
                             onValueChange = { newValue ->
@@ -264,6 +264,45 @@ fun MainScreen() {
                             valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
                             modifier = Modifier.fillMaxWidth()
                         )
+                        
+                        // 新增控制按鈕列
+                        androidx.compose.foundation.layout.Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = { viewModel.updateMode(AppMode.PLAY) },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("播放")
+                            }
+                            
+                            Button(
+                                onClick = { 
+                                    if (uiState.previewParagraphIndex > 0) {
+                                        viewModel.updatePreviewIndex(uiState.previewParagraphIndex - 1)
+                                    }
+                                },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("上一步")
+                            }
+                            
+                            Button(
+                                onClick = { 
+                                    viewModel.updatePreviewIndex(0)
+                                    viewModel.updateMode(AppMode.READ)
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = androidx.compose.material3.MaterialTheme.colorScheme.errorContainer
+                                )
+                            ) {
+                                Text("清空")
+                            }
+                        }
                     }
                 }
             }
