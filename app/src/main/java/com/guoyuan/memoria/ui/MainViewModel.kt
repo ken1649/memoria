@@ -142,7 +142,7 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         val newParagraphs = content.split("\n")
             .mapIndexed { index, paragraph ->
                 val trimmed = paragraph.trim()
-                if (trimmed.isNotBlank()) "${index + 1}. $trimmed" else ""
+                if (trimmed.isNotBlank()) "${index + 1}. $trimmed\n" else "" // 在段落結尾加入換行
             }
             .filter { it.isNotBlank() }
         
