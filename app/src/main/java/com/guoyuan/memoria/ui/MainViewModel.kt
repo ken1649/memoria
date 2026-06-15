@@ -1,6 +1,7 @@
 package com.guoyuan.memoria.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.guoyuan.memoria.data.AppDao
 import com.guoyuan.memoria.data.TextEntity
@@ -109,11 +110,6 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         }
     }
 }
-package com.guoyuan.memoria.ui
-
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.guoyuan.memoria.data.AppDao
 
 class MainViewModelFactory(private val appDao: AppDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
