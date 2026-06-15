@@ -147,7 +147,7 @@ fun MainScreen() {
                         }
                         AppMode.EDIT -> {} // 編輯模式隱藏 FAB
                     }
-                }
+                },
             floatingActionButtonPosition = androidx.compose.material3.FabPosition.End
         ) { scaffoldPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
