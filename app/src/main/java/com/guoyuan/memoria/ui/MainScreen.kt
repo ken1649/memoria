@@ -43,8 +43,6 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -53,7 +51,7 @@ import com.guoyuan.memoria.data.AppDatabase
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
