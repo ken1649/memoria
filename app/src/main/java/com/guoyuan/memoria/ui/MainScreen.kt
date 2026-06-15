@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -133,7 +135,7 @@ fun MainScreen() {
                                 viewModel.updatePreviewIndex(0)
                             }
                         ) {
-                            Text("開始")
+                            Icon(Icons.Filled.PlayArrow, contentDescription = "開始播放")
                         }
                         AppMode.PLAY -> androidx.compose.material3.FloatingActionButton(
                             onClick = {
@@ -141,12 +143,13 @@ fun MainScreen() {
                                 viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
                             }
                         ) {
-                            Text("結束")
+                            Icon(Icons.Filled.MenuBook, contentDescription = "返回閱讀")
                         }
                         AppMode.EDIT -> {} // 編輯模式隱藏 FAB
                     }
                 }
-            ) { scaffoldPadding ->
+            floatingActionButtonPosition = androidx.compose.material3.FabPosition.End
+        ) { scaffoldPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
                 Column(
@@ -177,7 +180,7 @@ fun MainScreen() {
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
                         maxLines = Int.MAX_VALUE
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(72.dp)) // 增加底部間距避免 FAB 遮擋
                     androidx.compose.foundation.layout.Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
