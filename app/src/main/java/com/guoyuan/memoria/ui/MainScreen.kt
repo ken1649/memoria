@@ -125,7 +125,7 @@ fun MainScreen() {
                     }
                 )
             }
-        ) { innerPadding ->
+        ) { scaffoldPadding ->
             Scaffold(
                 floatingActionButton = {
                     when (uiState.currentMode) {
@@ -148,8 +148,8 @@ fun MainScreen() {
                         AppMode.EDIT -> {} // 編輯模式隱藏 FAB
                     }
                 },
-            floatingActionButtonPosition = androidx.compose.material3.FabPosition.End
-        ) { innerPadding ->
+                floatingActionButtonPosition = androidx.compose.material3.FabPosition.End
+            ) { innerPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
                 Column(
@@ -219,7 +219,7 @@ fun MainScreen() {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(scaffoldPadding)
+                        .padding(innerPadding)
                         .padding(16.dp)
                 ) {
                     // 可滾動的文字顯示區域
