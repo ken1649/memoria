@@ -125,11 +125,8 @@ fun MainScreen() {
                 )
             }
         ) { innerPadding ->
-            androidx.compose.foundation.layout.Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Scaffold(
-                    floatingActionButton = {
+            Scaffold(
+                floatingActionButton = {
                         when (uiState.currentMode) {
                             AppMode.READ -> androidx.compose.material3.FloatingActionButton(
                                 onClick = {
@@ -150,7 +147,7 @@ fun MainScreen() {
                             AppMode.EDIT -> {} // 編輯模式隱藏 FAB
                         }
                     }
-                ) { innerPadding2 ->
+                ) { innerPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
                 Column(
@@ -266,7 +263,6 @@ fun MainScreen() {
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                }
                 }
             }
         }
