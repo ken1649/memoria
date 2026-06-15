@@ -41,8 +41,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardOptions
 import com.guoyuan.memoria.data.AppDatabase
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.LocalTextStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,10 +134,9 @@ fun MainScreen() {
                         label = { Text("標題") },
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = LocalTextStyle.current,
-                        keyboardOptions = KeyboardOptions.Default,
-                        imeAction = ImeAction.Default
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+
                     // 內容輸入框
                     OutlinedTextField(
                         value = uiState.fullTextContent,
@@ -146,8 +146,7 @@ fun MainScreen() {
                             .fillMaxWidth()
                             .weight(1f),
                         textStyle = LocalTextStyle.current,
-                        keyboardOptions = KeyboardOptions.Default,
-                        imeAction = ImeAction.Default,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
                         maxLines = Int.MAX_VALUE
                     )
                     Spacer(modifier = Modifier.height(16.dp))
