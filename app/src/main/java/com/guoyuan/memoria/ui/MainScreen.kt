@@ -115,46 +115,90 @@ fun MainScreen() {
                 )
             }
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp)
-            ) {
-                // 文字顯示區域
-                Text(
-                    text = if (uiState.isPlaying) {
-                        // 播放模式顯示當前段落
-                        if (uiState.paragraphs.isNotEmpty() && uiState.currentParagraphIndex < uiState.paragraphs.size) {
-                            uiState.paragraphs[uiState.currentParagraphIndex]
-                        } else {
-                            "無可用內容"
-                        }
-                    } else {
-                        // 非播放模式顯示全文
-                        uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
-                    },
+            if (uiState.currentMode == AppMode.EDIT) {
+                // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 段落選擇滑桿
-                if (uiState.paragraphs.isNotEmpty()) {
-                    Slider(
-                        value = uiState.previewParagraphIndex.toFloat(),
-                        onValueChange = { newValue ->
-                            viewModel.updatePreviewIndex(newValue.toInt())
-                        },
-                        onValueChangeFinished = {
-                            viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
-                        },
-                        valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    // 標題輸入框
+                    OutlinedTextField(
+                        value = uiState.currentTextTitle,
+                        onValueChange = { viewModel.updateEditTitle(it) },
+                        label = { Text("標題") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    // 內容輸入框
+                    OutlinedTextField(
+                        value = uiState.fullTextContent,
+                        onValueChange = { viewModel.updateEditContent(it) },
+                        label = { Text("內容") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        maxLines = Int.MAX_VALUE
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            if (uiState.currentTextTitle.isBlank() || uiState.fullTextContent.isBlank()) {
+                                android.util.Log.w("Memoria", "標題與內文不能為空")
+                                return@Button
+                            }
+                            viewModel.saveTextToDatabase()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uiState.isLoading
+                    ) {
+                        Text("儲存文章")
+                    }
+                }
+            } else {
+                // 非編輯模式：原來的顯示
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    // 文字顯示區域
+                    Text(
+                        text = if (uiState.isPlaying) {
+                            // 播放模式顯示當前段落
+                            if (uiState.paragraphs.isNotEmpty() && uiState.currentParagraphIndex < uiState.paragraphs.size) {
+                                uiState.paragraphs[uiState.currentParagraphIndex]
+                            } else {
+                                "無可用內容"
+                            }
+                        } else {
+                            // 非播放模式顯示全文
+                            uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // 段落選擇滑桿
+                    if (uiState.paragraphs.isNotEmpty()) {
+                        Slider(
+                            value = uiState.previewParagraphIndex.toFloat(),
+                            onValueChange = { newValue ->
+                                viewModel.updatePreviewIndex(newValue.toInt())
+                            },
+                            onValueChangeFinished = {
+                                viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
+                            },
+                            valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         }
