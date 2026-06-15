@@ -8,9 +8,10 @@ enum class AppMode {
 
 data class AppUiState(
     val currentMode: AppMode = AppMode.READ,
-    val currentTextTitle: String = "",
+    val currentParagraphIndex: Int = 0,
+    val previewParagraphIndex: Int = 0,
+    val isPlaying: Boolean = false,
+    val paragraphs: List<String> = emptyList(),
     val fullTextContent: String = "",
-    val sentences: List<String> = emptyList(),
-    val currentPlayingIndex: Int = 0,
     val isLoading: Boolean = false
 )
