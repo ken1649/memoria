@@ -120,6 +120,8 @@ fun MainScreen() {
                             IconButton(onClick = {
                                 // 切換到編輯模式並保留當前內容
                                 viewModel.updateMode(AppMode.EDIT)
+                                // 手動觸發段落分割以更新內容
+                                viewModel.splitContentToParagraphs(uiState.fullTextContent)
                             }) {
                                 Icon(Icons.Filled.Edit, contentDescription = "編輯文章")
                             }
