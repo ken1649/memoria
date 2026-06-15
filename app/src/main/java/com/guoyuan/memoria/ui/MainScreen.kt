@@ -137,15 +137,11 @@ fun MainScreen() {
                             )
                         }
                     ) {
-                        Icon(
-                            imageVector = if (uiState.currentMode == AppMode.READ) 
-                                Icons.Filled.PlayArrow 
+                        Text(
+                            text = if (uiState.currentMode == AppMode.READ) 
+                                "開始" 
                             else 
-                                Icons.Filled.MenuBook,
-                            contentDescription = if (uiState.currentMode == AppMode.READ) 
-                                "進入播放模式" 
-                            else 
-                                "返回閱讀模式"
+                                "返回"
                         )
                     }
                 }
