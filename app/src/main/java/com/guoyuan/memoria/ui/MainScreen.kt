@@ -202,13 +202,17 @@ fun MainScreen() {
                                 "無可用內容"
                             }
                         } else {
-                            // 非播放模式顯示全文
-                            uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
+                            // 非播放模式顯示已編號段落
+                            if (uiState.paragraphs.isNotEmpty()) {
+                                uiState.paragraphs.joinToString("\n")
+                            } else {
+                                uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Start
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
