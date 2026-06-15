@@ -13,6 +13,10 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -117,24 +121,38 @@ fun MainScreen() {
                         }
                     },
                     actions = {
-                        if (uiState.currentMode == AppMode.READ) {
-                            IconButton(onClick = {
-                                // 切換到編輯模式並保留當前內容
-                                viewModel.updateMode(AppMode.EDIT)
-                                // 手動觸發段落分割以更新內容
-                                viewModel.splitContentToParagraphs(uiState.fullTextContent)
-                            }) {
-                                Icon(Icons.Filled.Edit, contentDescription = "編輯文章")
-                            }
-                        }
                         IconButton(onClick = { /* 預留給設定頁面 */ }) {
                             Icon(Icons.Filled.Settings, contentDescription = "設定")
                         }
                     }
                 )
             }
-        ) { innerPadding ->
-            if (uiState.currentMode == AppMode.EDIT) {
+        floatingActionButton = {
+            if (uiState.currentMode != AppMode.EDIT) {
+                FloatingActionButton(
+                    onClick = {
+                        viewModel.updateMode(
+                            if (uiState.currentMode == AppMode.READ) AppMode.PLAY
+                            else AppMode.READ
+                        )
+                    }
+                ) {
+                    Icon(
+                        imageVector = if (uiState.currentMode == AppMode.READ) 
+                            Icons.Filled.PlayArrow 
+                        else 
+                            Icons.Filled.MenuBook,
+                        contentDescription = if (uiState.currentMode == AppMode.READ) 
+                            "進入播放模式" 
+                        else 
+                            "返回閱讀模式"
+                    )
+                }
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
+    ) { innerPadding ->
+        if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
                 Column(
                     modifier = Modifier
@@ -248,6 +266,7 @@ fun MainScreen() {
                             valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
                             modifier = Modifier.fillMaxWidth()
                         )
+                        Spacer(modifier = Modifier.height(80.dp)) // 避免FAB遮擋
                     }
                 }
             }
