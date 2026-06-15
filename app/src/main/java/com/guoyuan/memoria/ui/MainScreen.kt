@@ -11,7 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -143,7 +143,7 @@ fun MainScreen() {
                                 viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
                             }
                         ) {
-                            Icon(Icons.Filled.MenuBook, contentDescription = "返回閱讀")
+                            Icon(Icons.Filled.Refresh, contentDescription = "返回閱讀")
                         }
                         AppMode.EDIT -> {} // 編輯模式隱藏 FAB
                     }
