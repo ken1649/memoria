@@ -121,6 +121,7 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 currentParagraphIndex = index,
+                previewParagraphIndex = index,  // 同步預覽索引
                 isPlaying = false
             )
         }

@@ -213,13 +213,15 @@ fun MainScreen() {
                             .verticalScroll(androidx.compose.foundation.rememberScrollState())
                     ) {
                         Text(
-                            text = if (uiState.isPlaying) {
-                                if (uiState.paragraphs.isNotEmpty() && uiState.currentParagraphIndex < uiState.paragraphs.size) {
-                                    uiState.paragraphs[uiState.currentParagraphIndex]
+                            text = if (uiState.currentMode == AppMode.PLAY) {
+                                // 播放模式顯示當前段落
+                                if (uiState.paragraphs.isNotEmpty() && uiState.previewParagraphIndex < uiState.paragraphs.size) {
+                                    uiState.paragraphs[uiState.previewParagraphIndex]
                                 } else {
                                     "無可用內容"
                                 }
                             } else {
+                                // 閱讀模式顯示完整內容
                                 if (uiState.paragraphs.isNotEmpty()) {
                                     uiState.paragraphs.joinToString("\n")
                                 } else {
@@ -228,6 +230,22 @@ fun MainScreen() {
                             },
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Start
+                        )
+                    }
+                    
+                    // 只在播放模式顯示控制元件
+                    if (uiState.currentMode == AppMode.PLAY) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Slider(
+                            value = uiState.previewParagraphIndex.toFloat(),
+                            onValueChange = { newValue ->
+                                viewModel.updatePreviewIndex(newValue.toInt())
+                            },
+                            onValueChangeFinished = {
+                                viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
+                            },
+                            valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
