@@ -8,6 +8,6 @@ import androidx.room.PrimaryKey
 data class TextEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "title") val title: String,
-    @ColumnInfo(name = "content") val content: String,
+    @ColumnInfo(name = "fullContent") val fullContent: String,
     @ColumnInfo(name = "source_url") val sourceUrl: String
 )
