@@ -236,22 +236,24 @@ fun MainScreen() {
                             .weight(1f)
                             .verticalScroll(androidx.compose.foundation.rememberScrollState())
                     ) {
-                        Text(
-                            text = if (uiState.currentMode == AppMode.PLAY) {
-                                // 播放模式顯示當前段落
-                                if (uiState.paragraphs.isNotEmpty() && uiState.previewParagraphIndex < uiState.paragraphs.size) {
-                                    uiState.paragraphs[uiState.previewParagraphIndex]
-                                } else {
-                                    "無可用內容"
-                                }
+                        val displayText = if (uiState.currentMode == AppMode.PLAY) {
+                            // 播放模式顯示當前句子
+                            if (uiState.currentSentences.isNotEmpty()) {
+                                uiState.currentSentences.getOrNull(uiState.currentSentenceIndex) ?: "請按下播放鍵開始背誦"
                             } else {
-                                // 閱讀模式顯示完整內容
-                                if (uiState.paragraphs.isNotEmpty()) {
-                                    uiState.paragraphs.joinToString("\n")
-                                } else {
-                                    uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
-                                }
-                            },
+                                "請按下播放鍵開始背誦"
+                            }
+                        } else {
+                            // 閱讀模式顯示完整內容
+                            if (uiState.paragraphs.isNotEmpty()) {
+                                uiState.paragraphs.joinToString("\n")
+                            } else {
+                                uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
+                            }
+                        }
+                        
+                        Text(
+                            text = displayText,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Start
                         )
@@ -302,17 +304,22 @@ fun MainScreen() {
                                 )
                             }
                             
-                            // 播放按鈕 (固定播放圖示)
+                            // 播放/下一句按鈕
                             IconButton(
-                                onClick = { viewModel.startPlay() },
+                                onClick = {
+                                    if (uiState.isPlaying) {
+                                        viewModel.moveToNextSentence()
+                                    } else {
+                                        viewModel.startPlay()
+                                    }
+                                },
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp)
                                     .size(48.dp), // 放大按鈕
-                                enabled = !uiState.isPlaying
                             ) {
                                 Icon(
                                     imageVector = androidx.compose.material.icons.Icons.Default.PlayArrow,
-                                    contentDescription = "播放",
+                                    contentDescription = if (uiState.isPlaying) "下一句" else "播放",
                                     modifier = Modifier.size(36.dp) // 放大圖標
                                 )
                             }

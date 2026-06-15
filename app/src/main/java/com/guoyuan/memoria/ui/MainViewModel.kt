@@ -218,6 +218,18 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
 
+    fun moveToNextSentence() {
+        _uiState.update { currentState ->
+            val nextIndex = currentState.currentSentenceIndex + 1
+            if (nextIndex < currentState.currentSentences.size) {
+                currentState.copy(currentSentenceIndex = nextIndex)
+            } else {
+                // 已到段落结尾，停止播放
+                currentState.copy(isPlaying = false)
+            }
+        }
+    }
+
     fun moveToPrevious() {
         _uiState.update { currentState ->
             val newSentenceIndex = if (currentState.currentSentenceIndex > 0) {
@@ -232,7 +244,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     fun resetPlayback() {
         _uiState.update { currentState ->
             currentState.copy(
-                previewParagraphIndex = 0,
+                currentSentenceIndex = 0,
                 isPlaying = false
             )
         }
