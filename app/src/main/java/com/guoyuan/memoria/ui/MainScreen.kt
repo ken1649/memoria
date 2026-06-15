@@ -39,6 +39,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.DrawerValue
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardOptions
 import com.guoyuan.memoria.data.AppDatabase
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,7 +131,10 @@ fun MainScreen() {
                         value = uiState.currentTextTitle,
                         onValueChange = { viewModel.updateEditTitle(it) },
                         label = { Text("標題") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current,
+                        keyboardOptions = KeyboardOptions.Default,
+                        imeAction = ImeAction.Default
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     // 內容輸入框
@@ -139,6 +145,9 @@ fun MainScreen() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
+                        textStyle = LocalTextStyle.current,
+                        keyboardOptions = KeyboardOptions.Default,
+                        imeAction = ImeAction.Default,
                         maxLines = Int.MAX_VALUE
                     )
                     Spacer(modifier = Modifier.height(16.dp))
