@@ -69,6 +69,7 @@ fun MainScreen() {
     val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(appDao))
     val uiState by viewModel.uiState.collectAsState()
     val allTexts by viewModel.allTexts.collectAsState()
+    val punctuationList by viewModel.punctuationList.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -363,15 +364,81 @@ fun MainScreen() {
 
     // 斷句符號設定彈窗
     if (uiState.showPunctuationDialog) {
+        val customInput = remember { mutableStateOf("") }
+        
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { viewModel.closePunctuationDialog() },
             title = { Text("自定義斷句符號") },
             text = {
-                Text("（等待下一步實作 Checkbox 列表）")
+                Column {
+                    // 上半部：Checkbox 列表
+                    androidx.compose.foundation.layout.Box(
+                        modifier = Modifier
+                            .height(250.dp)
+                    ) {
+                        LazyColumn {
+                            items(punctuationList) { item ->
+                                androidx.compose.foundation.layout.Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            viewModel.togglePunctuation(item.symbol)
+                                        }
+                                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    androidx.compose.material3.Checkbox(
+                                        checked = item.isChecked,
+                                        onCheckedChange = { checked ->
+                                            viewModel.togglePunctuation(item.symbol)
+                                        }
+                                    )
+                                    Text(
+                                        text = item.label,
+                                        modifier = Modifier.padding(start = 16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 分隔線
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    // 下半部：新增自定義區
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = customInput.value,
+                            onValueChange = {
+                                if (it.length <= 2) {
+                                    customInput.value = it
+                                }
+                            },
+                            label = { Text("新符號") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        
+                        Button(
+                            onClick = {
+                                if (customInput.value.isNotBlank()) {
+                                    viewModel.addCustomPunctuation(customInput.value)
+                                    customInput.value = ""
+                                }
+                            },
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text("新增")
+                        }
+                    }
+                }
             },
             confirmButton = {
                 Button(onClick = { viewModel.closePunctuationDialog() }) {
-                    Text("關閉")
+                    Text("確定")
                 }
             }
         )
