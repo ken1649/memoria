@@ -253,7 +253,7 @@ fun MainScreen() {
                     
                     // 只在播放模式顯示控制元件
                     if (uiState.currentMode == AppMode.PLAY) {
-                        Spacer(modifier = Modifier.fillMaxHeight(0.1f)) // 增加 10% 高度間距
+                        Spacer(modifier = Modifier.height(72.dp)) // 增加固定高度間距
                         Slider(
                             value = uiState.previewParagraphIndex.toFloat(),
                             onValueChange = { newValue ->
@@ -304,9 +304,9 @@ fun MainScreen() {
                                 Text("清空")
                             }
                         }
+                        Spacer(modifier = Modifier.height(72.dp)) // 在底部增加間距避免被FAB遮擋
                     }
                 }
-            }
             }
         }
     }
