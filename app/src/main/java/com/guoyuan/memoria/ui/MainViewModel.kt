@@ -211,9 +211,18 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     
     fun startPlay() {
         _uiState.update { currentState ->
+            // 獲取當前段落的文本
+            val paragraph = if (currentState.currentParagraphIndex < currentState.paragraphs.size) {
+                currentState.paragraphs[currentState.currentParagraphIndex]
+            } else {
+                ""
+            }
+            // 切分句子
+            val sentences = splitParagraphIntoSentences(paragraph)
             currentState.copy(
-                isPlaying = true,
-                currentSentenceIndex = 0 // 重置句子索引
+                currentSentences = sentences,
+                currentSentenceIndex = 0,
+                isPlaying = true
             )
         }
     }

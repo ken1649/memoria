@@ -237,10 +237,11 @@ fun MainScreen() {
                             .verticalScroll(androidx.compose.foundation.rememberScrollState())
                     ) {
                         val displayText = if (uiState.currentMode == AppMode.PLAY) {
-                            // 播放模式顯示當前句子
-                            if (uiState.currentSentences.isNotEmpty()) {
-                                uiState.currentSentences.getOrNull(uiState.currentSentenceIndex) ?: "請按下播放鍵開始背誦"
+                            if (uiState.isPlaying && uiState.currentSentences.isNotEmpty()) {
+                                // 正在播放且有句子，顯示當前句子
+                                uiState.currentSentences.getOrNull(uiState.currentSentenceIndex) ?: "背誦完畢"
                             } else {
+                                // 未播放或句子列表為空，顯示提示
                                 "請按下播放鍵開始背誦"
                             }
                         } else {
