@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -113,6 +114,14 @@ fun MainScreen() {
                         }
                     },
                     actions = {
+                        if (uiState.currentMode == AppMode.READ) {
+                            IconButton(onClick = {
+                                // 切換到編輯模式並保留當前內容
+                                viewModel.updateMode(AppMode.EDIT)
+                            }) {
+                                Icon(Icons.Filled.Edit, contentDescription = "編輯文章")
+                            }
+                        }
                         IconButton(onClick = { /* 預留給設定頁面 */ }) {
                             Icon(Icons.Filled.Settings, contentDescription = "設定")
                         }
