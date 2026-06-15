@@ -51,7 +51,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
-
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
