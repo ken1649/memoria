@@ -65,8 +65,9 @@ import androidx.compose.ui.Alignment
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
+    val dataStore = context.dataStore
     val appDao: AppDao = remember { AppDatabase.getDatabase(context).appDao() }
-    val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(appDao))
+    val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(appDao, dataStore))
     val uiState by viewModel.uiState.collectAsState()
     val allTexts by viewModel.allTexts.collectAsState()
     val punctuationList by viewModel.punctuationList.collectAsState()
