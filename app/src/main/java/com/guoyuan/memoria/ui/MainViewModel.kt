@@ -138,7 +138,7 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         splitContentToParagraphs(text.fullContent)
     }
 
-    private fun splitContentToParagraphs(content: String) {
+    fun splitContentToParagraphs(content: String) {
         val newParagraphs = content.split("\n")
             .mapIndexed { index, paragraph ->
                 val trimmed = paragraph.trim()
