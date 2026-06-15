@@ -297,7 +297,7 @@ fun MainScreen() {
                                 )
                             }
                             
-                            // 播放按鈕 (只有播放功能)
+                            // 播放按鈕 (固定播放圖示)
                             IconButton(
                                 onClick = { viewModel.startPlay() },
                                 modifier = Modifier
