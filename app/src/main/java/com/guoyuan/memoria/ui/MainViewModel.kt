@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
+data class PunctuationItem(val symbol: String, val label: String, var isChecked: Boolean, val isCustom: Boolean = false)
+
 class MainViewModel(private val appDao: AppDao) : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
@@ -21,10 +23,22 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
     private val _allTexts = MutableStateFlow<List<TextEntity>>(emptyList())
     val allTexts: StateFlow<List<TextEntity>> = _allTexts.asStateFlow()
 
+    val punctuationList = MutableStateFlow<List<PunctuationItem>>(emptyList())
+
     init {
         viewModelScope.launch {
             loadAllTexts()
         }
+        // 初始化預設斷句符號
+        punctuationList.value = listOf(
+            PunctuationItem("，", "逗號", true),
+            PunctuationItem("。", "句號", true),
+            PunctuationItem("；", "分號", true),
+            PunctuationItem("？", "問號", true),
+            PunctuationItem("！", "驚嘆號", true),
+            PunctuationItem("：", "冒號", true),
+            PunctuationItem(" ", "空白", true)
+        )
     }
     
     private suspend fun loadAllTexts() {
@@ -201,6 +215,30 @@ class MainViewModel(private val appDao: AppDao) : ViewModel() {
         
         _uiState.update { currentState ->
             currentState.copy(paragraphs = newParagraphs)
+        }
+    }
+
+    // 切換符號的選中狀態
+    fun togglePunctuation(symbol: String) {
+        val currentList = punctuationList.value.toMutableList()
+        val index = currentList.indexOfFirst { it.symbol == symbol }
+        if (index != -1) {
+            val item = currentList[index]
+            currentList[index] = item.copy(isChecked = !item.isChecked)
+            punctuationList.value = currentList
+        }
+    }
+
+    // 新增自定義符號
+    fun addCustomPunctuation(symbol: String) {
+        val trimmedSymbol = symbol.trim()
+        if (trimmedSymbol.isEmpty()) return
+
+        // 檢查是否已存在相同符號
+        val exists = punctuationList.value.any { it.symbol == trimmedSymbol }
+        if (!exists) {
+            val newItem = PunctuationItem(trimmedSymbol, trimmedSymbol, true, true)
+            punctuationList.value = punctuationList.value + newItem
         }
     }
 }
