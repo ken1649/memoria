@@ -191,10 +191,19 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
 
     fun confirmParagraphSelection(index: Int) {
+        // 切分當前段落為句子
+        val paragraph = if (index < _uiState.value.paragraphs.size) {
+            _uiState.value.paragraphs[index]
+        } else ""
+        
+        val sentences = splitParagraphIntoSentences(paragraph)
+        
         _uiState.update { currentState ->
             currentState.copy(
                 currentParagraphIndex = index,
                 previewParagraphIndex = index,  // 同步預覽索引
+                currentSentences = sentences,
+                currentSentenceIndex = 0,
                 isPlaying = false
             )
         }
@@ -202,18 +211,21 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     
     fun startPlay() {
         _uiState.update { currentState ->
-            currentState.copy(isPlaying = true)
+            currentState.copy(
+                isPlaying = true,
+                currentSentenceIndex = 0 // 重置句子索引
+            )
         }
     }
 
     fun moveToPrevious() {
         _uiState.update { currentState ->
-            val newIndex = if (currentState.previewParagraphIndex > 0) {
-                currentState.previewParagraphIndex - 1
+            val newSentenceIndex = if (currentState.currentSentenceIndex > 0) {
+                currentState.currentSentenceIndex - 1
             } else {
                 0
             }
-            currentState.copy(previewParagraphIndex = newIndex)
+            currentState.copy(currentSentenceIndex = newSentenceIndex)
         }
     }
 
@@ -258,6 +270,8 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 fullTextContent = text.fullContent,
                 currentParagraphIndex = 0,
                 previewParagraphIndex = 0,
+                currentSentences = emptyList(),
+                currentSentenceIndex = 0,
                 isPlaying = false
             )
         }
@@ -275,6 +289,28 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         _uiState.update { currentState ->
             currentState.copy(paragraphs = newParagraphs)
         }
+    }
+
+    // 將段落切分為句子
+    private fun splitParagraphIntoSentences(paragraph: String): List<String> {
+        // 獲取啟用的標點符號
+        val activeSymbols = punctuationList.value
+            .filter { it.isChecked }
+            .map { it.symbol }
+        
+        if (activeSymbols.isEmpty()) {
+            // 如果沒有啟用的符號，返回整個段落作為單一句子
+            return listOf(paragraph)
+        }
+        
+        // 轉義符號並構建正則表達式
+        val escapedSymbols = activeSymbols.joinToString("") { Regex.escape(it) }
+        val regex = "(?<=[$escapedSymbols])".toRegex()
+        
+        // 使用正則切分句子
+        return paragraph.split(regex)
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
     }
 
     // 切換符號的選中狀態
