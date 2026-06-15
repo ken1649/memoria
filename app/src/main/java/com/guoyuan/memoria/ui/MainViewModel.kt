@@ -2,6 +2,8 @@ package com.guoyuan.memoria.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.guoyuan.memoria.data.AppDao
+import com.guoyuan.memoria.data.TextEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,9 +13,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
-class MainViewModel : ViewModel() {
+class MainViewModel(private val appDao: AppDao) : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
+    
+    private val _allTexts = MutableStateFlow<List<TextEntity>>(emptyList())
+    val allTexts: StateFlow<List<TextEntity>> = _allTexts.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            loadAllTexts()
+        }
+    }
+    
+    private suspend fun loadAllTexts() {
+        withContext(Dispatchers.IO) {
+            _allTexts.value = appDao.getAllTexts()
+        }
+    }
 
     fun updateMode(newMode: AppMode) {
         _uiState.update { currentState ->
@@ -21,9 +38,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun updateText(content: String) {
+    fun updateText(title: String, content: String) {
         _uiState.update { currentState ->
             currentState.copy(
+                currentTextTitle = title,
                 fullTextContent = content,
                 isLoading = false
             )
@@ -44,7 +62,7 @@ class MainViewModel : ViewModel() {
                 val text = withContext(Dispatchers.IO) {
                     Jsoup.connect(url).get().text()
                 }
-                updateText(text)
+                updateText("網頁內容", text)
             } catch (e: Exception) {
                 e.printStackTrace()
                 setLoading(false)
@@ -66,6 +84,20 @@ class MainViewModel : ViewModel() {
             )
         }
     }
+    
+    fun selectText(text: TextEntity) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentMode = AppMode.READ,
+                currentTextTitle = text.title,
+                fullTextContent = text.fullContent,
+                currentParagraphIndex = 0,
+                previewParagraphIndex = 0,
+                isPlaying = false
+            )
+        }
+        splitContentToParagraphs(text.fullContent)
+    }
 
     private fun splitContentToParagraphs(content: String) {
         val newParagraphs = content.split("\n")
@@ -75,5 +107,20 @@ class MainViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(paragraphs = newParagraphs)
         }
+    }
+}
+package com.guoyuan.memoria.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.guoyuan.memoria.data.AppDao
+
+class MainViewModelFactory(private val appDao: AppDao) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MainViewModel(appDao) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

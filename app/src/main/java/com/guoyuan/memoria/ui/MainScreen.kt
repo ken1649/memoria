@@ -6,14 +6,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -24,16 +29,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import androidx.compose.material3.DrawerValue
+import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: MainViewModel = viewModel()) {
+fun MainScreen() {
+    val context = LocalContext.current
+    val appDao = remember { AppDatabase.getDatabase(context).appDao() }
+    val viewModel: MainViewModel = viewModel(factory = MainViewModel.Factory(appDao))
     val uiState by viewModel.uiState.collectAsState()
+    val allTexts by viewModel.allTexts.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -41,10 +52,41 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text(
-                    text = "側邊欄選單 (Status SideView)",
-                    modifier = Modifier.padding(16.dp)
+                // 新增文本按鈕
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                    label = { Text("新增文本") },
+                    selected = false,
+                    onClick = {
+                        viewModel.updateMode(AppMode.EDIT)
+                        scope.launch { drawerState.close() }
+                    }
                 )
+                
+                Divider()
+                
+                // 文章列表
+                if (allTexts.isEmpty()) {
+                    Text(
+                        text = "目前沒有文本，請點擊上方新增",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                } else {
+                    LazyColumn {
+                        items(allTexts) { textEntity ->
+                            Text(
+                                text = textEntity.title,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .clickable {
+                                        viewModel.selectText(textEntity)
+                                        scope.launch { drawerState.close() }
+                                    }
+                            )
+                        }
+                    }
+                }
             }
         }
     ) {

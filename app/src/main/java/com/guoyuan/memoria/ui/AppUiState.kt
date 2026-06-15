@@ -13,5 +13,6 @@ data class AppUiState(
     val isPlaying: Boolean = false,
     val paragraphs: List<String> = emptyList(),
     val fullTextContent: String = "",
+    val currentTextTitle: String = "",
     val isLoading: Boolean = false
 )
