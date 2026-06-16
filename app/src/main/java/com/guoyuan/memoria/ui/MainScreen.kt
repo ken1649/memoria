@@ -1,6 +1,9 @@
 package com.guoyuan.memoria.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.DraggableState
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -674,7 +677,7 @@ private fun ManagementListItem(
         Text(
             text = item.title,
             modifier = Modifier.weight(1f),
-            style = Modifier.size(24.dp)
+            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
         )
 
         if (isManagementMode && !isFavorite) {
