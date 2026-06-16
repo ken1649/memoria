@@ -130,6 +130,18 @@ fun MainScreen() {
                         }
                     },
                     actions = {
+                        if (uiState.currentMode == AppMode.READ && !uiState.isEditingReadingMode) {
+                            IconButton(onClick = { viewModel.toggleReadingEditMode() }) {
+                                Icon(Icons.Filled.Edit, contentDescription = "編輯內容")
+                            }
+                        } else if (uiState.currentMode == AppMode.READ && uiState.isEditingReadingMode) {
+                            IconButton(onClick = {
+                                viewModel.updateReadingContent(uiState.fullTextContent)
+                            }) {
+                                Icon(Icons.Filled.Check, contentDescription = "儲存編輯")
+                            }
+                        }
+                        
                         IconButton(onClick = { viewModel.openSettings() }) {
                             Icon(Icons.Filled.Settings, contentDescription = "設定")
                         }
@@ -234,45 +246,62 @@ fun MainScreen() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .verticalScroll(androidx.compose.foundation.rememberScrollState())
                     ) {
-                        // 加入偵錯日誌
-                        val takeCount = uiState.currentSentenceIndex + 1
-                        val sentenceText = if (uiState.currentSentences.isNotEmpty()) {
-                            uiState.currentSentences.take(takeCount).joinToString("")
+                        if (uiState.currentMode == AppMode.READ && uiState.isEditingReadingMode) {
+                            // 編輯模式：顯示可編輯的文字框
+                            OutlinedTextField(
+                                value = uiState.fullTextContent,
+                                onValueChange = { viewModel.updateEditContent(it) },
+                                modifier = Modifier.fillMaxSize(),
+                                textStyle = TextStyle(fontSize = androidx.compose.material3.MaterialTheme.typography.bodyLarge.fontSize),
+                                maxLines = Int.MAX_VALUE
+                            )
                         } else {
-                            ""
-                        }
-                        
-                        val displayText = if (uiState.currentMode == AppMode.PLAY) {
-                            if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
-                                "全文背誦完畢！"
-                            } else if (uiState.isPlaying) {
-                                sentenceText
-                            } else {
-                                "${uiState.currentParagraphIndex + 1}."
+                            // 非編輯模式：顯示文字內容
+                            androidx.compose.foundation.layout.Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                            ) {
+                                // 加入偵錯日誌
+                                val takeCount = uiState.currentSentenceIndex + 1
+                                val sentenceText = if (uiState.currentSentences.isNotEmpty()) {
+                                    uiState.currentSentences.take(takeCount).joinToString("")
+                                } else {
+                                    ""
+                                }
+                                        
+                                val displayText = if (uiState.currentMode == AppMode.PLAY) {
+                                    if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
+                                        "全文背誦完畢！"
+                                    } else if (uiState.isPlaying) {
+                                        sentenceText
+                                    } else {
+                                        "${uiState.currentParagraphIndex + 1}."
+                                    }
+                                } else {
+                                    // 閱讀模式顯示完整內容
+                                    if (uiState.paragraphs.isNotEmpty()) {
+                                        uiState.paragraphs.joinToString("\n")
+                                    } else {
+                                        uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
+                                    }
+                                }
+                                        
+                                // 輸出詳細偵錯日誌
+                                Log.d("MemoriaUI", "【UI 刷新】isPlaying = ${uiState.isPlaying}, 索引 = ${uiState.currentSentenceIndex}, " +
+                                    "預計裁切數量 = $takeCount, 裁切出文字 = '$sentenceText', " +
+                                    "最終畫面顯示 = '$displayText'")
+                                        
+                                Text(
+                                    text = displayText,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Start
+                                )
                             }
-                        } else {
-                            // 閱讀模式顯示完整內容
-                            if (uiState.paragraphs.isNotEmpty()) {
-                                uiState.paragraphs.joinToString("\n")
-                            } else {
-                                uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
-                            }
                         }
-                        
-                        // 輸出詳細偵錯日誌
-                        Log.d("MemoriaUI", "【UI 刷新】isPlaying = ${uiState.isPlaying}, 索引 = ${uiState.currentSentenceIndex}, " +
-                            "預計裁切數量 = $takeCount, 裁切出文字 = '$sentenceText', " +
-                            "最終畫面顯示 = '$displayText'")
-                        
-                        Text(
-                            text = displayText,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Start
-                        )
                     }
-                    
+                            
                     // 只在播放模式顯示控制元件
                     if (uiState.currentMode == AppMode.PLAY) {
                         Spacer(modifier = Modifier.height(16.dp))
@@ -289,7 +318,7 @@ fun MainScreen() {
                             valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
                             modifier = Modifier.fillMaxWidth()
                         )
-                        
+                                
                         // 播放控制按鈕組
                         Row(
                             modifier = Modifier
@@ -307,7 +336,7 @@ fun MainScreen() {
                                     contentDescription = "清空"
                                 )
                             }
-                            
+                                    
                             // 上一步按鈕
                             IconButton(
                                 onClick = { viewModel.moveToPrevious() },
@@ -319,7 +348,7 @@ fun MainScreen() {
                                     contentDescription = "上一步"
                                 )
                             }
-                            
+                                    
                             // 播放按鈕
                             IconButton(
                                 onClick = {
@@ -336,7 +365,7 @@ fun MainScreen() {
                                 )
                             }
                         }
-                        
+                                
                         Spacer(modifier = Modifier.height(80.dp)) // 避免FAB遮擋
                     }
                 }

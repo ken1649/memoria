@@ -323,6 +323,22 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
     
+    fun toggleReadingEditMode() {
+        _uiState.update { currentState ->
+            currentState.copy(isEditingReadingMode = !currentState.isEditingReadingMode)
+        }
+    }
+    
+    fun updateReadingContent(newContent: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                fullTextContent = newContent,
+                isEditingReadingMode = false
+            )
+        }
+        splitContentToParagraphs(newContent)
+    }
+    
     fun selectText(text: TextEntity) {
         _uiState.update { currentState ->
             currentState.copy(
