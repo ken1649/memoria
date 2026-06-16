@@ -239,7 +239,7 @@ fun MainScreen() {
                         val displayText = if (uiState.currentMode == AppMode.PLAY) {
                             if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
                                 "全文背誦完畢！"
-                            } else if (uiState.isPlaying) {
+                            } else if (uiState.isPlaying && uiState.currentSentences.isNotEmpty()) {
                                 // 強制顯示課文：從第0句到當前索引的句子
                                 uiState.currentSentences.take(uiState.currentSentenceIndex + 1).joinToString("")
                             } else {
