@@ -125,7 +125,7 @@ fun MainScreen() {
                     title = { 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(uiState.currentTextTitle.ifEmpty { "Memoria" })
-                            if (uiState.currentMode == AppMode.READ) {
+                            if (uiState.isEditingReadingMode) {
                                 IconButton(
                                     onClick = { viewModel.openEditTitleDialog() },
                                     modifier = Modifier.size(24.dp)
