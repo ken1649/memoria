@@ -222,67 +222,63 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         val sentences = splitParagraphIntoSentences(paragraph)
         
         _uiState.update { currentState ->
-            // 跳段時保持播放狀態
             currentState.copy(
                 currentParagraphIndex = index,
                 previewParagraphIndex = index,  // 同步預覽索引
                 currentSentences = sentences,
                 currentSentenceIndex = 0,
-                isPlaying = currentState.isPlaying // 保持原有播放狀態
+                isPlaying = false // 重置播放狀態
             )
         }
     }
     
-    fun startPlay() {
+    fun handlePlayButtonClick() {
         _uiState.update { currentState ->
-            // 獲取當前段落的文本
-            val paragraph = if (currentState.currentParagraphIndex < currentState.paragraphs.size) {
-                currentState.paragraphs[currentState.currentParagraphIndex]
+            if (!currentState.isPlaying) {
+                // 第一次按下播放：啟動播放狀態，重設索引為0
+                val paragraph = if (currentState.currentParagraphIndex < currentState.paragraphs.size) {
+                    currentState.paragraphs[currentState.currentParagraphIndex]
+                } else ""
+                val sentences = splitParagraphIntoSentences(paragraph)
+                currentState.copy(
+                    currentSentences = sentences,
+                    currentSentenceIndex = 0,
+                    isPlaying = true
+                )
             } else {
-                ""
-            }
-            // 切分句子
-            val sentences = splitParagraphIntoSentences(paragraph)
-            currentState.copy(
-                currentSentences = sentences,
-                currentSentenceIndex = 0,
-                isPlaying = true
-            )
-        }
-    }
-
-    fun moveToNextSentence() {
-        _uiState.update { currentState ->
-            val nextIndex = currentState.currentSentenceIndex + 1
-            if (nextIndex < currentState.currentSentences.size) {
-                currentState.copy(currentSentenceIndex = nextIndex)
-            } else {
-                // 已到段落结尾，检查是否有下一段落
-                if (currentState.currentParagraphIndex + 1 < currentState.paragraphs.size) {
-                    val newParagraphIndex = currentState.currentParagraphIndex + 1
-                    val newParagraph = currentState.paragraphs[newParagraphIndex]
-                    val newSentences = splitParagraphIntoSentences(newParagraph)
-                    currentState.copy(
-                        currentParagraphIndex = newParagraphIndex,
-                        previewParagraphIndex = newParagraphIndex,
-                        currentSentences = newSentences,
-                        currentSentenceIndex = 0
-                    )
+                // 已經在播放中，前進下一句
+                val nextIndex = currentState.currentSentenceIndex + 1
+                if (nextIndex < currentState.currentSentences.size) {
+                    currentState.copy(currentSentenceIndex = nextIndex)
                 } else {
-                    // 已經是最後一段，循環回第一段
-                    val newParagraphIndex = 0
-                    val newParagraph = currentState.paragraphs[newParagraphIndex]
-                    val newSentences = splitParagraphIntoSentences(newParagraph)
-                    currentState.copy(
-                        currentParagraphIndex = newParagraphIndex,
-                        previewParagraphIndex = newParagraphIndex,
-                        currentSentences = newSentences,
-                        currentSentenceIndex = 0
-                    )
+                    // 已到段落结尾，检查是否有下一段落
+                    if (currentState.currentParagraphIndex + 1 < currentState.paragraphs.size) {
+                        val newParagraphIndex = currentState.currentParagraphIndex + 1
+                        val newParagraph = currentState.paragraphs[newParagraphIndex]
+                        val newSentences = splitParagraphIntoSentences(newParagraph)
+                        currentState.copy(
+                            currentParagraphIndex = newParagraphIndex,
+                            previewParagraphIndex = newParagraphIndex,
+                            currentSentences = newSentences,
+                            currentSentenceIndex = 0
+                        )
+                    } else {
+                        // 已經是最後一段，循環回第一段
+                        val newParagraphIndex = 0
+                        val newParagraph = currentState.paragraphs[newParagraphIndex]
+                        val newSentences = splitParagraphIntoSentences(newParagraph)
+                        currentState.copy(
+                            currentParagraphIndex = newParagraphIndex,
+                            previewParagraphIndex = newParagraphIndex,
+                            currentSentences = newSentences,
+                            currentSentenceIndex = 0
+                        )
+                    }
                 }
             }
         }
     }
+
 
     fun moveToPrevious() {
         _uiState.update { currentState ->

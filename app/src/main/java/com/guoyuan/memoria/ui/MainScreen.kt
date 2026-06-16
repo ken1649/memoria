@@ -309,14 +309,10 @@ fun MainScreen() {
                                 )
                             }
                             
-                            // 播放/下一句按鈕
+                            // 播放按鈕
                             IconButton(
                                 onClick = {
-                                    if (uiState.isPlaying) {
-                                        viewModel.moveToNextSentence()
-                                    } else {
-                                        viewModel.startPlay()
-                                    }
+                                    viewModel.handlePlayButtonClick()
                                 },
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp)
@@ -324,7 +320,7 @@ fun MainScreen() {
                             ) {
                                 Icon(
                                     imageVector = androidx.compose.material.icons.Icons.Default.PlayArrow,
-                                    contentDescription = if (uiState.isPlaying) "下一句" else "播放",
+                                    contentDescription = "播放",
                                     modifier = Modifier.size(36.dp) // 放大圖標
                                 )
                             }
