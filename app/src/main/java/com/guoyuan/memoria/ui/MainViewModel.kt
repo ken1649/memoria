@@ -328,6 +328,54 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             currentState.copy(isEditingReadingMode = !currentState.isEditingReadingMode)
         }
     }
+
+    fun toggleSidebarManagementMode() {
+        _uiState.update { currentState ->
+            currentState.copy(isSidebarManagementMode = !currentState.isSidebarManagementMode)
+        }
+    }
+
+    fun toggleFavorite(itemId: Int) {
+        viewModelScope.launch {
+            val currentFavorite = _uiState.value.favoriteTextId
+            val newFavorite = if (currentFavorite == itemId) null else itemId
+            
+            withContext(Dispatchers.IO) {
+                appDao.clearAllFavorites()
+                if (newFavorite != null) {
+                    appDao.setFavorite(newFavorite, true)
+                }
+            }
+            
+            _uiState.update { currentState ->
+                currentState.copy(favoriteTextId = newFavorite)
+            }
+            loadAllTexts()
+        }
+    }
+
+    fun deleteText(itemId: Int) {
+        viewModelScope.launch {
+            if (_uiState.value.currentTextId == itemId) {
+                val firstText = appDao.getAllTexts().firstOrNull()
+                firstText?.let { selectText(it) }
+            }
+            
+            withContext(Dispatchers.IO) {
+                appDao.deleteText(itemId)
+            }
+            loadAllTexts()
+        }
+    }
+
+    fun updateItemsOrder(reorderedList: List<TextEntity>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            reorderedList.forEachIndexed { index, item ->
+                appDao.updateDisplayOrder(item.id, index)
+            }
+            loadAllTexts()
+        }
+    }
     
     fun openEditTitleDialog() {
         _uiState.update { currentState ->
