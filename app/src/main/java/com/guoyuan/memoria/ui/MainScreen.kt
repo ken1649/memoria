@@ -60,6 +60,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Alignment
 import android.util.Log
+import androidx.compose.material.icons.filled.Done
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -138,7 +139,7 @@ fun MainScreen() {
                             IconButton(onClick = {
                                 viewModel.updateReadingContent(uiState.fullTextContent)
                             }) {
-                                Icon(Icons.Filled.Check, contentDescription = "儲存編輯")
+                                Icon(Icons.Filled.Done, contentDescription = "儲存編輯")
                             }
                         }
                         
