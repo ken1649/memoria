@@ -87,6 +87,9 @@ fun MainScreen() {
                     label = { Text("新增文本") },
                     selected = false,
                     onClick = {
+                        // 新增時強制清空輸入欄位
+                        viewModel.updateEditTitle("")
+                        viewModel.updateEditContent("")
                         viewModel.updateMode(AppMode.EDIT)
                         scope.launch { drawerState.close() }
                     }
