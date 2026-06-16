@@ -240,10 +240,10 @@ fun MainScreen() {
                             if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
                                 "全文背誦完畢！"
                             } else if (uiState.isPlaying) {
-                                // 正在播放中：累加顯示目前已解鎖的句子
+                                // 強制顯示課文：從第0句到當前索引的句子
                                 uiState.currentSentences.take(uiState.currentSentenceIndex + 1).joinToString("")
                             } else {
-                                // 未播放/滑動中/等待中：顯示極簡序號
+                                // 未播放或滑動中：顯示純數字序號
                                 "${uiState.currentParagraphIndex + 1}."
                             }
                         } else {
