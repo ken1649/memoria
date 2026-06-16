@@ -155,6 +155,8 @@ fun MainScreen() {
 
                         // 一般項目區
                         items(regularItems, key = { it.id }) { textEntity ->
+                            var isDragging by remember { mutableStateOf(false) }
+                            
                             ManagementListItem(
                                 item = textEntity,
                                 isManagementMode = uiState.isSidebarManagementMode,
@@ -166,7 +168,17 @@ fun MainScreen() {
                                         viewModel.selectText(textEntity)
                                         scope.launch { drawerState.close() }
                                     }
-                                }
+                                },
+                                modifier = Modifier
+                                    .draggable(
+                                        enabled = uiState.isSidebarManagementMode,
+                                        onDragStarted = { isDragging = true },
+                                        onDragStopped = {
+                                            isDragging = false
+                                            viewModel.updateItemsOrder(regularItems)
+                                        }
+                                    )
+                                    .alpha(if (isDragging) 0.5f else 1f)
                             )
                         }
                     }
@@ -626,10 +638,11 @@ private fun ManagementListItem(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
     onDelete: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)
             .clickable(enabled = !isManagementMode) { onClick() },
