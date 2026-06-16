@@ -173,14 +173,15 @@ fun MainScreen() {
                                     }
                                 },
                                 modifier = Modifier
-                                    .draggable(
-                                        enabled = uiState.isSidebarManagementMode,
-                                        onDragStarted = { isDragging = true },
-                                        onDragStopped = {
-                                            isDragging = false
-                                            viewModel.updateItemsOrder(regularItems)
-                                        }
-                                    )
+                                    .pointerInput(Unit) {
+                                        detectDragGesturesAfterLongPress(
+                                            onDragStart = { isDragging = true },
+                                            onDragEnd = { 
+                                                isDragging = false
+                                                viewModel.updateItemsOrder(regularItems)
+                                            }
+                                        )
+                                    }
                                     .alpha(if (isDragging) 0.5f else 1f)
                             )
                         }
