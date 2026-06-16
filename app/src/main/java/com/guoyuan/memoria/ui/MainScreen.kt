@@ -178,10 +178,12 @@ fun MainScreen() {
                                     .pointerInput(Unit) {
                                         detectDragGesturesAfterLongPress(
                                             onDragStart = { isDragging = true },
+                                            onDrag = { _, _ -> }, // 空lambda處理拖曳事件
                                             onDragEnd = { 
                                                 isDragging = false
                                                 viewModel.updateItemsOrder(regularItems)
-                                            }
+                                            },
+                                            onDragCancel = { isDragging = false }
                                         )
                                     }
                                     .alpha(if (isDragging) 0.5f else 1f)
