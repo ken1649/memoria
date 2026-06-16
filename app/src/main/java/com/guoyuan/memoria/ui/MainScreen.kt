@@ -137,7 +137,8 @@ fun MainScreen() {
                             }
                         } else if (uiState.currentMode == AppMode.READ && uiState.isEditingReadingMode) {
                             IconButton(onClick = {
-                                viewModel.updateReadingContent(uiState.fullTextContent)
+                                // 保存後自動退出編輯模式
+                                viewModel.toggleReadingEditMode()
                             }) {
                                 Icon(Icons.Filled.Done, contentDescription = "儲存編輯")
                             }
@@ -248,21 +249,45 @@ fun MainScreen() {
                             .fillMaxWidth()
                             .weight(1f)
                     ) {
-                        if (uiState.currentMode == AppMode.READ && uiState.isEditingReadingMode) {
-                            // 編輯模式：顯示可編輯的文字框
-                            OutlinedTextField(
-                                value = uiState.fullTextContent,
-                                onValueChange = { viewModel.updateEditContent(it) },
-                                modifier = Modifier.fillMaxSize(),
-                                textStyle = TextStyle(fontSize = androidx.compose.material3.MaterialTheme.typography.bodyLarge.fontSize),
-                                maxLines = Int.MAX_VALUE
-                            )
+                        if (uiState.currentMode == AppMode.READ) {
+                            var editableText by remember(uiState.isEditingReadingMode) { 
+                                mutableStateOf(uiState.fullTextContent) 
+                            }
+                            
+                            if (uiState.isEditingReadingMode) {
+                                // 編輯狀態：原地變身為輸入框
+                                OutlinedTextField(
+                                    value = editableText,
+                                    onValueChange = {
+                                        editableText = it
+                                        viewModel.updateEditContent(it) // 即時更新ViewModel
+                                    },
+                                    modifier = Modifier.fillMaxSize(),
+                                    textStyle = TextStyle(fontSize = androidx.compose.material3.MaterialTheme.typography.bodyLarge.fontSize),
+                                    maxLines = Int.MAX_VALUE
+                                )
+                            } else {
+                                // 唯讀狀態：維持原本優雅的 Text 渲染
+                                val displayText = if (uiState.paragraphs.isNotEmpty()) {
+                                    uiState.paragraphs.joinToString("\n")
+                                } else {
+                                    uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
+                                }
+                                
+                                Text(
+                                    text = displayText,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .verticalScroll(rememberScrollState()),
+                                    textAlign = TextAlign.Start
+                                )
+                            }
                         } else {
-                            // 非編輯模式：顯示文字內容
+                            // 播放模式顯示
                             androidx.compose.foundation.layout.Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                                    .verticalScroll(rememberScrollState())
                             ) {
                                 // 加入偵錯日誌
                                 val takeCount = uiState.currentSentenceIndex + 1
@@ -281,12 +306,7 @@ fun MainScreen() {
                                         "${uiState.currentParagraphIndex + 1}."
                                     }
                                 } else {
-                                    // 閱讀模式顯示完整內容
-                                    if (uiState.paragraphs.isNotEmpty()) {
-                                        uiState.paragraphs.joinToString("\n")
-                                    } else {
-                                        uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
-                                    }
+                                    uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
                                 }
                                         
                                 // 輸出詳細偵錯日誌

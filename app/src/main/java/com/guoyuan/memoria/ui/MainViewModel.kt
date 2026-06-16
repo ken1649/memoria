@@ -331,10 +331,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     
     fun updateReadingContent(newContent: String) {
         _uiState.update { currentState ->
-            currentState.copy(
-                fullTextContent = newContent,
-                isEditingReadingMode = false
-            )
+            currentState.copy(fullTextContent = newContent)
         }
         splitContentToParagraphs(newContent)
     }
