@@ -245,8 +245,16 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                         currentSentenceIndex = 0
                     )
                 } else {
-                    // 已經是最後一段，停止播放並顯示完成
-                    currentState.copy(isPlaying = false)
+                    // 已經是最後一段，循環回第一段
+                    val newParagraphIndex = 0
+                    val newParagraph = currentState.paragraphs[newParagraphIndex]
+                    val newSentences = splitParagraphIntoSentences(newParagraph)
+                    currentState.copy(
+                        currentParagraphIndex = newParagraphIndex,
+                        previewParagraphIndex = newParagraphIndex,
+                        currentSentences = newSentences,
+                        currentSentenceIndex = 0
+                    )
                 }
             }
         }
