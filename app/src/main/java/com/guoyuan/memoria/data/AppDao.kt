@@ -15,6 +15,21 @@ interface AppDao {
     @Query("SELECT * FROM texts")
     suspend fun getAllTexts(): List<TextEntity>
 
+    @Query("UPDATE texts SET is_favorite = 0")
+    suspend fun clearAllFavorites()
+
+    @Query("UPDATE texts SET is_favorite = :isFavorite WHERE id = :id")
+    suspend fun setFavorite(id: Int, isFavorite: Boolean)
+
+    @Query("UPDATE texts SET display_order = :order WHERE id = :id")
+    suspend fun updateDisplayOrder(id: Int, order: Int)
+
+    @Delete
+    suspend fun deleteText(text: TextEntity)
+
+    @Query("DELETE FROM texts WHERE id = :id")
+    suspend fun deleteText(id: Int)
+
     // PunctuationEntity operations
     @Insert
     suspend fun insertPunctuation(punctuation: PunctuationEntity)
