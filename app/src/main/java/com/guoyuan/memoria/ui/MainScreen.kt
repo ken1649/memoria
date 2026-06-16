@@ -236,14 +236,20 @@ fun MainScreen() {
                             .weight(1f)
                             .verticalScroll(androidx.compose.foundation.rememberScrollState())
                     ) {
+                        // 加入偵錯日誌
+                        val takeCount = uiState.currentSentenceIndex + 1
+                        val sentenceText = if (uiState.currentSentences.isNotEmpty()) {
+                            uiState.currentSentences.take(takeCount).joinToString("")
+                        } else {
+                            ""
+                        }
+                        
                         val displayText = if (uiState.currentMode == AppMode.PLAY) {
                             if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
                                 "全文背誦完畢！"
                             } else if (uiState.isPlaying) {
-                                // 強制顯示課文：從第0句到當前索引的句子
-                                uiState.currentSentences.take(uiState.currentSentenceIndex + 1).joinToString("")
+                                sentenceText
                             } else {
-                                // 未播放或滑動中：顯示純數字序號
                                 "${uiState.currentParagraphIndex + 1}."
                             }
                         } else {
@@ -254,6 +260,11 @@ fun MainScreen() {
                                 uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
                             }
                         }
+                        
+                        // 輸出詳細偵錯日誌
+                        Log.d("MemoriaUI", "【UI 刷新】isPlaying = ${uiState.isPlaying}, 索引 = ${uiState.currentSentenceIndex}, " +
+                            "預計裁切數量 = $takeCount, 裁切出文字 = '$sentenceText', " +
+                            "最終畫面顯示 = '$displayText'")
                         
                         Text(
                             text = displayText,
