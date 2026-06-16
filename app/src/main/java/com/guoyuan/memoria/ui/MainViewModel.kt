@@ -1,6 +1,7 @@
 package com.guoyuan.memoria.ui
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -230,18 +231,16 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 isPlaying = false // 重置播放狀態
             )
         }
+        Log.d("MemoriaDebug", "確認段落選擇: 段落索引=$index, 句子數量=${sentences.size}")
     }
     
     fun handlePlayButtonClick() {
+        Log.d("MemoriaDebug", "點擊播放鍵 -> 當前 isPlaying = ${_uiState.value.isPlaying}, 句子總數 = ${_uiState.value.currentSentences.size}, 當前索引 = ${_uiState.value.currentSentenceIndex}")
+        
         _uiState.update { currentState ->
             if (!currentState.isPlaying) {
-                // 第一次按下播放：啟動播放狀態，重設索引為0
-                val paragraph = if (currentState.currentParagraphIndex < currentState.paragraphs.size) {
-                    currentState.paragraphs[currentState.currentParagraphIndex]
-                } else ""
-                val sentences = splitParagraphIntoSentences(paragraph)
+                // 第一次按下播放：直接使用已準備好的句子列表
                 currentState.copy(
-                    currentSentences = sentences,
                     currentSentenceIndex = 0,
                     isPlaying = true
                 )
