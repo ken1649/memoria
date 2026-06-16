@@ -238,10 +238,11 @@ fun MainScreen() {
                     ) {
                         val displayText = if (uiState.currentMode == AppMode.PLAY) {
                             if (uiState.isPlaying && uiState.currentSentences.isNotEmpty()) {
-                                // 正在播放且有句子，顯示當前句子
-                                uiState.currentSentences.getOrNull(uiState.currentSentenceIndex) ?: "背誦完畢"
+                                // 取出從 0 到當前 index 的所有句子，並直接拼接（因為句尾已自帶標點）
+                                uiState.currentSentences.take(uiState.currentSentenceIndex + 1).joinToString("")
+                            } else if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
+                                "全文背誦完畢！"
                             } else {
-                                // 未播放或句子列表為空，顯示提示
                                 "請按下播放鍵開始背誦"
                             }
                         } else {

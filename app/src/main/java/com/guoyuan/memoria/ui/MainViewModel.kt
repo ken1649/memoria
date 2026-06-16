@@ -233,8 +233,21 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             if (nextIndex < currentState.currentSentences.size) {
                 currentState.copy(currentSentenceIndex = nextIndex)
             } else {
-                // 已到段落结尾，停止播放
-                currentState.copy(isPlaying = false)
+                // 已到段落结尾，检查是否有下一段落
+                if (currentState.currentParagraphIndex + 1 < currentState.paragraphs.size) {
+                    val newParagraphIndex = currentState.currentParagraphIndex + 1
+                    val newParagraph = currentState.paragraphs[newParagraphIndex]
+                    val newSentences = splitParagraphIntoSentences(newParagraph)
+                    currentState.copy(
+                        currentParagraphIndex = newParagraphIndex,
+                        previewParagraphIndex = newParagraphIndex,
+                        currentSentences = newSentences,
+                        currentSentenceIndex = 0
+                    )
+                } else {
+                    // 已經是最後一段，停止播放並顯示完成
+                    currentState.copy(isPlaying = false)
+                }
             }
         }
     }
