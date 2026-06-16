@@ -72,6 +72,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
