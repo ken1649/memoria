@@ -329,6 +329,25 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
     
+    fun openEditTitleDialog() {
+        _uiState.update { currentState ->
+            currentState.copy(isEditingTitleDialogVisible = true)
+        }
+    }
+    
+    fun closeEditTitleDialog() {
+        _uiState.update { currentState ->
+            currentState.copy(isEditingTitleDialogVisible = false)
+        }
+    }
+    
+    fun updateTextTitle(newTitle: String) {
+        _uiState.update { currentState ->
+            currentState.copy(currentTextTitle = newTitle)
+        }
+        // 這裡可以擴充資料庫更新邏輯
+    }
+    
     fun updateReadingContent(newContent: String) {
         _uiState.update { currentState ->
             currentState.copy(fullTextContent = newContent)

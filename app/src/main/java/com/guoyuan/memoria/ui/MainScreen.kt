@@ -122,7 +122,23 @@ fun MainScreen() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(uiState.currentTextTitle.ifEmpty { "Memoria" }) },
+                    title = { 
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(uiState.currentTextTitle.ifEmpty { "Memoria" })
+                            if (uiState.currentMode == AppMode.READ) {
+                                IconButton(
+                                    onClick = { viewModel.openEditTitleDialog() },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Edit,
+                                        contentDescription = "編輯標題",
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -394,6 +410,37 @@ fun MainScreen() {
                 }
             }
         }
+    }
+    
+    // 標題編輯對話框
+    if (uiState.isEditingTitleDialogVisible) {
+        var tempTitle by remember { mutableStateOf(uiState.currentTextTitle) }
+        
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { viewModel.closeEditTitleDialog() },
+            title = { Text("修改文本標題") },
+            text = {
+                OutlinedTextField(
+                    value = tempTitle,
+                    onValueChange = { tempTitle = it },
+                    label = { Text("新標題") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.updateTextTitle(tempTitle)
+                    viewModel.closeEditTitleDialog()
+                }) {
+                    Text("儲存")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { viewModel.closeEditTitleDialog() }) {
+                    Text("取消")
+                }
+            }
+        )
     }
 
     // 系統設定總選單
