@@ -268,7 +268,9 @@ fun MainScreen() {
                         Slider(
                             value = uiState.previewParagraphIndex.toFloat(),
                             onValueChange = { newValue ->
-                                viewModel.updatePreviewIndex(newValue.toInt())
+                                val index = newValue.toInt()
+                                viewModel.updateParagraphIndexDuringDrag(index)
+                                viewModel.updatePreviewIndex(index)
                             },
                             onValueChangeFinished = {
                                 viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)

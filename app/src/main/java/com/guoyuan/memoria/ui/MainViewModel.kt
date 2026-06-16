@@ -203,6 +203,15 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             currentState.copy(previewParagraphIndex = index)
         }
     }
+    
+    fun updateParagraphIndexDuringDrag(index: Int) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentParagraphIndex = index,
+                isPlaying = false
+            )
+        }
+    }
 
     fun confirmParagraphSelection(index: Int) {
         // 切分當前段落為句子
