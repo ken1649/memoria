@@ -59,7 +59,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Alignment
-
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
