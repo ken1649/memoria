@@ -20,5 +20,8 @@ data class AppUiState(
     val showSettingsDialog: Boolean = false,
     val showPunctuationDialog: Boolean = false,
     val isEditingReadingMode: Boolean = false,
-    val isEditingTitleDialogVisible: Boolean = false
+    val isEditingTitleDialogVisible: Boolean = false,
+    val isSidebarManagementMode: Boolean = false,
+    val favoriteTextId: Int? = null,
+    val currentTextId: Int? = null
 )
