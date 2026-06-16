@@ -18,5 +18,7 @@ data class AppUiState(
     val currentTextTitle: String = "",
     val isLoading: Boolean = false,
     val showSettingsDialog: Boolean = false,
-    val showPunctuationDialog: Boolean = false
+    val showPunctuationDialog: Boolean = false,
+    val isEditingReadingMode: Boolean = false,
+    val isEditingTitleDialogVisible: Boolean = false
 )
