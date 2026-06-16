@@ -169,7 +169,7 @@ fun MainScreen() {
                 )
             },
             floatingActionButton = {
-                if (uiState.currentMode != AppMode.EDIT) {
+                if (!uiState.isEditingReadingMode && uiState.currentMode != AppMode.EDIT) {
                     FloatingActionButton(
                         onClick = {
                             viewModel.updateMode(
