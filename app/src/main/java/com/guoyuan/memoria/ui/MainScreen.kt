@@ -685,7 +685,7 @@ private fun ManagementListItem(
             Icon(
                 imageVector = Icons.Filled.DragHandle,
                 contentDescription = "拖曳排序",
-                modifier = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                modifier = Modifier.size(24.dp)
             )
         }
     }
