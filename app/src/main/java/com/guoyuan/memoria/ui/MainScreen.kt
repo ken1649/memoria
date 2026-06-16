@@ -63,6 +63,12 @@ import android.util.Log
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.guoyuan.memoria.data.TextEntity
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DragHandle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -636,7 +642,7 @@ private fun ManagementListItem(
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarOutline,
+                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                     contentDescription = "設為最愛",
                     tint = if (isFavorite) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                 )
@@ -655,7 +661,7 @@ private fun ManagementListItem(
         Text(
             text = item.title,
             modifier = Modifier.weight(1f),
-            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+            style = Modifier.size(24.dp)
         )
 
         if (isManagementMode && !isFavorite) {
