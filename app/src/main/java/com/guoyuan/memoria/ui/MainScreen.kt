@@ -97,6 +97,25 @@ fun MainScreen() {
                 
                 Divider()
                 
+                // 模式切換按鈕
+                NavigationDrawerItem(
+                    icon = { 
+                        Icon(
+                            if (uiState.isSidebarManagementMode) Icons.Filled.Close else Icons.Filled.Settings,
+                            contentDescription = null
+                        )
+                    },
+                    label = { 
+                        Text(if (uiState.isSidebarManagementMode) "結束管理" else "編輯列表") 
+                    },
+                    selected = false,
+                    onClick = {
+                        viewModel.toggleSidebarManagementMode()
+                    }
+                )
+
+                Divider()
+                
                 // 文章列表
                 if (allTexts.isEmpty()) {
                     Text(
@@ -104,17 +123,44 @@ fun MainScreen() {
                         modifier = Modifier.padding(16.dp)
                     )
                 } else {
+                    val favoriteItem = allTexts.firstOrNull { it.isFavorite }
+                    val regularItems = allTexts.filterNot { it.isFavorite }
+                        .sortedBy { it.displayOrder }
+
                     LazyColumn {
-                        items(allTexts) { textEntity ->
-                            Text(
-                                text = textEntity.title,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                                    .clickable {
+                        // 最愛項目區
+                        favoriteItem?.let {
+                            item {
+                                ManagementListItem(
+                                    item = it,
+                                    isManagementMode = uiState.isSidebarManagementMode,
+                                    isFavorite = true,
+                                    onToggleFavorite = { viewModel.toggleFavorite(it.id) },
+                                    onDelete = { viewModel.deleteText(it.id) },
+                                    onClick = {
+                                        if (!uiState.isSidebarManagementMode) {
+                                            viewModel.selectText(it)
+                                            scope.launch { drawerState.close() }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
+                        // 一般項目區
+                        items(regularItems, key = { it.id }) { textEntity ->
+                            ManagementListItem(
+                                item = textEntity,
+                                isManagementMode = uiState.isSidebarManagementMode,
+                                isFavorite = false,
+                                onToggleFavorite = { viewModel.toggleFavorite(textEntity.id) },
+                                onDelete = { viewModel.deleteText(textEntity.id) },
+                                onClick = {
+                                    if (!uiState.isSidebarManagementMode) {
                                         viewModel.selectText(textEntity)
                                         scope.launch { drawerState.close() }
                                     }
+                                }
                             )
                         }
                     }
@@ -564,5 +610,61 @@ fun MainScreen() {
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun ManagementListItem(
+    item: TextEntity,
+    isManagementMode: Boolean,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    onDelete: () -> Unit,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .clickable(enabled = !isManagementMode) { onClick() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isManagementMode) {
+            // 最愛按鈕
+            IconButton(
+                onClick = onToggleFavorite,
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarOutline,
+                    contentDescription = "設為最愛",
+                    tint = if (isFavorite) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
+            // 刪除按鈕
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "刪除",
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.error
+                )
+            }
+        }
+
+        Text(
+            text = item.title,
+            modifier = Modifier.weight(1f),
+            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+        )
+
+        if (isManagementMode && !isFavorite) {
+            // 拖曳把手
+            Icon(
+                imageVector = Icons.Filled.DragHandle,
+                contentDescription = "拖曳排序",
+                modifier = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }
