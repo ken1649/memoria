@@ -108,7 +108,21 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
     fun updateMode(newMode: AppMode) {
         _uiState.update { currentState ->
-            currentState.copy(currentMode = newMode)
+            if (newMode == AppMode.PLAY) {
+                // 進入播放模式時自動開始播放
+                val paragraph = if (currentState.currentParagraphIndex < currentState.paragraphs.size) {
+                    currentState.paragraphs[currentState.currentParagraphIndex]
+                } else ""
+                val sentences = splitParagraphIntoSentences(paragraph)
+                currentState.copy(
+                    currentMode = newMode,
+                    currentSentences = sentences,
+                    currentSentenceIndex = 0,
+                    isPlaying = true
+                )
+            } else {
+                currentState.copy(currentMode = newMode)
+            }
         }
     }
 
@@ -199,12 +213,13 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         val sentences = splitParagraphIntoSentences(paragraph)
         
         _uiState.update { currentState ->
+            // 跳段時保持播放狀態
             currentState.copy(
                 currentParagraphIndex = index,
                 previewParagraphIndex = index,  // 同步預覽索引
                 currentSentences = sentences,
                 currentSentenceIndex = 0,
-                isPlaying = false
+                isPlaying = currentState.isPlaying // 保持原有播放狀態
             )
         }
     }

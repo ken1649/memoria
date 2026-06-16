@@ -237,13 +237,13 @@ fun MainScreen() {
                             .verticalScroll(androidx.compose.foundation.rememberScrollState())
                     ) {
                         val displayText = if (uiState.currentMode == AppMode.PLAY) {
-                            if (uiState.isPlaying && uiState.currentSentences.isNotEmpty()) {
+                            if (uiState.currentSentences.isNotEmpty()) {
                                 // 取出從 0 到當前 index 的所有句子，並直接拼接（因為句尾已自帶標點）
                                 uiState.currentSentences.take(uiState.currentSentenceIndex + 1).joinToString("")
                             } else if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
                                 "全文背誦完畢！"
                             } else {
-                                "請按下播放鍵開始背誦"
+                                "" // 沒有句子時顯示空
                             }
                         } else {
                             // 閱讀模式顯示完整內容
