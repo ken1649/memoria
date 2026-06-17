@@ -87,7 +87,10 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.runtime.toMutableStateList
-import java.util.Collections
+import com.burnoutcreations.reorderable.detectReorderAfterLongPress
+import com.burnoutcreations.reorderable.draggingHandle
+import com.burnoutcreations.reorderable.rememberReorderableLazyListState
+import com.burnoutcreations.reorderable.reorderable
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,10 +155,18 @@ fun MainScreen() {
                     val regularItems = allTexts.filterNot { it.isFavorite }
                         .sortedBy { it.displayOrder }
                     val reorderableRegularItems = remember(regularItems) { regularItems.toMutableStateList() }
-                    var draggedIndex by remember { mutableStateOf(-1) }
-                    var dragOffset by remember { mutableStateOf(0f) }
-
-                    LazyColumn {
+                    val reorderableState = rememberReorderableLazyListState(
+                        onMove = { fromIndex, toIndex ->
+                            reorderableRegularItems.add(toIndex, reorderableRegularItems.removeAt(fromIndex))
+                        },
+                        onDragEnd = { viewModel.updateItemsOrder(reorderableRegularItems) }
+                    )
+                    
+                    LazyColumn(
+                        state = reorderableState.listState,
+                        modifier = Modifier
+                            .reorderable(reorderableState)
+                    ) {
                         // 最愛項目區
                         favoriteItem?.let {
                             item {
@@ -199,44 +210,10 @@ fun MainScreen() {
                                             contentDescription = "拖曳排序",
                                             modifier = Modifier
                                                 .size(24.dp)
-                                                .pointerInput(Unit) {
-                                                    detectDragGesturesAfterLongPress(
-                                                        onDragStart = {
-                                                            draggedIndex = index
-                                                        },
-                                                        onDrag = { change, dragAmount ->
-                                                            dragOffset += dragAmount.y
-                                                            change.consume()
-                                                            
-                                                            // 使用固定項目高度60dp計算交換位置
-                                                            val itemHeight = 60
-                                                            val newIndex = (index + dragOffset / itemHeight).toInt().coerceIn(0, reorderableRegularItems.size - 1)
-                                                            
-                                                            if (newIndex != index) {
-                                                                // 安全交換項目位置
-                                                                Collections.swap(reorderableRegularItems, index, newIndex)
-                                                                // 更新索引並保留剩餘位移
-                                                                dragOffset -= (newIndex - index) * itemHeight
-                                                                draggedIndex = newIndex
-                                                            }
-                                                        },
-                                                        onDragEnd = {
-                                                            draggedIndex = -1
-                                                            dragOffset = 0f
-                                                            viewModel.updateItemsOrder(reorderableRegularItems)
-                                                        },
-                                                        onDragCancel = {
-                                                            draggedIndex = -1
-                                                            dragOffset = 0f
-                                                        }
-                                                    )
-                                                }
+                                                .draggingHandle(reorderableState)
                                         )
                                     }
-                                },
-                                modifier = Modifier
-                                    .offset { IntOffset(0, offset.roundToInt()) }
-                                    .alpha(if (draggedIndex == index) 0.5f else 1f)
+                                }
                             )
                         }
                     }
@@ -727,9 +704,7 @@ private fun ManagementListItem(
         Text(
             text = item.title,
             modifier = Modifier
-                .weight(1f)
-                .height(60.dp) // 確保固定高度以準確計算位移
-                .align(Alignment.CenterVertically),
+                .weight(1f),
             style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
         )
         

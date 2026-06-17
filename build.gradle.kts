@@ -4,3 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
 	alias(libs.plugins.ksp) apply false
 }
+
+dependencies {
+    implementation("com.burnoutcreations.reorderable:reorderable:1.0.0")
+}
