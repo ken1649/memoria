@@ -650,6 +650,7 @@ private fun ManagementListItem(
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showFavoriteDialog by remember { mutableStateOf(false) }
     
     Row(
         modifier = modifier
@@ -661,7 +662,7 @@ private fun ManagementListItem(
         if (isManagementMode) {
             // 最愛按鈕
             IconButton(
-                onClick = onToggleFavorite,
+                onClick = { showFavoriteDialog = true },
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
@@ -727,6 +728,42 @@ private fun ManagementListItem(
             },
             dismissButton = {
                 Button(onClick = { showDeleteDialog = false }) {
+                    Text("取消")
+                }
+            }
+        )
+    }
+    
+    // 最愛置頂確認對話框
+    if (showFavoriteDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showFavoriteDialog = false },
+            title = { Text("確認設為最愛置頂") },
+            text = {
+                if (isFavorite) {
+                    Text("確定要取消「${item.title}」的最愛置頂狀態嗎？")
+                } else {
+                    Text("確定要將「${item.title}」設為最愛置頂嗎？（注意：原本的最愛項目將會被自動取代）")
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onToggleFavorite()
+                        showFavoriteDialog = false
+                    }
+                ) {
+                    Text("確定")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showFavoriteDialog = false },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.errorContainer,
+                        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
+                    )
+                ) {
                     Text("取消")
                 }
             }
