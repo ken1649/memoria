@@ -160,6 +160,9 @@ fun MainScreen() {
                     var draggedIndex by remember { mutableStateOf<Int?>(null) }
                     var dragOffset by remember { mutableStateOf(0f) }
                     
+                    // 計算一般項目在 LazyColumn 中的起始索引偏移量
+                    val itemOffset = if (favoriteItem != null) 1 else 0
+                    
                     LazyColumn {
                         // 最愛項目區
                         favoriteItem?.let {
@@ -219,17 +222,21 @@ fun MainScreen() {
                                                             
                                                             // 計算交換閾值 (項目高度約60dp)
                                                             val itemHeight = 60.dp.toPx()
-                                                            val newIndex = (index + dragOffset / itemHeight).toInt()
+                                                            val newAbsoluteIndex = (index + dragOffset / itemHeight).toInt()
+                                                            // 轉換為相對索引（減去偏移量）
+                                                            val newRelativeIndex = newAbsoluteIndex
                                                             
                                                             // 嚴格邊界檢查：確保新舊索引都在合法範圍內
-                                                            if (newIndex in reorderableRegularItems.indices && 
-                                                                newIndex != index &&
+                                                            if (newRelativeIndex in reorderableRegularItems.indices && 
+                                                                newRelativeIndex != index &&
                                                                 index in reorderableRegularItems.indices
                                                             ) {
                                                                 // 安全交換項目位置
-                                                                Collections.swap(reorderableRegularItems, index, newIndex)
-                                                                draggedIndex = newIndex
-                                                                dragOffset = 0f
+                                                                Collections.swap(reorderableRegularItems, index, newRelativeIndex)
+                                                                // 更新拖曳項目的索引為新位置
+                                                                draggedIndex = newRelativeIndex
+                                                                // 調整位移量，保持項目跟隨手指
+                                                                dragOffset -= (newRelativeIndex - index) * itemHeight
                                                             }
                                                         },
                                                         onDragEnd = {
