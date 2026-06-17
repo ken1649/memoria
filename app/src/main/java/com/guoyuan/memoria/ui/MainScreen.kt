@@ -691,7 +691,10 @@ private fun ManagementListItem(
                 )
             }
             
-            if (!isFavorite) {
+            // 為最愛項目添加空白佔位符，與非最愛項目的拖拉把手寬度一致
+            if (isFavorite) {
+                Spacer(modifier = Modifier.size(24.dp))
+            } else {
                 // 拖曳把手 (僅限非最愛項目)
                 Icon(
                     imageVector = Icons.Filled.DragHandle,
