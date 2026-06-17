@@ -87,6 +87,7 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.runtime.toMutableStateList
+import java.util.Collections
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -207,14 +208,16 @@ fun MainScreen() {
                                                             dragOffset += dragAmount.y
                                                             change.consume()
                                                             
-                                                            // 檢查是否需要交換項目位置
-                                                            val overItemIndex = (index + dragOffset / 60).toInt()
-                                                            if (overItemIndex in reorderableRegularItems.indices && overItemIndex != index) {
-                                                                val targetItem = reorderableRegularItems[overItemIndex]
-                                                                reorderableRegularItems.removeAt(index)
-                                                                reorderableRegularItems.add(overItemIndex, textEntity)
-                                                                draggedIndex = overItemIndex
-                                                                dragOffset = 0f
+                                                            // 使用固定項目高度60dp計算交換位置
+                                                            val itemHeight = 60
+                                                            val newIndex = (index + dragOffset / itemHeight).toInt().coerceIn(0, reorderableRegularItems.size - 1)
+                                                            
+                                                            if (newIndex != index) {
+                                                                // 安全交換項目位置
+                                                                Collections.swap(reorderableRegularItems, index, newIndex)
+                                                                // 更新索引並保留剩餘位移
+                                                                dragOffset -= (newIndex - index) * itemHeight
+                                                                draggedIndex = newIndex
                                                             }
                                                         },
                                                         onDragEnd = {
@@ -723,7 +726,10 @@ private fun ManagementListItem(
 
         Text(
             text = item.title,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .height(60.dp) // 確保固定高度以準確計算位移
+                .align(Alignment.CenterVertically),
             style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
         )
         
