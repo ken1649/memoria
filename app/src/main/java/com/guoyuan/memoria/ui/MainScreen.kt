@@ -87,10 +87,9 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.runtime.toMutableStateList
-import com.burnoutcreations.reorderable.detectReorderAfterLongPress
-import com.burnoutcreations.reorderable.draggingHandle
-import com.burnoutcreations.reorderable.rememberReorderableLazyListState
-import com.burnoutcreations.reorderable.reorderable
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -155,18 +154,10 @@ fun MainScreen() {
                     val regularItems = allTexts.filterNot { it.isFavorite }
                         .sortedBy { it.displayOrder }
                     val reorderableRegularItems = remember(regularItems) { regularItems.toMutableStateList() }
-                    val reorderableState = rememberReorderableLazyListState(
-                        onMove = { fromIndex, toIndex ->
-                            reorderableRegularItems.add(toIndex, reorderableRegularItems.removeAt(fromIndex))
-                        },
-                        onDragEnd = { viewModel.updateItemsOrder(reorderableRegularItems) }
-                    )
+                    var draggedIndex by remember { mutableStateOf<Int?>(null) }
+                    var dragOffset by remember { mutableStateOf(0f) }
                     
-                    LazyColumn(
-                        state = reorderableState.listState,
-                        modifier = Modifier
-                            .reorderable(reorderableState)
-                    ) {
+                    LazyColumn {
                         // 最愛項目區
                         favoriteItem?.let {
                             item {
@@ -191,6 +182,9 @@ fun MainScreen() {
                             val index = reorderableRegularItems.indexOf(textEntity)
                             val offset = if (draggedIndex == index) dragOffset else 0f
                             
+                            val index = reorderableRegularItems.indexOf(textEntity)
+                            val isDragging = draggedIndex == index
+                            
                             ManagementListItem(
                                 item = textEntity,
                                 isManagementMode = uiState.isSidebarManagementMode,
@@ -210,10 +204,47 @@ fun MainScreen() {
                                             contentDescription = "拖曳排序",
                                             modifier = Modifier
                                                 .size(24.dp)
-                                                .draggingHandle(reorderableState)
+                                                .pointerInput(Unit) {
+                                                    detectDragGesturesAfterLongPress(
+                                                        onDragStart = {
+                                                            draggedIndex = index
+                                                            dragOffset = 0f
+                                                        },
+                                                        onDrag = { change, dragAmount ->
+                                                            dragOffset += dragAmount.y
+                                                            change.consume()
+                                                            
+                                                            // 計算交換閾值 (項目高度約60dp)
+                                                            val itemHeight = 60.dp.toPx()
+                                                            val newIndex = (index + dragOffset / itemHeight).toInt()
+                                                            
+                                                            if (newIndex in reorderableRegularItems.indices && newIndex != index) {
+                                                                // 交換項目位置
+                                                                val targetItem = reorderableRegularItems[newIndex]
+                                                                reorderableRegularItems[newIndex] = textEntity
+                                                                reorderableRegularItems[index] = targetItem
+                                                                draggedIndex = newIndex
+                                                                dragOffset = 0f
+                                                            }
+                                                        },
+                                                        onDragEnd = {
+                                                            viewModel.updateItemsOrder(reorderableRegularItems)
+                                                            draggedIndex = null
+                                                            dragOffset = 0f
+                                                        },
+                                                        onDragCancel = {
+                                                            draggedIndex = null
+                                                            dragOffset = 0f
+                                                        }
+                                                    )
+                                                }
                                         )
                                     }
-                                }
+                                },
+                                modifier = Modifier
+                                    .offset { IntOffset(0, if (isDragging) dragOffset.roundToInt() else 0) }
+                                    .alpha(if (isDragging) 0.5f else 1f)
+                                    .animateContentSize(animationSpec = tween(300))
                             )
                         }
                     }
@@ -704,7 +735,8 @@ private fun ManagementListItem(
         Text(
             text = item.title,
             modifier = Modifier
-                .weight(1f),
+                .weight(1f)
+                .align(Alignment.CenterVertically),
             style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
         )
         
