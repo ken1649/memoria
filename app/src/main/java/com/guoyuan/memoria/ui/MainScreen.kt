@@ -90,6 +90,8 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.ui.graphics.graphicsLayer
+
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
