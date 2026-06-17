@@ -208,6 +208,7 @@ fun MainScreen() {
                                             modifier = Modifier
                                                 .size(24.dp)
                                                 .pointerInput(Unit) {
+                                                    val thresholdPx = 60.dp.toPx() // 項目高度閾值
                                                     detectDragGesturesAfterLongPress(
                                                         onDragStart = {
                                                             Log.d("SidebarDrag", "【開始拖曳】項目索引 Index: $index, 標題: ${textEntity.title}")
@@ -220,23 +221,26 @@ fun MainScreen() {
                                                             dragOffset += dragAmount.y
                                                             Log.d("SidebarDrag", "【拖曳中】目前累積位移 dragOffset: $dragOffset")
                                                             
-                                                            // 計算交換閾值 (項目高度約60dp)
-                                                            val itemHeight = 60.dp.toPx()
-                                                            val newAbsoluteIndex = (index + dragOffset / itemHeight).toInt()
-                                                            // 轉換為相對索引（減去偏移量）
-                                                            val newRelativeIndex = newAbsoluteIndex
-                                                            
-                                                            // 嚴格邊界檢查：確保新舊索引都在合法範圍內
-                                                            if (newRelativeIndex in reorderableRegularItems.indices && 
-                                                                newRelativeIndex != index &&
-                                                                index in reorderableRegularItems.indices
-                                                            ) {
-                                                                // 安全交換項目位置
-                                                                Collections.swap(reorderableRegularItems, index, newRelativeIndex)
-                                                                // 更新拖曳項目的索引為新位置
-                                                                draggedIndex = newRelativeIndex
-                                                                // 調整位移量，保持項目跟隨手指
-                                                                dragOffset -= (newRelativeIndex - index) * itemHeight
+                                                            // 階梯式距離換位演算法
+                                                            when {
+                                                                // 往下拖曳超過閾值
+                                                                dragOffset > thresholdPx -> {
+                                                                    val newIndex = index + 1
+                                                                    if (newIndex in reorderableRegularItems.indices) {
+                                                                        Collections.swap(reorderableRegularItems, index, newIndex)
+                                                                        draggedIndex = newIndex
+                                                                        dragOffset -= thresholdPx // 扣掉一格高度
+                                                                    }
+                                                                }
+                                                                // 往上拖曳超過閾值
+                                                                dragOffset < -thresholdPx -> {
+                                                                    val newIndex = index - 1
+                                                                    if (newIndex in reorderableRegularItems.indices) {
+                                                                        Collections.swap(reorderableRegularItems, index, newIndex)
+                                                                        draggedIndex = newIndex
+                                                                        dragOffset += thresholdPx // 加回一格高度
+                                                                    }
+                                                                }
                                                             }
                                                         },
                                                         onDragEnd = {
