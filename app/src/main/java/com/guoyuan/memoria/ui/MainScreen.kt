@@ -220,11 +220,13 @@ fun MainScreen() {
                                                             val itemHeight = 60.dp.toPx()
                                                             val newIndex = (index + dragOffset / itemHeight).toInt()
                                                             
-                                                            if (newIndex in reorderableRegularItems.indices && newIndex != index) {
-                                                                // 交換項目位置
-                                                                val targetItem = reorderableRegularItems[newIndex]
-                                                                reorderableRegularItems[newIndex] = textEntity
-                                                                reorderableRegularItems[index] = targetItem
+                                                            // 嚴格邊界檢查：確保新舊索引都在合法範圍內
+                                                            if (newIndex in reorderableRegularItems.indices && 
+                                                                newIndex != index &&
+                                                                index in reorderableRegularItems.indices
+                                                            ) {
+                                                                // 安全交換項目位置
+                                                                Collections.swap(reorderableRegularItems, index, newIndex)
                                                                 draggedIndex = newIndex
                                                                 dragOffset = 0f
                                                             }
