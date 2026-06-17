@@ -649,6 +649,8 @@ private fun ManagementListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -668,15 +670,6 @@ private fun ManagementListItem(
                     tint = if (isFavorite) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                 )
             }
-            
-            // 刪除按鈕
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "刪除",
-                    tint = androidx.compose.material3.MaterialTheme.colorScheme.error
-                )
-            }
         }
 
         Text(
@@ -684,14 +677,56 @@ private fun ManagementListItem(
             modifier = Modifier.weight(1f),
             style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
         )
-
-        if (isManagementMode && !isFavorite) {
-            // 拖曳把手
-            Icon(
-                imageVector = Icons.Filled.DragHandle,
-                contentDescription = "拖曳排序",
+        
+        if (isManagementMode) {
+            // 刪除按鈕
+            IconButton(
+                onClick = { showDeleteDialog = true },
                 modifier = Modifier.size(24.dp)
-            )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "刪除",
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.error
+                )
+            }
+            
+            if (!isFavorite) {
+                // 拖曳把手 (僅限非最愛項目)
+                Icon(
+                    imageVector = Icons.Filled.DragHandle,
+                    contentDescription = "拖曳排序",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
+    }
+    
+    // 刪除確認對話框
+    if (showDeleteDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("確認刪除文本") },
+            text = { Text("確定要刪除「${item.title}」嗎？此動作將無法還原。") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDelete()
+                        showDeleteDialog = false
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.errorContainer,
+                        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
+                    )
+                ) {
+                    Text("確定")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showDeleteDialog = false }) {
+                    Text("取消")
+                }
+            }
+        )
     }
 }
