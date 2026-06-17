@@ -50,6 +50,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.Row
 import com.guoyuan.memoria.data.AppDatabase
 import com.guoyuan.memoria.data.AppDao
@@ -137,6 +149,9 @@ fun MainScreen() {
                     val favoriteItem = allTexts.firstOrNull { it.isFavorite }
                     val regularItems = allTexts.filterNot { it.isFavorite }
                         .sortedBy { it.displayOrder }
+                    val reorderableRegularItems = remember(regularItems) { regularItems.toMutableStateList() }
+                    var draggedIndex by remember { mutableStateOf(-1) }
+                    var dragOffset by remember { mutableStateOf(0f) }
 
                     LazyColumn {
                         // 最愛項目區
@@ -159,8 +174,9 @@ fun MainScreen() {
                         }
 
                         // 一般項目區
-                        items(regularItems, key = { it.id }) { textEntity ->
-                            var isDragging by remember { mutableStateOf(false) }
+                        items(reorderableRegularItems, key = { it.id }) { textEntity ->
+                            val index = reorderableRegularItems.indexOf(textEntity)
+                            val offset = if (draggedIndex == index) dragOffset else 0f
                             
                             ManagementListItem(
                                 item = textEntity,
@@ -174,19 +190,49 @@ fun MainScreen() {
                                         scope.launch { drawerState.close() }
                                     }
                                 },
-                                modifier = Modifier
-                                    .pointerInput(Unit) {
-                                        detectDragGesturesAfterLongPress(
-                                            onDragStart = { isDragging = true },
-                                            onDrag = { _, _ -> }, // 空lambda處理拖曳事件
-                                            onDragEnd = { 
-                                                isDragging = false
-                                                viewModel.updateItemsOrder(regularItems)
-                                            },
-                                            onDragCancel = { isDragging = false }
+                                dragHandle = {
+                                    if (uiState.isSidebarManagementMode && !textEntity.isFavorite) {
+                                        Icon(
+                                            imageVector = Icons.Filled.DragHandle,
+                                            contentDescription = "拖曳排序",
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .pointerInput(Unit) {
+                                                    detectDragGesturesAfterLongPress(
+                                                        onDragStart = {
+                                                            draggedIndex = index
+                                                        },
+                                                        onDrag = { change, dragAmount ->
+                                                            dragOffset += dragAmount.y
+                                                            change.consume()
+                                                            
+                                                            // 檢查是否需要交換項目位置
+                                                            val overItemIndex = (index + dragOffset / 60).toInt()
+                                                            if (overItemIndex in reorderableRegularItems.indices && overItemIndex != index) {
+                                                                val targetItem = reorderableRegularItems[overItemIndex]
+                                                                reorderableRegularItems.removeAt(index)
+                                                                reorderableRegularItems.add(overItemIndex, textEntity)
+                                                                draggedIndex = overItemIndex
+                                                                dragOffset = 0f
+                                                            }
+                                                        },
+                                                        onDragEnd = {
+                                                            draggedIndex = -1
+                                                            dragOffset = 0f
+                                                            viewModel.updateItemsOrder(reorderableRegularItems)
+                                                        },
+                                                        onDragCancel = {
+                                                            draggedIndex = -1
+                                                            dragOffset = 0f
+                                                        }
+                                                    )
+                                                }
                                         )
                                     }
-                                    .alpha(if (isDragging) 0.5f else 1f)
+                                },
+                                modifier = Modifier
+                                    .offset { IntOffset(0, offset.roundToInt()) }
+                                    .alpha(if (draggedIndex == index) 0.5f else 1f)
                             )
                         }
                     }
@@ -647,6 +693,7 @@ private fun ManagementListItem(
     onToggleFavorite: () -> Unit,
     onDelete: () -> Unit,
     onClick: () -> Unit,
+    dragHandle: @Composable () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -697,11 +744,7 @@ private fun ManagementListItem(
                 Spacer(modifier = Modifier.size(24.dp))
             } else {
                 // 拖曳把手 (僅限非最愛項目)
-                Icon(
-                    imageVector = Icons.Filled.DragHandle,
-                    contentDescription = "拖曳排序",
-                    modifier = Modifier.size(24.dp)
-                )
+                dragHandle()
             }
         }
     }
