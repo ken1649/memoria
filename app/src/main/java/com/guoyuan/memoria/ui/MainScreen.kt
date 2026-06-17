@@ -204,12 +204,15 @@ fun MainScreen() {
                                                 .pointerInput(Unit) {
                                                     detectDragGesturesAfterLongPress(
                                                         onDragStart = {
+                                                            Log.d("SidebarDrag", "【開始拖曳】項目索引 Index: $index, 標題: ${textEntity.title}")
                                                             draggedIndex = index
                                                             dragOffset = 0f
                                                         },
                                                         onDrag = { change, dragAmount ->
-                                                            dragOffset += dragAmount.y
+                                                            // 強制消費事件，防止被上層攔截
                                                             change.consume()
+                                                            dragOffset += dragAmount.y
+                                                            Log.d("SidebarDrag", "【拖曳中】目前累積位移 dragOffset: $dragOffset")
                                                             
                                                             // 計算交換閾值 (項目高度約60dp)
                                                             val itemHeight = 60.dp.toPx()
@@ -225,11 +228,13 @@ fun MainScreen() {
                                                             }
                                                         },
                                                         onDragEnd = {
+                                                            Log.d("SidebarDrag", "【拖曳結束】已放開手指，準備呼叫 ViewModel 存檔")
                                                             viewModel.updateItemsOrder(reorderableRegularItems)
                                                             draggedIndex = null
                                                             dragOffset = 0f
                                                         },
                                                         onDragCancel = {
+                                                            Log.d("SidebarDrag", "【拖曳取消】手勢中斷")
                                                             draggedIndex = null
                                                             dragOffset = 0f
                                                         }
@@ -239,7 +244,9 @@ fun MainScreen() {
                                     }
                                 },
                                 modifier = Modifier
-                                    .offset { IntOffset(0, if (isDragging) dragOffset.roundToInt() else 0) }
+                                    .graphicsLayer {
+                                        translationY = if (isDragging) dragOffset else 0f
+                                    }
                                     .alpha(if (isDragging) 0.5f else 1f)
                                     .animateContentSize(animationSpec = tween(300))
                             )
