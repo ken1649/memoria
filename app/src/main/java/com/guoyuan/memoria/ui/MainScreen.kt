@@ -180,9 +180,6 @@ fun MainScreen() {
                         // 一般項目區
                         items(reorderableRegularItems, key = { it.id }) { textEntity ->
                             val index = reorderableRegularItems.indexOf(textEntity)
-                            val offset = if (draggedIndex == index) dragOffset else 0f
-                            
-                            val index = reorderableRegularItems.indexOf(textEntity)
                             val isDragging = draggedIndex == index
                             
                             ManagementListItem(
