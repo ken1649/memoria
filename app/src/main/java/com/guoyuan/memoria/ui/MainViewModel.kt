@@ -192,7 +192,25 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 val isGoogleDoc = url.contains("docs.google.com/document/d/")
                 val (processedUrl, title) = if (isGoogleDoc) {
                     val docId = url.substringAfter("document/d/").substringBefore("/")
-                    Pair("https://docs.google.com/document/d/$docId/export?format=txt", "匯入的 Google 文件")
+                    val exportUrl = "https://docs.google.com/document/d/$docId/export?format=txt"
+                    
+                    // 1. 嘗試從標準檢視網址抓取 Google 文件的網頁標題
+                    val rawTitle = withContext(Dispatchers.IO) {
+                        try {
+                            Jsoup.connect("https://docs.google.com/document/d/$docId/view").get().title()
+                        } catch (e: Exception) {
+                            "匯入的 Google 文件"
+                        }
+                    }
+                    
+                    // 2. 清理掉 Google 附加的後綴字串，還原真實標題
+                    val cleanTitle = rawTitle
+                        .replace(" - Google 文件", "")
+                        .replace(" - Google Docs", "")
+                        .trim()
+                        
+                    val finalTitle = if (cleanTitle.isNotEmpty()) cleanTitle else "匯入的 Google 文件"
+                    Pair(exportUrl, finalTitle)
                 } else {
                     val webTitle = withContext(Dispatchers.IO) {
                         try { Jsoup.connect(url).get().title() } catch (e: Exception) { "網頁內容" }
@@ -200,6 +218,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                     Pair(url, webTitle)
                 }
 
+                // 3. 抓取文章內文
                 val text = withContext(Dispatchers.IO) {
                     if (isGoogleDoc) {
                         Jsoup.connect(processedUrl).ignoreContentType(true).execute().body()
