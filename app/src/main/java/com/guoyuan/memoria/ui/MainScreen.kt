@@ -352,7 +352,11 @@ fun MainScreen() {
                             }
                         } else if (uiState.currentMode == AppMode.READ && uiState.isEditingReadingMode) {
                             IconButton(onClick = {
-                                // 保存後自動退出編輯模式
+                                Log.d("MemoriaFlow", "【V打勾按鈕觸發】用戶點擊了右上角 V 儲存編輯！")
+                                Log.d("MemoriaFlow", "【1. UI 提交】準備寫入閱讀模式修改的內容: ${uiState.fullTextContent}")
+                                // 真正呼叫存檔
+                                viewModel.updateReadingContent(uiState.fullTextContent)
+                                // 退出編輯模式
                                 viewModel.toggleReadingEditMode()
                             }) {
                                 Icon(Icons.Filled.Done, contentDescription = "儲存編輯")
