@@ -161,8 +161,7 @@ fun MainScreen() {
                     // 將拖曳狀態提升至 LazyColumn 外層
                     var draggedIndex by remember { mutableStateOf<Int?>(null) }
                     var dragOffset by remember { mutableStateOf(0f) }
-                    val density = LocalDensity.current
-                    val thresholdPx = remember(density) { with(density) { 60.dp.toPx() } } // 項目高度閾值
+                    var itemHeightPx by remember { mutableStateOf(0f) } // 動態量測項目高度
                     
                     LazyColumn {
                         // 最愛項目區
@@ -228,24 +227,27 @@ fun MainScreen() {
                                                             
                                                             draggedIndex = currentActiveIndex
                                                             
+                                                            // 使用動態量測高度或預設值
+                                                            val currentThreshold = if (itemHeightPx > 0f) itemHeightPx else 180f
+                                                            
                                                             // 階梯式距離換位演算法
                                                             when {
                                                                 // 往下拖曳超過閾值
-                                                                dragOffset > thresholdPx -> {
+                                                                dragOffset > currentThreshold -> {
                                                                     val nextIndex = currentActiveIndex + 1
                                                                     if (nextIndex in reorderableRegularItems.indices) {
                                                                         Collections.swap(reorderableRegularItems, currentActiveIndex, nextIndex)
                                                                         draggedIndex = nextIndex
-                                                                        dragOffset -= thresholdPx // 扣掉一格高度
+                                                                        dragOffset -= currentThreshold // 精確扣除真實高度
                                                                     }
                                                                 }
                                                                 // 往上拖曳超過閾值
-                                                                dragOffset < -thresholdPx -> {
+                                                                dragOffset < -currentThreshold -> {
                                                                     val prevIndex = currentActiveIndex - 1
                                                                     if (prevIndex >= 0 && prevIndex in reorderableRegularItems.indices) {
                                                                         Collections.swap(reorderableRegularItems, currentActiveIndex, prevIndex)
                                                                         draggedIndex = prevIndex
-                                                                        dragOffset += thresholdPx // 加回一格高度
+                                                                        dragOffset += currentThreshold // 精確加回真實高度
                                                                     }
                                                                 }
                                                             }
@@ -267,12 +269,18 @@ fun MainScreen() {
                                     }
                                 },
                                 modifier = Modifier
+                                    .onSizeChanged { size ->
+                                        // 只在尚未設置高度且量測到有效高度時更新
+                                        if (size.height > 0 && itemHeightPx == 0f) {
+                                            itemHeightPx = size.height.toFloat()
+                                        }
+                                    }
                                     .graphicsLayer {
                                         // 只有當前行是被拖曳的項目才應用位移
                                         translationY = if (isDragging) dragOffset else 0f
                                     }
                                     .alpha(if (isDragging) 0.5f else 1f)
-                                    .animateContentSize(animationSpec = tween(300))
+                                    .animateItemPlacement() // 平滑排序動畫
                             )
                         }
                     }
