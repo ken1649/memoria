@@ -651,15 +651,16 @@ fun MainScreen() {
                         }
                                 
                         // 播放控制按鈕組
-                        Row(
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly
+                                .padding(horizontal = 16.dp, vertical = 24.dp)
                         ) {
-                            // 左側控制群組
-                            Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)) {
+                            // 左側控制群組 (靠左對齊)
+                            Row(
+                                modifier = Modifier.align(Alignment.CenterStart),
+                                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)
+                            ) {
                                 // 清空按鈕
                                 IconButton(
                                     onClick = { viewModel.resetPlayback() }
@@ -683,30 +684,17 @@ fun MainScreen() {
                                 }
                             }
                             
-                            Spacer(modifier = Modifier.width(24.dp))
-                            
-                            // 中央播放按鈕
+                            // 中央播放按鈕 (絕對置中)
                             IconButton(
                                 onClick = { viewModel.handlePlayButtonClick() },
-                                modifier = Modifier.size(72.dp)
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(72.dp)
                             ) {
                                 Icon(
                                     imageVector = androidx.compose.material.icons.Icons.Default.PlayArrow,
                                     contentDescription = "播放",
                                     modifier = Modifier.size(48.dp)
-                                )
-                            }
-                            
-                            Spacer(modifier = Modifier.width(24.dp))
-                            
-                            // 右側控制按鈕
-                            IconButton(
-                                onClick = { viewModel.moveToNextParagraph() }
-                            ) {
-                                Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowRight,
-                                    contentDescription = "下一段",
-                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                         }
