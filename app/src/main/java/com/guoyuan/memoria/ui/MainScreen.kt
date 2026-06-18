@@ -109,6 +109,14 @@ fun MainScreen() {
     val punctuationList by viewModel.punctuationList.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    
+    // 持久化儲存最後一次有效標題
+    val lastSelectedTitle = remember { mutableStateOf("Memoria") }
+    LaunchedEffect(uiState.currentTextId) {
+        uiState.currentTextId?.let { 
+            lastSelectedTitle.value = uiState.currentTextTitle
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -321,20 +329,16 @@ fun MainScreen() {
             topBar = {
                 TopAppBar(
                     title = { 
-                        val appBarTitle by remember(uiState.isAddingNewText, uiState.currentTextTitle) {
-                            derivedStateOf {
-                                when {
-                                    uiState.isAddingNewText -> "新增文本"
-                                    uiState.currentTextTitle.isNotEmpty() -> uiState.currentTextTitle
-                                    else -> "Memoria"
-                                }
-                            }
+                        val displayTitle = if (uiState.isAddingNewText) {
+                            "新增文本"
+                        } else {
+                            uiState.currentTextTitle.ifEmpty { lastSelectedTitle.value }
                         }
                         
-                        Log.d("MemoriaDebug", "TopBar 重繪！目前模式: ${uiState.currentMode}, 新增模式: ${uiState.isAddingNewText}, 當前標題: '${uiState.currentTextTitle}'")
+                        Log.d("MemoriaDebug", "TopBar 重繪！模式: ${uiState.currentMode}, 新增中: ${uiState.isAddingNewText}, 當前標題: '${uiState.currentTextTitle}', 最後標題: '${lastSelectedTitle.value}'")
                         
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = appBarTitle)
+                            Text(text = displayTitle)
                             if (uiState.isEditingReadingMode && !uiState.isAddingNewText) {
                                 IconButton(
                                     onClick = { viewModel.openEditTitleDialog() },
