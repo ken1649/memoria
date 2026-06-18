@@ -389,23 +389,30 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
     
-    fun updateTextTitle(newTitle: String) {
-        Log.d("MemoriaFlow", "【3. ViewModel 進入】準備寫入標題更新, ID: ${_uiState.value.currentTextId}")
+    fun updateTextTitle(newTitle: String, newContent: String) {
+        Log.d("MemoriaFlow", "【3. ViewModel 進入】準備完整更新, ID: ${_uiState.value.currentTextId}")
         viewModelScope.launch(Dispatchers.IO) {
             _allTexts.value.firstOrNull { it.id == _uiState.value.currentTextId }?.let { text ->
                 Log.d("MemoriaFlow", "【3.1】找到要更新的文本: $text")
-                val updatedText = text.copy(title = newTitle)
+                val updatedText = text.copy(
+                    title = newTitle,
+                    fullContent = newContent
+                )
                 Log.d("MemoriaFlow", "【4. Room 寫入前】準備更新資料庫: $updatedText")
                 appDao.updateText(updatedText)
-                Log.d("MemoriaFlow", "【4.1 Room 寫入完成】已更新標題")
+                Log.d("MemoriaFlow", "【4.1 Room 寫入完成】已完整更新")
                 
                 withContext(Dispatchers.Main) {
                     _uiState.update { currentState ->
-                        currentState.copy(currentTextTitle = newTitle)
+                        currentState.copy(
+                            currentTextTitle = newTitle,
+                            fullTextContent = newContent
+                        )
                     }
                     _allTexts.value = _allTexts.value.map { 
                         if (it.id == _uiState.value.currentTextId) updatedText else it 
                     }
+                    splitContentToParagraphs(newContent)
                 }
             }
         }

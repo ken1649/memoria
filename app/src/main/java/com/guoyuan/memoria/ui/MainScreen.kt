@@ -183,8 +183,7 @@ fun MainScreen() {
                                     onEditConfirm = { updatedTitle, updatedContent ->
                                         Log.d("MemoriaFlow", "【2. 螢幕接收端】收到回傳 - 新標題: $updatedTitle, 新內容: $updatedContent")
                                         // 1. 呼叫 ViewModel 更新資料庫
-                                        viewModel.updateTextTitle(updatedTitle)
-                                        viewModel.updateReadingContent(updatedContent)
+                                        viewModel.updateTextTitle(updatedTitle, updatedContent)
                                         
                                         // 2. 更新本地快照清單
                                         val targetIndex = reorderableRegularItems.indexOfFirst { it.id == it.id }
@@ -218,8 +217,7 @@ fun MainScreen() {
                                 },
                                 onEditConfirm = { updatedTitle, updatedContent ->
                                     // 1. 呼叫 ViewModel 更新資料庫
-                                    viewModel.updateTextTitle(updatedTitle)
-                                    viewModel.updateReadingContent(updatedContent)
+                                    viewModel.updateTextContent(updatedTitle, updatedContent)
                                     
                                     // 2. 更新本地快照清單
                                     val targetIndex = reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
@@ -824,15 +822,23 @@ private fun ManagementListItem(
             }
             
             // 新增：編輯按鈕
-            IconButton(
-                onClick = { showEditDialog = true },
-                modifier = Modifier.size(24.dp)
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .pointerInput(Unit) {} // 阻止手勢事件冒泡
             ) {
-                Icon(
-                    Icons.Filled.Edit,
-                    contentDescription = "編輯文本",
-                    tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
-                )
+                IconButton(
+                    onClick = {
+                        Log.d("MemoriaFlow", "【V按鈕絕對觸發】有人點了我！")
+                        showEditDialog = true
+                    }
+                ) {
+                    Icon(
+                        Icons.Filled.Edit,
+                        contentDescription = "編輯文本",
+                        tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
 
@@ -961,10 +967,12 @@ private fun ManagementListItem(
             confirmButton = {
                 Button(
                     onClick = {
+                        Log.d("MemoriaFlow", "【V按鈕絕對觸發】有人點了我！")
                         Log.d("MemoriaFlow", "【1. UI 按鈕點擊】準備送出修改 - 標題: $editedTitle, 內容: $editedContent")
                         onEditConfirm(editedTitle, editedContent)
                         showEditDialog = false
                     }
+                    .pointerInput(Unit) {  } // 防止手勢被外層攔截
                 ) {
                     Text("儲存")
                 }
