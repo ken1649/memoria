@@ -93,7 +93,7 @@ import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.graphics.graphicsLayer
 import java.util.Collections
 import androidx.compose.ui.platform.LocalDensity
-
+import androidx.compose.ui.layout.onSizeChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
