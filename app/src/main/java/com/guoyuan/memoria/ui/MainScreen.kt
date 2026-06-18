@@ -668,7 +668,7 @@ fun MainScreen() {
                                     Icon(
                                         imageVector = androidx.compose.material.icons.Icons.Default.Refresh,
                                         contentDescription = "清空",
-                                        modifier = Modifier.size(24.dp)
+                                        modifier = Modifier.size(30.dp)
                                     )
                                 }
                                 
@@ -679,7 +679,7 @@ fun MainScreen() {
                                     Icon(
                                         imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowLeft,
                                         contentDescription = "上一步",
-                                        modifier = Modifier.size(24.dp)
+                                        modifier = Modifier.size(30.dp)
                                     )
                                 }
                             }
@@ -689,12 +689,12 @@ fun MainScreen() {
                                 onClick = { viewModel.handlePlayButtonClick() },
                                 modifier = Modifier
                                     .align(Alignment.Center)
-                                    .size(72.dp)
+                                    .size(100.dp)
                             ) {
                                 Icon(
                                     imageVector = androidx.compose.material.icons.Icons.Default.PlayArrow,
                                     contentDescription = "播放",
-                                    modifier = Modifier.size(48.dp)
+                                    modifier = Modifier.size(150.dp)
                                 )
                             }
                         }
