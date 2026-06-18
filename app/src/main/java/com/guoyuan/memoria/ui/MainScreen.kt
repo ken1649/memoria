@@ -280,7 +280,7 @@ fun MainScreen() {
                                         translationY = if (isDragging) dragOffset else 0f
                                     }
                                     .alpha(if (isDragging) 0.5f else 1f)
-                                    .animateItemPlacement() // 平滑排序動畫
+                                    .animateItem() // 平滑排序動畫
                             )
                         }
                     }
