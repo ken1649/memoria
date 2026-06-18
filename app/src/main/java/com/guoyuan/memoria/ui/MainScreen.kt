@@ -208,12 +208,12 @@ fun MainScreen() {
                                             contentDescription = "拖曳排序",
                                             modifier = Modifier
                                                 .size(24.dp)
-                                                .pointerInput(item.id) {
+                                                .pointerInput(textEntity.id) {
                                                     detectDragGesturesAfterLongPress(
                                                         onDragStart = {
                                                             Log.d("SidebarDrag", "【開始拖曳】項目標題: ${textEntity.title}")
                                                             // 初始時直接使用外層索引
-                                                            draggedIndex = reorderableRegularItems.indexOfFirst { it.id == item.id }
+                                                            draggedIndex = reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
                                                             dragOffset = 0f
                                                         },
                                                         onDrag = { change, dragAmount ->
@@ -223,7 +223,7 @@ fun MainScreen() {
                                                             Log.d("SidebarDrag", "【拖曳中】目前累積位移 dragOffset: $dragOffset")
                                                             
                                                             // 每次都動態查找最新索引
-                                                            val currentActiveIndex = reorderableRegularItems.indexOfFirst { it.id == item.id }
+                                                            val currentActiveIndex = reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
                                                             if (currentActiveIndex == -1) return@detectDragGesturesAfterLongPress
                                                             
                                                             draggedIndex = currentActiveIndex
