@@ -275,13 +275,12 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
 
     fun moveToPrevious() {
-        _uiState.update { currentState ->
-            val newSentenceIndex = if (currentState.currentSentenceIndex > 0) {
-                currentState.currentSentenceIndex - 1
-            } else {
-                0
+        if (_uiState.value.currentSentenceIndex > 0) {
+            _uiState.update { currentState ->
+                currentState.copy(currentSentenceIndex = currentState.currentSentenceIndex - 1)
             }
-            currentState.copy(currentSentenceIndex = newSentenceIndex)
+        } else {
+            resetPlayback()
         }
     }
 
