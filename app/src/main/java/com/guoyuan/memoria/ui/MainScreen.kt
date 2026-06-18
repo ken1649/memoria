@@ -157,11 +157,10 @@ fun MainScreen() {
                     val regularItems = allTexts.filterNot { it.isFavorite }
                         .sortedBy { it.displayOrder }
                     val reorderableRegularItems = remember(regularItems) { regularItems.toMutableStateList() }
+                    // 將拖曳狀態提升至 LazyColumn 外層
                     var draggedIndex by remember { mutableStateOf<Int?>(null) }
                     var dragOffset by remember { mutableStateOf(0f) }
-                    
-                    // 計算一般項目在 LazyColumn 中的起始索引偏移量
-                    val itemOffset = if (favoriteItem != null) 1 else 0
+                    val thresholdPx = 60.dp.toPx() // 項目高度閾值
                     
                     LazyColumn {
                         // 最愛項目區
@@ -208,7 +207,6 @@ fun MainScreen() {
                                             modifier = Modifier
                                                 .size(24.dp)
                                                 .pointerInput(Unit) {
-                                                    val thresholdPx = 60.dp.toPx() // 項目高度閾值
                                                     detectDragGesturesAfterLongPress(
                                                         onDragStart = {
                                                             Log.d("SidebarDrag", "【開始拖曳】項目索引 Index: $index, 標題: ${textEntity.title}")
@@ -261,6 +259,7 @@ fun MainScreen() {
                                 },
                                 modifier = Modifier
                                     .graphicsLayer {
+                                        // 只有當前行是被拖曳的項目才應用位移
                                         translationY = if (isDragging) dragOffset else 0f
                                     }
                                     .alpha(if (isDragging) 0.5f else 1f)
