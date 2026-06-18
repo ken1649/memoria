@@ -208,11 +208,12 @@ fun MainScreen() {
                                             contentDescription = "拖曳排序",
                                             modifier = Modifier
                                                 .size(24.dp)
-                                                .pointerInput(Unit) {
+                                                .pointerInput(item.id) {
                                                     detectDragGesturesAfterLongPress(
                                                         onDragStart = {
-                                                            Log.d("SidebarDrag", "【開始拖曳】項目索引 Index: $index, 標題: ${textEntity.title}")
-                                                            draggedIndex = index
+                                                            Log.d("SidebarDrag", "【開始拖曳】項目標題: ${textEntity.title}")
+                                                            // 初始時直接使用外層索引
+                                                            draggedIndex = reorderableRegularItems.indexOfFirst { it.id == item.id }
                                                             dragOffset = 0f
                                                         },
                                                         onDrag = { change, dragAmount ->
@@ -221,23 +222,29 @@ fun MainScreen() {
                                                             dragOffset += dragAmount.y
                                                             Log.d("SidebarDrag", "【拖曳中】目前累積位移 dragOffset: $dragOffset")
                                                             
+                                                            // 每次都動態查找最新索引
+                                                            val currentActiveIndex = reorderableRegularItems.indexOfFirst { it.id == item.id }
+                                                            if (currentActiveIndex == -1) return@detectDragGesturesAfterLongPress
+                                                            
+                                                            draggedIndex = currentActiveIndex
+                                                            
                                                             // 階梯式距離換位演算法
                                                             when {
                                                                 // 往下拖曳超過閾值
                                                                 dragOffset > thresholdPx -> {
-                                                                    val newIndex = index + 1
-                                                                    if (newIndex in reorderableRegularItems.indices) {
-                                                                        Collections.swap(reorderableRegularItems, index, newIndex)
-                                                                        draggedIndex = newIndex
+                                                                    val nextIndex = currentActiveIndex + 1
+                                                                    if (nextIndex in reorderableRegularItems.indices) {
+                                                                        Collections.swap(reorderableRegularItems, currentActiveIndex, nextIndex)
+                                                                        draggedIndex = nextIndex
                                                                         dragOffset -= thresholdPx // 扣掉一格高度
                                                                     }
                                                                 }
                                                                 // 往上拖曳超過閾值
                                                                 dragOffset < -thresholdPx -> {
-                                                                    val newIndex = index - 1
-                                                                    if (newIndex in reorderableRegularItems.indices) {
-                                                                        Collections.swap(reorderableRegularItems, index, newIndex)
-                                                                        draggedIndex = newIndex
+                                                                    val prevIndex = currentActiveIndex - 1
+                                                                    if (prevIndex >= 0 && prevIndex in reorderableRegularItems.indices) {
+                                                                        Collections.swap(reorderableRegularItems, currentActiveIndex, prevIndex)
+                                                                        draggedIndex = prevIndex
                                                                         dragOffset += thresholdPx // 加回一格高度
                                                                     }
                                                                 }
