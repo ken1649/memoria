@@ -178,6 +178,9 @@ fun MainScreen() {
                                             viewModel.selectText(it)
                                             scope.launch { drawerState.close() }
                                         }
+                                    },
+                                    onEditConfirm = { updatedTitle, updatedContent ->
+                                        viewModel.updateText(it.id, updatedTitle, updatedContent)
                                     }
                                 )
                             }
