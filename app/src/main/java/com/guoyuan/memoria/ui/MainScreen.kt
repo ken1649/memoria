@@ -205,10 +205,7 @@ fun MainScreen() {
                                     }
                                 },
                                 onEditConfirm = { updatedTitle, updatedContent ->
-                                    // 1. 更新資料庫
-                                    viewModel.updateText(textEntity.id, updatedTitle, updatedContent)
-
-                                    // 2. 更新本地快照清單
+                                    // 1. 更新本地快照清單
                                     val targetIndex = reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
                                     if (targetIndex != -1) {
                                         val updatedEntity = reorderableRegularItems[targetIndex].copy(
@@ -217,6 +214,9 @@ fun MainScreen() {
                                         )
                                         reorderableRegularItems[targetIndex] = updatedEntity
                                     }
+                                    
+                                    // TODO: 待實作資料庫更新邏輯
+                                    // 需要添加 ViewModel 中的資料庫更新函式
                                 },
                                 dragHandle = {
                                     if (uiState.isSidebarManagementMode && !textEntity.isFavorite) {
