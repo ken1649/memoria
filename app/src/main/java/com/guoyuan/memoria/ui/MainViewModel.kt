@@ -526,6 +526,24 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
     
+    // 進度保存
+    fun updateProgress(itemId: Int, index: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // 這裡需要實作保存進度的邏輯
+            // 例如：appDao.saveLastPlayedIndex(itemId, index)
+            // 目前先留空，等資料庫實作後再補充
+        }
+    }
+    
+    // 進度讀取
+    suspend fun getLastIndex(itemId: Int): Int {
+        return withContext(Dispatchers.IO) {
+            // 這裡需要實作讀取進度的邏輯
+            // 例如：appDao.getLastPlayedIndex(itemId) ?: 0
+            0 // 目前先返回0，等DAO實作後再替換
+        }
+    }
+    
     fun selectText(text: TextEntity) {
         _uiState.update { currentState ->
             currentState.copy(

@@ -124,6 +124,21 @@ fun MainScreen() {
             viewModel.toggleSidebarManagementMode()
         }
     }
+    
+    // 當選中的文本改變時，自動載入進度
+    LaunchedEffect(uiState.currentTextId) {
+        uiState.currentTextId?.let { itemId ->
+            val savedIndex = viewModel.getLastIndex(itemId)
+            viewModel.confirmParagraphSelection(savedIndex)
+        }
+    }
+    
+    // 當播放段落改變時，自動儲存進度
+    LaunchedEffect(uiState.currentParagraphIndex) {
+        uiState.currentTextId?.let { itemId ->
+            viewModel.updateProgress(itemId, uiState.currentParagraphIndex)
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
