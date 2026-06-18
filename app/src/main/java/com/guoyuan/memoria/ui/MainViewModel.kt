@@ -285,6 +285,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         } else {
             _uiState.value.currentParagraphIndex - 1
         }
+        Log.d("NavDebug", "準備跳轉至索引: $newIndex, 目前長度: ${paragraphs.size}")
         confirmParagraphSelection(newIndex)
     }
     
@@ -297,6 +298,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         } else {
             _uiState.value.currentParagraphIndex + 1
         }
+        Log.d("NavDebug", "準備跳轉至索引: $newIndex, 目前長度: ${paragraphs.size}")
         confirmParagraphSelection(newIndex)
     }
     
