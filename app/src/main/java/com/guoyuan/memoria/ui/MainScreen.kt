@@ -183,7 +183,7 @@ fun MainScreen() {
                                     onEditConfirm = { updatedTitle, updatedContent ->
                                         Log.d("MemoriaFlow", "【2. 螢幕接收端】收到回傳 - 新標題: $updatedTitle, 新內容: $updatedContent")
                                         // 1. 呼叫 ViewModel 更新資料庫
-                                        viewModel.updateTextTitle(updatedTitle, updatedContent)
+                                        viewModel.updateTextContent(updatedTitle, updatedContent)
                                         
                                         // 2. 更新本地快照清單
                                         val targetIndex = reorderableRegularItems.indexOfFirst { it.id == it.id }
@@ -842,14 +842,6 @@ private fun ManagementListItem(
             }
         }
 
-        Text(
-            text = item.title,
-            modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically),
-            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
-        )
-        
         if (isManagementMode) {
             // 刪除按鈕
             IconButton(
@@ -972,7 +964,6 @@ private fun ManagementListItem(
                         onEditConfirm(editedTitle, editedContent)
                         showEditDialog = false
                     }
-                    .pointerInput(Unit) {  } // 防止手勢被外層攔截
                 ) {
                     Text("儲存")
                 }

@@ -389,6 +389,24 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
     
+    fun updateTextTitle(newTitle: String) {
+        Log.d("MemoriaFlow", "【ViewModel】準備寫入標題更新, ID: ${_uiState.value.currentTextId}")
+        viewModelScope.launch(Dispatchers.IO) {
+            _allTexts.value.firstOrNull { it.id == _uiState.value.currentTextId }?.let { text ->
+                val updatedText = text.copy(title = newTitle)
+                appDao.updateText(updatedText)
+                withContext(Dispatchers.Main) {
+                    _uiState.update { currentState ->
+                        currentState.copy(currentTextTitle = newTitle)
+                    }
+                    _allTexts.value = _allTexts.value.map { 
+                        if (it.id == _uiState.value.currentTextId) updatedText else it 
+                    }
+                }
+            }
+        }
+    }
+    
     fun updateTextContent(newTitle: String, newContent: String) {
         Log.d("MemoriaFlow", "【3. ViewModel 進入】準備完整更新, ID: ${_uiState.value.currentTextId}")
         viewModelScope.launch(Dispatchers.IO) {
@@ -406,8 +424,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                     _uiState.update { currentState ->
                         currentState.copy(
                             currentTextTitle = newTitle,
-                            fullTextContent = newContent,
-                            selectedText = updatedText
+                            fullTextContent = newContent
                         )
                     }
                     _allTexts.value = _allTexts.value.map { 
