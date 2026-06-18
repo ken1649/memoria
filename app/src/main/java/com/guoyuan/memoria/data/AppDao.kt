@@ -24,6 +24,9 @@ interface AppDao {
     @Query("UPDATE texts SET display_order = :order WHERE id = :id")
     suspend fun updateDisplayOrder(id: Int, order: Int)
 
+    @Update
+    suspend fun updateText(text: TextEntity)
+
     @Delete
     suspend fun deleteText(text: TextEntity)
 
