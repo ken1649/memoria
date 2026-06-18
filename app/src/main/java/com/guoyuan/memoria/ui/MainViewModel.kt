@@ -150,10 +150,15 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                // 計算當前最大的 displayOrder
+                val maxDisplayOrder = _allTexts.value.maxOfOrNull { it.displayOrder } ?: 0
+                val newDisplayOrder = maxDisplayOrder + 1
+
                 val textEntity = TextEntity(
                     title = title,
                     fullContent = content,
-                    sourceUrl = ""
+                    sourceUrl = "",
+                    displayOrder = newDisplayOrder
                 )
                 appDao.insertText(textEntity)
                 loadAllTexts() // 重新加载文章列表
