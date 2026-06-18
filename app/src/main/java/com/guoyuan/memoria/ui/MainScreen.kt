@@ -321,16 +321,11 @@ fun MainScreen() {
                 TopAppBar(
                     title = { 
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            // 根據當前模式決定顯示的標題
-                            val displayTitle = when {
-                                uiState.currentMode == AppMode.EDIT -> 
-                                    "Memoria"
-                                uiState.currentTextTitle.isNotEmpty() -> 
-                                    uiState.currentTextTitle
-                                else -> "Memoria"
-                            }
-                            Text(displayTitle)
-                            if (uiState.isEditingReadingMode) {
+                            Text(
+                                text = if (uiState.isAddingNewText) "新增文本" 
+                                      else uiState.currentTextTitle.ifEmpty { "Memoria" }
+                            )
+                            if (uiState.isEditingReadingMode && !uiState.isAddingNewText) {
                                 IconButton(
                                     onClick = { viewModel.openEditTitleDialog() },
                                     modifier = Modifier.size(24.dp)

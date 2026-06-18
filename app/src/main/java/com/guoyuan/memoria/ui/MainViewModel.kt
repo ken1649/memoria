@@ -118,8 +118,18 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                     currentSentenceIndex = 0,
                     isPlaying = true
                 )
+            } else if (newMode == AppMode.EDIT) {
+                // 進入編輯模式時標記為新增文本狀態
+                currentState.copy(
+                    currentMode = newMode,
+                    isAddingNewText = true
+                )
             } else {
-                currentState.copy(currentMode = newMode)
+                // 退出編輯模式時清除新增狀態
+                currentState.copy(
+                    currentMode = newMode,
+                    isAddingNewText = false
+                )
             }
         }
     }
