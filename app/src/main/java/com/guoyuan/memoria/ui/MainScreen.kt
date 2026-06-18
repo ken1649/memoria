@@ -118,6 +118,13 @@ fun MainScreen() {
         }
     }
 
+    // 監聽側邊欄狀態變化
+    LaunchedEffect(drawerState.currentValue) {
+        if (drawerState.isClosed && uiState.isSidebarManagementMode) {
+            viewModel.toggleSidebarManagementMode()
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
