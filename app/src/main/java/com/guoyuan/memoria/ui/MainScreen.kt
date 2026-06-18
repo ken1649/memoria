@@ -320,11 +320,20 @@ fun MainScreen() {
             topBar = {
                 TopAppBar(
                     title = { 
+                        val appBarTitle by remember(uiState.isAddingNewText, uiState.currentTextTitle) {
+                            derivedStateOf {
+                                when {
+                                    uiState.isAddingNewText -> "新增文本"
+                                    uiState.currentTextTitle.isNotEmpty() -> uiState.currentTextTitle
+                                    else -> "Memoria"
+                                }
+                            }
+                        }
+                        
+                        Log.d("MemoriaDebug", "TopBar 重繪！目前模式: ${uiState.currentMode}, 新增模式: ${uiState.isAddingNewText}, 當前標題: '${uiState.currentTextTitle}'")
+                        
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = if (uiState.isAddingNewText) "新增文本" 
-                                      else uiState.currentTextTitle.ifEmpty { "Memoria" }
-                            )
+                            Text(text = appBarTitle)
                             if (uiState.isEditingReadingMode && !uiState.isAddingNewText) {
                                 IconButton(
                                     onClick = { viewModel.openEditTitleDialog() },
