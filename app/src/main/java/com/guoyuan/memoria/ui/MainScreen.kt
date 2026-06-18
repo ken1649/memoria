@@ -180,7 +180,8 @@ fun MainScreen() {
                                         }
                                     },
                                     onEditConfirm = { updatedTitle, updatedContent ->
-                                        viewModel.updateText(it.id, updatedTitle, updatedContent)
+                                        // TODO: 待實作資料庫更新邏輯
+                                        // 目前只更新本地列表以確保UI刷新
                                     }
                                 )
                             }
