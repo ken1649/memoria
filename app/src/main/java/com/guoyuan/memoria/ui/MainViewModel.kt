@@ -111,13 +111,9 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         _uiState.update { currentState ->
             if (newMode == AppMode.PLAY) {
                 // 進入播放模式時自動開始播放
-                val paragraph = if (currentState.currentParagraphIndex < currentState.paragraphs.size) {
-                    currentState.paragraphs[currentState.currentParagraphIndex]
-                } else ""
-                val sentences = splitParagraphIntoSentences(paragraph)
+                updateCurrentSentences()
                 currentState.copy(
                     currentMode = newMode,
-                    currentSentences = sentences,
                     currentSentenceIndex = 0,
                     isPlaying = true
                 )
@@ -220,23 +216,17 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
 
     fun confirmParagraphSelection(index: Int) {
-        // 切分當前段落為句子
-        val paragraph = if (index < _uiState.value.paragraphs.size) {
-            _uiState.value.paragraphs[index]
-        } else ""
-        
-        val sentences = splitParagraphIntoSentences(paragraph)
-        
         _uiState.update { currentState ->
             currentState.copy(
                 currentParagraphIndex = index,
                 previewParagraphIndex = index,  // 同步預覽索引
-                currentSentences = sentences,
                 currentSentenceIndex = 0,
                 isPlaying = false // 重置播放狀態
             )
         }
-        Log.d("MemoriaDebug", "確認段落選擇: 段落索引=$index, 句子數量=${sentences.size}")
+        // 更新當前段落的句子列表
+        updateCurrentSentences()
+        Log.d("MemoriaDebug", "確認段落選擇: 段落索引=$index, 句子數量=${_uiState.value.currentSentences.size}")
     }
     
     fun handlePlayButtonClick() {
@@ -525,6 +515,8 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             currentList[index] = item.copy(isChecked = !item.isChecked)
             punctuationList.value = currentList
             savePunctuationListToStore(currentList)
+            // 更新當前播放的句子
+            updateCurrentSentences()
         }
     }
 
@@ -540,6 +532,23 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             val updatedList = punctuationList.value + newItem
             punctuationList.value = updatedList
             savePunctuationListToStore(updatedList)
+            // 更新當前播放的句子
+            updateCurrentSentences()
+        }
+    }
+
+    // 更新當前段落的句子列表
+    private fun updateCurrentSentences() {
+        val paragraph = if (_uiState.value.currentParagraphIndex < _uiState.value.paragraphs.size) {
+            _uiState.value.paragraphs[_uiState.value.currentParagraphIndex]
+        } else ""
+        val sentences = splitParagraphIntoSentences(paragraph)
+        val newIndex = _uiState.value.currentSentenceIndex.coerceAtMost(sentences.size - 1)
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentSentences = sentences,
+                currentSentenceIndex = newIndex
+            )
         }
     }
 }
