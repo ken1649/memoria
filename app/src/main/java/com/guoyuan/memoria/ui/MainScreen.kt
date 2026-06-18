@@ -161,7 +161,8 @@ fun MainScreen() {
                     // 將拖曳狀態提升至 LazyColumn 外層
                     var draggedIndex by remember { mutableStateOf<Int?>(null) }
                     var dragOffset by remember { mutableStateOf(0f) }
-                    val thresholdPx = 60.dp.toPx() // 項目高度閾值
+                    val density = LocalDensity.current
+                    val thresholdPx = remember(density) { with(density) { 60.dp.toPx() } } // 項目高度閾值
                     
                     LazyColumn {
                         // 最愛項目區
