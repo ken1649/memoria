@@ -792,7 +792,22 @@ private fun ManagementListItem(
             .padding(vertical = 8.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 非管理模式的點擊區域
+        // 1. 【最左邊】最愛置頂星星 (僅在管理模式顯示)
+        if (isManagementMode) {
+            IconButton(
+                onClick = { showFavoriteDialog = true },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                    contentDescription = "設為最愛",
+                    tint = if (isFavorite) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp)) // 星星與文字標題的間距
+        }
+
+        // 2. 【中間】文本標題 (自動配重佔滿剩餘空間)
         if (!isManagementMode) {
             Box(
                 modifier = Modifier
@@ -812,41 +827,23 @@ private fun ManagementListItem(
                 style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
             )
         }
+
+        // 3. 【最右邊】操作控制組 (僅在管理模式顯示)
         if (isManagementMode) {
-            // 最愛按鈕
+            // 編輯按鈕
             IconButton(
-                onClick = { showFavoriteDialog = true },
+                onClick = { showEditDialog = true },
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                    contentDescription = "設為最愛",
-                    tint = if (isFavorite) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                    Icons.Filled.Edit,
+                    contentDescription = "編輯文本",
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
                 )
             }
             
-            // 新增：編輯按鈕
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .pointerInput(Unit) {} // 阻止手勢事件冒泡
-            ) {
-                IconButton(
-                    onClick = {
-                        Log.d("MemoriaFlow", "【V按鈕絕對觸發】有人點了我！")
-                        showEditDialog = true
-                    }
-                ) {
-                    Icon(
-                        Icons.Filled.Edit,
-                        contentDescription = "編輯文本",
-                        tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        }
+            Spacer(modifier = Modifier.width(12.dp))
 
-        if (isManagementMode) {
             // 刪除按鈕
             IconButton(
                 onClick = { showDeleteDialog = true },
@@ -859,11 +856,10 @@ private fun ManagementListItem(
                 )
             }
             
-            // 為最愛項目添加空白佔位符，與非最愛項目的拖拉把手寬度一致
+            // 拖曳把手（非最愛項目顯示把手，最愛項目留白保持對齊）
             if (isFavorite) {
-                Spacer(modifier = Modifier.size(24.dp))
+                Spacer(modifier = Modifier.size(24.dp).padding(start = 8.dp))
             } else {
-                // 拖曳把手 (僅限非最愛項目) 包裹在 Box 中防止點擊穿透
                 Box(modifier = Modifier.padding(start = 8.dp)) {
                     dragHandle()
                 }
