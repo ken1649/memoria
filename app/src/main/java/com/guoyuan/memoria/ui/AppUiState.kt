@@ -23,5 +23,6 @@ data class AppUiState(
     val isEditingTitleDialogVisible: Boolean = false,
     val isSidebarManagementMode: Boolean = false,
     val favoriteTextId: Int? = null,
-    val currentTextId: Int? = null
+    val currentTextId: Int? = null,
+    val isAddingNewText: Boolean = false // 新增：是否正在新增文本
 )
