@@ -277,12 +277,26 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
     
     fun moveToPreviousParagraph() {
-        val newIndex = (_uiState.value.currentParagraphIndex - 1).coerceAtLeast(0)
+        val paragraphs = _uiState.value.paragraphs
+        if (paragraphs.isEmpty()) return
+        
+        val newIndex = if (_uiState.value.currentParagraphIndex == 0) {
+            paragraphs.lastIndex
+        } else {
+            _uiState.value.currentParagraphIndex - 1
+        }
         confirmParagraphSelection(newIndex)
     }
     
     fun moveToNextParagraph() {
-        val newIndex = (_uiState.value.currentParagraphIndex + 1).coerceAtMost(_uiState.value.paragraphs.size - 1)
+        val paragraphs = _uiState.value.paragraphs
+        if (paragraphs.isEmpty()) return
+        
+        val newIndex = if (_uiState.value.currentParagraphIndex >= paragraphs.lastIndex) {
+            0
+        } else {
+            _uiState.value.currentParagraphIndex + 1
+        }
         confirmParagraphSelection(newIndex)
     }
     
