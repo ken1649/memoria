@@ -830,20 +830,6 @@ private fun ManagementListItem(
 
         // 3. 【最右邊】操作控制組 (僅在管理模式顯示)
         if (isManagementMode) {
-            // 編輯按鈕
-            IconButton(
-                onClick = { showEditDialog = true },
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    Icons.Filled.Edit,
-                    contentDescription = "編輯文本",
-                    tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(12.dp))
-
             // 刪除按鈕
             IconButton(
                 onClick = { showDeleteDialog = true },
