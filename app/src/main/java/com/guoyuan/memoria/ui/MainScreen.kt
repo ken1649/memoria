@@ -181,6 +181,7 @@ fun MainScreen() {
                                         }
                                     },
                                     onEditConfirm = { updatedTitle, updatedContent ->
+                                        Log.d("MemoriaFlow", "【2. 螢幕接收端】收到回傳 - 新標題: $updatedTitle, 新內容: $updatedContent")
                                         // 1. 呼叫 ViewModel 更新資料庫
                                         viewModel.updateTextTitle(updatedTitle)
                                         viewModel.updateReadingContent(updatedContent)
@@ -939,6 +940,7 @@ private fun ManagementListItem(
             confirmButton = {
                 Button(
                     onClick = {
+                        Log.d("MemoriaFlow", "【1. UI 按鈕點擊】準備送出修改 - 標題: $editedTitle, 內容: $editedContent")
                         onEditConfirm(editedTitle, editedContent)
                         showEditDialog = false
                     }
