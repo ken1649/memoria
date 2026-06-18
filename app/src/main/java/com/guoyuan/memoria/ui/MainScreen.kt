@@ -548,19 +548,49 @@ fun MainScreen() {
                     // 只在播放模式顯示控制元件
                     if (uiState.currentMode == AppMode.PLAY) {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Slider(
-                            value = uiState.previewParagraphIndex.toFloat(),
-                            onValueChange = { newValue ->
-                                val index = newValue.toInt()
-                                viewModel.updateParagraphIndexDuringDrag(index)
-                                viewModel.updatePreviewIndex(index)
-                            },
-                            onValueChangeFinished = {
-                                viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
-                            },
-                            valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // 前一段按鈕
+                            IconButton(
+                                onClick = { viewModel.moveToPreviousParagraph() },
+                                enabled = uiState.currentParagraphIndex > 0
+                            ) {
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowLeft,
+                                    contentDescription = "前一段",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            
+                            // 進度條
+                            Slider(
+                                value = uiState.previewParagraphIndex.toFloat(),
+                                onValueChange = { newValue ->
+                                    val index = newValue.toInt()
+                                    viewModel.updateParagraphIndexDuringDrag(index)
+                                    viewModel.updatePreviewIndex(index)
+                                },
+                                onValueChangeFinished = {
+                                    viewModel.confirmParagraphSelection(uiState.previewParagraphIndex)
+                                },
+                                valueRange = 0f..(uiState.paragraphs.size - 1).toFloat(),
+                                modifier = Modifier.weight(1f)
+                            )
+                            
+                            // 下一段按鈕
+                            IconButton(
+                                onClick = { viewModel.moveToNextParagraph() },
+                                enabled = uiState.currentParagraphIndex < uiState.paragraphs.size - 1
+                            ) {
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowRight,
+                                    contentDescription = "下一段",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
                                 
                         // 播放控制按鈕組
                         Row(

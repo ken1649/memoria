@@ -230,6 +230,16 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         Log.d("MemoriaDebug", "確認段落選擇: 段落索引=$index, 句子數量=${_uiState.value.currentSentences.size}")
     }
     
+    fun moveToPreviousParagraph() {
+        val newIndex = (_uiState.value.currentParagraphIndex - 1).coerceAtLeast(0)
+        confirmParagraphSelection(newIndex)
+    }
+    
+    fun moveToNextParagraph() {
+        val newIndex = (_uiState.value.currentParagraphIndex + 1).coerceAtMost(_uiState.value.paragraphs.size - 1)
+        confirmParagraphSelection(newIndex)
+    }
+    
     fun handlePlayButtonClick() {
         Log.d("MemoriaDebug", "點擊播放鍵 -> 當前 isPlaying = ${_uiState.value.isPlaying}, 句子總數 = ${_uiState.value.currentSentences.size}, 當前索引 = ${_uiState.value.currentSentenceIndex}")
         
