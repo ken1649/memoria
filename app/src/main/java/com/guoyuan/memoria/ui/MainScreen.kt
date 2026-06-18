@@ -787,10 +787,29 @@ private fun ManagementListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
-            .clickable(enabled = !isManagementMode) { onClick() },
+            .padding(vertical = 8.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // 非管理模式的點擊區域
+        if (!isManagementMode) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onClick() }
+            ) {
+                Text(
+                    text = item.title,
+                    modifier = Modifier.align(Alignment.CenterStart),
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                )
+            }
+        } else {
+            Text(
+                text = item.title,
+                modifier = Modifier.weight(1f),
+                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+            )
+        }
         if (isManagementMode) {
             // 最愛按鈕
             IconButton(
@@ -842,8 +861,10 @@ private fun ManagementListItem(
             if (isFavorite) {
                 Spacer(modifier = Modifier.size(24.dp))
             } else {
-                // 拖曳把手 (僅限非最愛項目)
-                dragHandle()
+                // 拖曳把手 (僅限非最愛項目) 包裹在 Box 中防止點擊穿透
+                Box(modifier = Modifier.padding(start = 8.dp)) {
+                    dragHandle()
+                }
             }
         }
     }
