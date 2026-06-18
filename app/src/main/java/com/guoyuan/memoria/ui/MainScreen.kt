@@ -583,8 +583,7 @@ fun MainScreen() {
                             // 上一步按鈕
                             IconButton(
                                 onClick = { viewModel.moveToPrevious() },
-                                modifier = Modifier.padding(horizontal = 8.dp),
-                                enabled = uiState.previewParagraphIndex > 0
+                                modifier = Modifier.padding(horizontal = 8.dp)
                             ) {
                                 Icon(
                                     imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowLeft,
