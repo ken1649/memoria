@@ -200,6 +200,20 @@ fun MainScreen() {
                                         scope.launch { drawerState.close() }
                                     }
                                 },
+                                onEditConfirm = { updatedTitle, updatedContent ->
+                                    // 1. 更新資料庫
+                                    viewModel.updateText(textEntity.id, updatedTitle, updatedContent)
+
+                                    // 2. 更新本地快照清單
+                                    val targetIndex = reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
+                                    if (targetIndex != -1) {
+                                        val updatedEntity = reorderableRegularItems[targetIndex].copy(
+                                            title = updatedTitle,
+                                            fullContent = updatedContent
+                                        )
+                                        reorderableRegularItems[targetIndex] = updatedEntity
+                                    }
+                                },
                                 dragHandle = {
                                     if (uiState.isSidebarManagementMode && !textEntity.isFavorite) {
                                         Icon(
@@ -741,11 +755,15 @@ private fun ManagementListItem(
     onToggleFavorite: () -> Unit,
     onDelete: () -> Unit,
     onClick: () -> Unit,
+    onEditConfirm: (String, String) -> Unit, // 新增：編輯確認回呼
     dragHandle: @Composable () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showFavoriteDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) } // 新增：編輯對話框狀態
+    var editedTitle by remember { mutableStateOf(item.title) } // 新增：編輯中的標題
+    var editedContent by remember { mutableStateOf(item.fullContent) } // 新增：編輯中的內容
     
     Row(
         modifier = modifier
@@ -764,6 +782,18 @@ private fun ManagementListItem(
                     imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                     contentDescription = "設為最愛",
                     tint = if (isFavorite) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
+            // 新增：編輯按鈕
+            IconButton(
+                onClick = { showEditDialog = true },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    Icons.Filled.Edit,
+                    contentDescription = "編輯文本",
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -856,6 +886,51 @@ private fun ManagementListItem(
                         containerColor = androidx.compose.material3.MaterialTheme.colorScheme.errorContainer,
                         contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
                     )
+                ) {
+                    Text("取消")
+                }
+            }
+        )
+    }
+    
+    // 新增：編輯文本對話框
+    if (showEditDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showEditDialog = false },
+            title = { Text("編輯文本") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = editedTitle,
+                        onValueChange = { editedTitle = it },
+                        label = { Text("標題") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = editedContent,
+                        onValueChange = { editedContent = it },
+                        label = { Text("內容") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        maxLines = Int.MAX_VALUE
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onEditConfirm(editedTitle, editedContent)
+                        showEditDialog = false
+                    }
+                ) {
+                    Text("儲存")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showEditDialog = false }
                 ) {
                     Text("取消")
                 }
