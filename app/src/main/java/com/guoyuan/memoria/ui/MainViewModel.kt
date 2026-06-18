@@ -189,13 +189,30 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         viewModelScope.launch {
             setLoading(true)
             try {
-                val text = withContext(Dispatchers.IO) {
-                    Jsoup.connect(url).get().text()
+                val isGoogleDoc = url.contains("docs.google.com/document/d/")
+                val (processedUrl, title) = if (isGoogleDoc) {
+                    val docId = url.substringAfter("document/d/").substringBefore("/")
+                    Pair("https://docs.google.com/document/d/$docId/export?format=txt", "匯入的 Google 文件")
+                } else {
+                    val webTitle = withContext(Dispatchers.IO) {
+                        try { Jsoup.connect(url).get().title() } catch (e: Exception) { "網頁內容" }
+                    }
+                    Pair(url, webTitle)
                 }
-                updateEditTitle("網頁內容")
+
+                val text = withContext(Dispatchers.IO) {
+                    if (isGoogleDoc) {
+                        Jsoup.connect(processedUrl).ignoreContentType(true).execute().body()
+                    } else {
+                        Jsoup.connect(processedUrl).get().text()
+                    }
+                }
+                
+                updateEditTitle(title)
                 updateEditContent(text)
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
                 setLoading(false)
             }
         }

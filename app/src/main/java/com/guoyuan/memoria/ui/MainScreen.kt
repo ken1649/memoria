@@ -398,6 +398,40 @@ fun MainScreen() {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
+                    // 網址匯入區
+                    var importUrl by remember { mutableStateOf("") }
+                
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = importUrl,
+                            onValueChange = { importUrl = it },
+                            label = { Text("從網址/Google文件匯入") },
+                            modifier = Modifier.weight(1f),
+                            enabled = !uiState.isLoading
+                        )
+                    
+                        Spacer(modifier = Modifier.width(8.dp))
+                    
+                        Button(
+                            onClick = { viewModel.fetchTextFromUrl(importUrl) },
+                            enabled = !uiState.isLoading && importUrl.isNotBlank()
+                        ) {
+                            Text("抓取")
+                        }
+                    }
+                
+                    Text(
+                        text = "💡 提示：若使用 Google 文件，請確保已開啟『知道連結的任何人都可以檢視』分享權限。",
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                
                     // 標題輸入框
                     OutlinedTextField(
                         value = uiState.currentTextTitle,
@@ -438,7 +472,7 @@ fun MainScreen() {
                         ) {
                             Text("儲存文章")
                         }
-                        
+                    
                         Button(
                             onClick = {
                                 viewModel.updateMode(AppMode.READ)
