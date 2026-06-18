@@ -391,14 +391,23 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     
     fun updateTextTitle(newTitle: String) {
         _uiState.update { currentState ->
-            currentState.copy(currentTextTitle = newTitle)
+            val updatedState = currentState.copy(currentTextTitle = newTitle)
+            // 同步更新所有文本列表中的標題
+            _allTexts.value = _allTexts.value.map { 
+                if (it.id == currentState.currentTextId) it.copy(title = newTitle) else it 
+            }
+            updatedState
         }
-        // 這裡可以擴充資料庫更新邏輯
     }
     
     fun updateReadingContent(newContent: String) {
         _uiState.update { currentState ->
-            currentState.copy(fullTextContent = newContent)
+            val updatedState = currentState.copy(fullTextContent = newContent)
+            // 同步更新所有文本列表中的內容
+            _allTexts.value = _allTexts.value.map { 
+                if (it.id == currentState.currentTextId) it.copy(fullContent = newContent) else it 
+            }
+            updatedState
         }
         splitContentToParagraphs(newContent)
     }
@@ -409,6 +418,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 currentMode = AppMode.READ,
                 currentTextTitle = text.title,
                 fullTextContent = text.fullContent,
+                currentTextId = text.id, // 新增 ID 追蹤
                 currentParagraphIndex = 0,
                 previewParagraphIndex = 0,
                 currentSentences = emptyList(),
