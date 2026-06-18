@@ -471,6 +471,9 @@ fun MainScreen() {
                             
                             if (uiState.isEditingReadingMode) {
                                 // 編輯狀態：原地變身為輸入框
+                                LaunchedEffect(uiState.currentTextId) {
+                                    editableText = uiState.fullTextContent
+                                }
                                 OutlinedTextField(
                                     value = editableText,
                                     onValueChange = {
