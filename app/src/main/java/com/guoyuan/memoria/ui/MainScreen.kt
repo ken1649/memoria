@@ -613,7 +613,7 @@ fun MainScreen() {
                             // 前一段按鈕
                             IconButton(
                                 onClick = { viewModel.moveToPreviousParagraph() },
-                                enabled = uiState.currentParagraphIndex > 0
+                                enabled = true
                             ) {
                                 Icon(
                                     imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowLeft,
@@ -640,7 +640,7 @@ fun MainScreen() {
                             // 下一段按鈕
                             IconButton(
                                 onClick = { viewModel.moveToNextParagraph() },
-                                enabled = uiState.currentParagraphIndex < uiState.paragraphs.size - 1
+                                enabled = true
                             ) {
                                 Icon(
                                     imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowRight,
