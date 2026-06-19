@@ -16,6 +16,8 @@ data class AppUiState(
     val currentSentenceIndex: Int = 0, // 新增：當前播放的句子索引
     val fullTextContent: String = "",
     val currentTextTitle: String = "",
+    val fontSize: Float = 18f, // 新增：字體大小狀態
+    val backupFontSize: Float = 18f, // 新增：備份字體大小（用於取消時還原）
     val isLoading: Boolean = false,
     val showSettingsDialog: Boolean = false,
     val showPunctuationDialog: Boolean = false,

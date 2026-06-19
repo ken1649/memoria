@@ -40,11 +40,13 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     val punctuationList = MutableStateFlow<List<PunctuationItem>>(emptyList())
     private val gson = Gson()
     private val PUNCTUATION_LIST_KEY = stringPreferencesKey("punctuation_list_json")
+    private val FONT_SIZE_KEY = floatPreferencesKey("font_size") // 新增：字體大小儲存鍵
 
     init {
         viewModelScope.launch {
             loadAllTexts()
             loadPunctuationListFromStore()
+            loadFontSize() // 新增：載入字體大小
         }
     }
     
@@ -374,15 +376,59 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
 
-    fun openSettings() {
+    // 新增：更新字體大小（即時預覽）
+    fun updateFontSize(size: Float) {
         _uiState.update { currentState ->
-            currentState.copy(showSettingsDialog = true)
+            currentState.copy(fontSize = size)
+        }
+    }
+    
+    // 新增：保存字體大小到持久化儲存
+    fun saveFontSize() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                dataStore.edit { preferences ->
+                    preferences[FONT_SIZE_KEY] = _uiState.value.fontSize
+                }
+                Log.d("FontSize", "字體大小已保存: ${_uiState.value.fontSize}")
+            } catch (e: Exception) {
+                Log.e("FontSize", "保存字體大小失敗", e)
+            }
+        }
+    }
+    
+    // 新增：從持久化儲存載入字體大小
+    private suspend fun loadFontSize() {
+        try {
+            val size = dataStore.data.map { preferences ->
+                preferences[FONT_SIZE_KEY] ?: 18f
+            }.first()
+            _uiState.update { currentState ->
+                currentState.copy(fontSize = size, backupFontSize = size)
+            }
+            Log.d("FontSize", "字體大小已載入: $size")
+        } catch (e: Exception) {
+            Log.e("FontSize", "載入字體大小失敗", e)
+        }
+    }
+
+    fun openSettings() {
+        // 備份當前字體大小
+        _uiState.update { currentState ->
+            currentState.copy(
+                showSettingsDialog = true,
+                backupFontSize = currentState.fontSize
+            )
         }
     }
 
     fun closeSettings() {
+        // 取消時還原字體大小
         _uiState.update { currentState ->
-            currentState.copy(showSettingsDialog = false)
+            currentState.copy(
+                showSettingsDialog = false,
+                fontSize = currentState.backupFontSize
+            )
         }
     }
 
