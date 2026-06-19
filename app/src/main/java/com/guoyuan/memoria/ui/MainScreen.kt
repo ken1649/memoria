@@ -1059,7 +1059,6 @@ fun MainScreen() {
                             .fillMaxWidth()
                             .clickable {
                                 viewModel.updateTheme(AppTheme.LIGHT)
-                                showColorDialog = false
                             }
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -1078,7 +1077,6 @@ fun MainScreen() {
                             .fillMaxWidth()
                             .clickable {
                                 viewModel.updateTheme(AppTheme.DARK)
-                                showColorDialog = false
                             }
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -1097,7 +1095,6 @@ fun MainScreen() {
                             .fillMaxWidth()
                             .clickable {
                                 viewModel.updateTheme(AppTheme.EYE_CARE)
-                                showColorDialog = false
                             }
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -1116,7 +1113,6 @@ fun MainScreen() {
                             .fillMaxWidth()
                             .clickable {
                                 viewModel.updateTheme(AppTheme.SYSTEM)
-                                showColorDialog = false
                             }
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
