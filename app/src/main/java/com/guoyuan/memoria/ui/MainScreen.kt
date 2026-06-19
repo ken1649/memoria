@@ -128,8 +128,13 @@ fun MainScreen() {
     // 當選中的文本改變時，自動載入進度
     LaunchedEffect(uiState.currentTextId) {
         uiState.currentTextId?.let { itemId ->
-            val savedIndex = viewModel.getLastIndex(itemId)
-            viewModel.confirmParagraphSelection(savedIndex)
+            try {
+                val savedIndex = viewModel.getLastIndex(itemId)
+                Log.d("ProgressDebug", "已載入進度: ID=$itemId, Index=$savedIndex")
+                viewModel.confirmParagraphSelection(savedIndex)
+            } catch (e: Exception) {
+                Log.e("ProgressDebug", "載入進度失敗", e)
+            }
         }
     }
     

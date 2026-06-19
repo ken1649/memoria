@@ -20,6 +20,12 @@ interface AppDao {
 
     @Query("UPDATE texts SET is_favorite = :isFavorite WHERE id = :id")
     suspend fun setFavorite(id: Int, isFavorite: Boolean)
+    
+    @Query("UPDATE texts SET last_played_index = :index WHERE id = :id")
+    suspend fun saveLastPlayedIndex(id: Int, index: Int)
+    
+    @Query("SELECT last_played_index FROM texts WHERE id = :id")
+    suspend fun getLastPlayedIndex(id: Int): Int?
 
     @Query("UPDATE texts SET display_order = :order WHERE id = :id")
     suspend fun updateDisplayOrder(id: Int, order: Int)

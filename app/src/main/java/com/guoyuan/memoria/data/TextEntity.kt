@@ -11,5 +11,6 @@ data class TextEntity(
     @ColumnInfo(name = "fullContent") val fullContent: String,
     @ColumnInfo(name = "source_url") val sourceUrl: String,
     @ColumnInfo(name = "is_favorite") val isFavorite: Boolean = false,
-    @ColumnInfo(name = "display_order") val displayOrder: Int = 0
+    @ColumnInfo(name = "display_order") val displayOrder: Int = 0,
+    @ColumnInfo(name = "last_played_index") val lastPlayedIndex: Int = 0
 )
