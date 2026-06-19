@@ -110,6 +110,9 @@ fun MainScreen() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     
+    // 新增狀態變量控制進度保存時機
+    var isReady by remember { mutableStateOf(false) }
+    
     // 持久化儲存最後一次有效標題
     val lastSelectedTitle = remember { mutableStateOf("Memoria") }
     LaunchedEffect(uiState.currentTextId) {
@@ -127,6 +130,7 @@ fun MainScreen() {
     
     // 當選中的文本改變時，自動載入進度
     LaunchedEffect(uiState.currentTextId) {
+        isReady = false // 載入中，暫停進度保存
         uiState.currentTextId?.let { itemId ->
             try {
                 val savedIndex = viewModel.getLastIndex(itemId)
@@ -136,12 +140,15 @@ fun MainScreen() {
                 Log.e("ProgressDebug", "載入進度失敗", e)
             }
         }
+        isReady = true // 載入完成，啟用進度保存
     }
     
     // 當播放段落改變時，自動儲存進度
     LaunchedEffect(uiState.currentParagraphIndex) {
-        uiState.currentTextId?.let { itemId ->
-            viewModel.updateProgress(itemId, uiState.currentParagraphIndex)
+        if (isReady) { // 只有當準備好後才允許寫入
+            uiState.currentTextId?.let { itemId ->
+                viewModel.updateProgress(itemId, uiState.currentParagraphIndex)
+            }
         }
     }
 
