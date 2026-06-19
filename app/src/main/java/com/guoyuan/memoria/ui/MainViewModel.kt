@@ -25,8 +25,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import androidx.datastore.preferences.core.floatPreferencesKey
-//
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 data class PunctuationItem(val symbol: String, val label: String, var isChecked: Boolean, val isCustom: Boolean = false)
 
