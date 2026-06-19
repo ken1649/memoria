@@ -617,64 +617,58 @@ fun MainScreen() {
                                 )
                             }
                         } else {
-                            // 播放模式顯示：使用連續文字區塊
-                            val scrollState = rememberScrollState()
-                            // 直接使用 uiState 計算顯示文本
-                            val displayText = if (uiState.currentMode == AppMode.PLAY && uiState.isPlaying) {
-                                uiState.currentSentences.take(uiState.currentSentenceIndex + 1).joinToString("")
-                            } else {
-                                ""
-                            }
-    
-                            // 監聽顯示文本變化，自動捲動到底部
-                            LaunchedEffect(displayText) {
-                                if (displayText.isNotEmpty()) {
-                                    // 延遲一小段時間，確保UI更新完成
-                                    kotlinx.coroutines.delay(10)
-                                    scrollState.animateScrollTo(scrollState.maxValue)
-                                    Log.d("AutoScroll", "自動捲動至底部")
-                                }
-                            }
-    
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(scrollState)
+                            // 播放模式顯示：使用 LazyColumn 顯示句子列表
+                            val listState = rememberLazyListState()
+                            // 除錯日誌：顯示當前句子列表
+                            Log.d("UI_Debug", "Rendering: ${uiState.currentSentences}")
+                            
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                state = listState
                             ) {
                                 // 當不在播放狀態時，顯示段落序號
                                 if (uiState.currentMode == AppMode.PLAY && !uiState.isPlaying) {
+                                    item {
+                                        Text(
+                                            text = "${uiState.currentParagraphIndex + 1}.",
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Start,
+                                            fontSize = uiState.fontSize.sp,
+                                            lineHeight = (uiState.fontSize * 1.5f).sp
+                                        )
+                                    }
+                                }
+                                
+                                // 顯示已播放的句子（包括當前句子）
+                                itemsIndexed(uiState.currentSentences.take(uiState.currentSentenceIndex + 1)) { index, sentence ->
                                     Text(
-                                        text = "${uiState.currentParagraphIndex + 1}.",
+                                        text = sentence,
                                         modifier = Modifier.fillMaxWidth(),
                                         textAlign = TextAlign.Start,
                                         fontSize = uiState.fontSize.sp,
-                                        lineHeight = (uiState.fontSize * 1.5f).sp
+                                        lineHeight = (uiState.fontSize * 1.5f).sp,
+                                        color = if (index == uiState.currentSentenceIndex) Color.Red else Color.Black
                                     )
                                 }
                                 
-                                // 除錯日誌：顯示當前句子數量
-                                LaunchedEffect(uiState.currentSentences.size) {
-                                    Log.d("UI_Debug", "Items size: ${uiState.currentSentences.size}")
-                                }
-        
-                                // 顯示已播放的句子列表（合併為單一文字區塊）
-                                Text(
-                                    text = displayText,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Start,
-                                    fontSize = uiState.fontSize.sp,
-                                    lineHeight = (uiState.fontSize * 1.5f).sp
-                                )
-        
                                 // 全文背誦完畢提示
                                 if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
-                                    Text(
-                                        text = "全文背誦完畢！",
-                                        modifier = Modifier.fillMaxWidth(),
-                                        textAlign = TextAlign.Center,
-                                        fontSize = uiState.fontSize.sp,
-                                        lineHeight = (uiState.fontSize * 1.5f).sp
-                                    )
+                                    item {
+                                        Text(
+                                            text = "全文背誦完畢！",
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Center,
+                                            fontSize = uiState.fontSize.sp,
+                                            lineHeight = (uiState.fontSize * 1.5f).sp
+                                        )
+                                    }
+                                }
+                            }
+                            
+                            // 滾動到當前句子
+                            LaunchedEffect(uiState.currentSentenceIndex) {
+                                if (uiState.currentSentenceIndex >= 0) {
+                                    listState.animateScrollToItem(uiState.currentSentenceIndex)
                                 }
                             }
                         }
