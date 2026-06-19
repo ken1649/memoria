@@ -47,6 +47,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.DrawerValue
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.TextStyle
@@ -120,6 +123,7 @@ fun MainScreen() {
     
     // 新增狀態變量控制進度保存時機
     var isReady by remember { mutableStateOf(false) }
+    var showColorDialog by remember { mutableStateOf(false) } // 新增：顏色設定對話框狀態
     
     // 持久化儲存最後一次有效標題
     val lastSelectedTitle = remember { mutableStateOf("Memoria") }
