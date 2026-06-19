@@ -10,7 +10,7 @@ import androidx.room.Delete
 interface AppDao {
     // TextEntity operations
     @Insert
-    suspend fun insertText(text: TextEntity)
+    suspend fun insertText(text: TextEntity): Long
 
     @Query("SELECT * FROM texts")
     suspend fun getAllTexts(): List<TextEntity>

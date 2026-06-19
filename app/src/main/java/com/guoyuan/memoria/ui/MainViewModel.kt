@@ -167,18 +167,24 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                     sourceUrl = "",
                     displayOrder = newDisplayOrder
                 )
-                appDao.insertText(textEntity)
+                val newId = appDao.insertText(textEntity).toInt()
                 loadAllTexts() // 重新加载文章列表
 
+                // 获取新插入的文章
+                val newText = _allTexts.value.firstOrNull { it.id == newId }
+                
                 withContext(Dispatchers.Main) {
                     _uiState.update { currentState ->
                         currentState.copy(
                             currentMode = AppMode.READ,
-                            isLoading = false
+                            isLoading = false,
+                            currentTextId = newId,
+                            currentTextTitle = newText?.title ?: title,
+                            fullTextContent = newText?.fullContent ?: content
                         )
                     }
                     // 保存後重新解析內容以更新顯示
-                    splitContentToParagraphs(content)
+                    splitContentToParagraphs(newText?.fullContent ?: content)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
