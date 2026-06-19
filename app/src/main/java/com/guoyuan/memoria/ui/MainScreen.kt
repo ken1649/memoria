@@ -627,28 +627,14 @@ fun MainScreen() {
                                 modifier = Modifier.fillMaxSize(),
                                 state = listState
                             ) {
-                                // 當不在播放狀態時，顯示段落序號
-                                if (uiState.currentMode == AppMode.PLAY && !uiState.isPlaying) {
-                                    item {
-                                        Text(
-                                            text = "${uiState.currentParagraphIndex + 1}.",
-                                            modifier = Modifier.fillMaxWidth(),
-                                            textAlign = TextAlign.Start,
-                                            fontSize = uiState.fontSize.sp,
-                                            lineHeight = (uiState.fontSize * 1.5f).sp
-                                        )
-                                    }
-                                }
-                                
                                 // 顯示已播放的句子（包括當前句子）
-                                itemsIndexed(uiState.currentSentences.take(uiState.currentSentenceIndex + 1)) { index, sentence ->
+                                items(uiState.currentSentences.take(uiState.currentSentenceIndex + 1)) { sentence ->
                                     Text(
                                         text = sentence,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier.padding(horizontal = 4.dp),
                                         fontSize = uiState.fontSize.sp,
                                         lineHeight = (uiState.fontSize * 1.5f).sp,
-                                        color = if (index == uiState.currentSentenceIndex) Color.Red else Color.Black
+                                        color = Color.Black
                                     )
                                 }
                                 
