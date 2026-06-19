@@ -529,18 +529,24 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     // 進度保存
     fun updateProgress(itemId: Int, index: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            // 這裡需要實作保存進度的邏輯
-            // 例如：appDao.saveLastPlayedIndex(itemId, index)
-            // 目前先留空，等資料庫實作後再補充
+            try {
+                appDao.saveLastPlayedIndex(itemId, index)
+                Log.d("ProgressDebug", "已保存進度: ID=$itemId, Index=$index")
+            } catch (e: Exception) {
+                Log.e("ProgressDebug", "儲存進度失敗", e)
+            }
         }
     }
     
     // 進度讀取
     suspend fun getLastIndex(itemId: Int): Int {
         return withContext(Dispatchers.IO) {
-            // 這裡需要實作讀取進度的邏輯
-            // 例如：appDao.getLastPlayedIndex(itemId) ?: 0
-            0 // 目前先返回0，等DAO實作後再替換
+            try {
+                appDao.getLastPlayedIndex(itemId) ?: 0
+            } catch (e: Exception) {
+                Log.e("ProgressDebug", "讀取進度失敗", e)
+                0
+            }
         }
     }
     
