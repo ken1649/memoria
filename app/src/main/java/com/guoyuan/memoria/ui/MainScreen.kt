@@ -823,7 +823,7 @@ fun MainScreen() {
                             .height(250.dp)
                     ) {
                         LazyColumn {
-                            items(punctuationList.value) { item ->
+                            items(punctuationList) { item ->
                                 androidx.compose.foundation.layout.Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
