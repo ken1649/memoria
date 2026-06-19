@@ -498,7 +498,10 @@ fun MainScreen() {
                         onValueChange = { viewModel.updateEditTitle(it) },
                         label = { Text("標題") },
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current,
+                        textStyle = TextStyle(
+                            fontSize = uiState.fontSize.sp,
+                            lineHeight = (uiState.fontSize * 1.5f).sp
+                        ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                     )
 
@@ -510,7 +513,10 @@ fun MainScreen() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                        textStyle = LocalTextStyle.current,
+                        textStyle = TextStyle(
+                            fontSize = uiState.fontSize.sp,
+                            lineHeight = (uiState.fontSize * 1.5f).sp
+                        ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
                         maxLines = Int.MAX_VALUE
                     )
@@ -579,7 +585,10 @@ fun MainScreen() {
                                         viewModel.updateEditContent(it) // 即時更新ViewModel
                                     },
                                     modifier = Modifier.fillMaxSize(),
-                                    textStyle = TextStyle(fontSize = androidx.compose.material3.MaterialTheme.typography.bodyLarge.fontSize),
+                                    textStyle = TextStyle(
+                                        fontSize = uiState.fontSize.sp,
+                                        lineHeight = (uiState.fontSize * 1.5f).sp
+                                    ),
                                     maxLines = Int.MAX_VALUE
                                 )
                             } else {
@@ -758,7 +767,11 @@ fun MainScreen() {
                     value = tempTitle,
                     onValueChange = { tempTitle = it },
                     label = { Text("新標題") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(
+                        fontSize = uiState.fontSize.sp,
+                        lineHeight = (uiState.fontSize * 1.5f).sp
+                    )
                 )
             },
             confirmButton = {
