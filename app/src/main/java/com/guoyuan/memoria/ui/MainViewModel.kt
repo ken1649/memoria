@@ -359,37 +359,43 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
     fun previousSentence() {
         val currentState = _uiState.value
-        val currentIdx = currentState.currentSentenceIndex
-        val currentParaIdx = currentState.currentParagraphIndex
         val paragraphs = currentState.paragraphs
+        
+        // 如果沒有內容，直接返回
+        if (paragraphs.isEmpty()) return
 
-        if (currentIdx == 0 && currentParaIdx == 0) {
-            // 環形導航：第0段第0句 -> 跳至最後一段最後一句
-            val lastParaIdx = paragraphs.size - 1
-            val sentences = splitParagraphIntoSentences(paragraphs.getOrNull(lastParaIdx) ?: "")
-            val lastIndex = (sentences.size - 1).coerceAtLeast(0)
-            _uiState.update { 
-                it.copy(
-                    currentParagraphIndex = lastParaIdx,
-                    currentSentenceIndex = lastIndex
-                )
+        val currentParaIdx = currentState.currentParagraphIndex
+        val currentSentIdx = currentState.currentSentenceIndex
+
+        // 計算邏輯
+        var nextParaIdx = currentParaIdx
+        var nextSentIdx = currentSentIdx - 1
+
+        if (nextSentIdx < 0) {
+            // 需要往上一個段落跳
+            nextParaIdx = currentParaIdx - 1
+            if (nextParaIdx < 0) {
+                // 循環：跳到最後一個段落
+                nextParaIdx = paragraphs.size - 1
             }
-        } else if (currentIdx <= 0 && currentParaIdx > 0) {
-            // 跨段落：跳至前一段最後一句
-            val prevParaIdx = currentParaIdx - 1
-            val sentences = splitParagraphIntoSentences(paragraphs.getOrNull(prevParaIdx) ?: "")
-            val lastIndex = (sentences.size - 1).coerceAtLeast(0)
-            _uiState.update { 
-                it.copy(
-                    currentParagraphIndex = prevParaIdx,
-                    currentSentenceIndex = lastIndex
-                )
-            }
-        } else {
-            // 一般情況：同段內前移一句
-            _uiState.update { it.copy(currentSentenceIndex = currentIdx - 1) }
+            // 取得目標段落的句子總數
+            val targetSentences = splitParagraphIntoSentences(paragraphs[nextParaIdx])
+            nextSentIdx = targetSentences.size - 1
         }
+
+        // 更新狀態
+        _uiState.update { 
+            it.copy(
+                currentParagraphIndex = nextParaIdx,
+                currentSentenceIndex = nextSentIdx.coerceAtLeast(0)
+            )
+        }
+        
+        // 強制刷新句子列表以確保 UI 更新
         updateCurrentSentences()
+        
+        // 除錯日誌
+        android.util.Log.d("NavDebug", "Jumped to Para: $nextParaIdx, Sent: $nextSentIdx")
     }
 
     fun resetPlayback() {
