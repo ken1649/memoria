@@ -843,7 +843,7 @@ fun MainScreen() {
                     androidx.compose.foundation.layout.Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { println("顏色設定被點擊") }
+                            .clickable { showColorDialog = true }
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
                     ) {
@@ -1042,6 +1042,99 @@ fun MainScreen() {
             }
         )
     }
+    
+    // 新增：顏色設定對話框
+    if (showColorDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showColorDialog = false },
+            title = { Text("選擇主題") },
+            text = {
+                Column {
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                viewModel.updateTheme(AppTheme.LIGHT)
+                                showColorDialog = false
+                            }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        Text("明亮模式")
+                        if (uiState.currentTheme == AppTheme.LIGHT) {
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                contentDescription = "已選擇",
+                                tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                viewModel.updateTheme(AppTheme.DARK)
+                                showColorDialog = false
+                            }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        Text("夜間模式")
+                        if (uiState.currentTheme == AppTheme.DARK) {
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                contentDescription = "已選擇",
+                                tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                viewModel.updateTheme(AppTheme.EYE_CARE)
+                                showColorDialog = false
+                            }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        Text("護眼模式")
+                        if (uiState.currentTheme == AppTheme.EYE_CARE) {
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                contentDescription = "已選擇",
+                                tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                viewModel.updateTheme(AppTheme.SYSTEM)
+                                showColorDialog = false
+                            }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        Text("跟隨系統")
+                        if (uiState.currentTheme == AppTheme.SYSTEM) {
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                contentDescription = "已選擇",
+                                tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showColorDialog = false }) {
+                    Text("關閉")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -1059,6 +1152,7 @@ private fun ManagementListItem(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showFavoriteDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) } // 新增：編輯對話框狀態
+    var showColorDialog by remember { mutableStateOf(false) } // 新增：顏色設定對話框狀態
     var editedTitle by remember { mutableStateOf(item.title) } // 新增：編輯中的標題
     var editedContent by remember { mutableStateOf(item.fullContent) } // 新增：編輯中的內容
     
