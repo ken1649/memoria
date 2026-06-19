@@ -73,7 +73,9 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                     PunctuationItem("？", "問號", true),
                     PunctuationItem("！", "驚嘆號", true),
                     PunctuationItem("：", "冒號", true),
-                    PunctuationItem(" ", "空白", true)
+                    PunctuationItem(" ", "空白", true),
+                    PunctuationItem("／", "正斜線", false),  // 新增正斜線選項（預設不勾選）
+                    PunctuationItem("＼", "反斜線", false)   // 新增反斜線選項（預設不勾選）
                 )
                 punctuationList.value = defaultList
                 savePunctuationListToStore(defaultList)
@@ -605,7 +607,9 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             '；' to ';',
             '？' to '?',
             '！' to '!',
-            '：' to ':'
+            '：' to ':',
+            '／' to '/',   // 正斜線全形到半形
+            '＼' to '\\'   // 反斜線全形到半形（注意：使用雙反斜線表示單個反斜線）
         )
         
         // 擴展啟用符號列表（加入對應的全形/半形符號）
