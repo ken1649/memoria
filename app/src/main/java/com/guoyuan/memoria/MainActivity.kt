@@ -15,6 +15,7 @@ import com.guoyuan.memoria.ui.MainScreen
 import com.guoyuan.memoria.ui.MainViewModel
 import com.guoyuan.memoria.ui.MainViewModelFactory
 import com.guoyuan.memoria.ui.theme.MemoriaTheme
+import com.guoyuan.memoria.utils.dataStore // 新增导入
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
