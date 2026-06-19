@@ -617,45 +617,34 @@ fun MainScreen() {
                                 )
                             }
                         } else {
-                            // 播放模式顯示：使用 LazyColumn 顯示句子列表
-                            val listState = rememberLazyListState()
+                            // 播放模式顯示：使用連續文字區塊
+                            val scrollState = rememberScrollState()
                             val displayedSentences = if (uiState.currentMode == AppMode.PLAY && uiState.isPlaying) {
                                 uiState.currentSentences.take(uiState.currentSentenceIndex + 1)
                             } else {
                                 emptyList()
                             }
-
-                            // 監聽 currentSentenceIndex 的變化，並自動捲動到對應項目
-                            LaunchedEffect(uiState.currentSentenceIndex) {
-                                if (displayedSentences.isNotEmpty() && uiState.currentSentenceIndex >= 0) {
-                                    // 延遲一小段時間，確保 UI 已經更新
+                            val displayText = displayedSentences.joinToString("")
+    
+                            // 監聽文字內容變化，自動捲動到底部
+                            LaunchedEffect(displayText) {
+                                if (displayText.isNotEmpty()) {
+                                    // 延遲一小段時間，確保UI更新完成
                                     kotlinx.coroutines.delay(10)
-                                    listState.scrollToItem(uiState.currentSentenceIndex)
-                                    Log.d("AutoScroll", "捲動至索引: ${uiState.currentSentenceIndex}")
+                                    scrollState.animateScrollTo(scrollState.maxValue)
+                                    Log.d("AutoScroll", "自動捲動至底部")
                                 }
                             }
-
-                            LazyColumn(
-                                state = listState,
-                                modifier = Modifier.fillMaxSize()
+    
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(scrollState)
                             ) {
                                 // 當不在播放狀態時，顯示段落序號
                                 if (uiState.currentMode == AppMode.PLAY && !uiState.isPlaying) {
-                                    item {
-                                        Text(
-                                            text = "${uiState.currentParagraphIndex + 1}.",
-                                            modifier = Modifier.fillMaxWidth(),
-                                            textAlign = TextAlign.Start,
-                                            fontSize = uiState.fontSize.sp,
-                                            lineHeight = (uiState.fontSize * 1.5f).sp
-                                        )
-                                    }
-                                }
-        
-                                // 顯示已播放的句子列表
-                                items(displayedSentences) { sentence ->
                                     Text(
-                                        text = sentence,
+                                        text = "${uiState.currentParagraphIndex + 1}.",
                                         modifier = Modifier.fillMaxWidth(),
                                         textAlign = TextAlign.Start,
                                         fontSize = uiState.fontSize.sp,
@@ -663,17 +652,24 @@ fun MainScreen() {
                                     )
                                 }
         
+                                // 顯示已播放的句子列表（合併為單一文字區塊）
+                                Text(
+                                    text = displayText,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Start,
+                                    fontSize = uiState.fontSize.sp,
+                                    lineHeight = (uiState.fontSize * 1.5f).sp
+                                )
+        
                                 // 全文背誦完畢提示
                                 if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
-                                    item {
-                                        Text(
-                                            text = "全文背誦完畢！",
-                                            modifier = Modifier.fillMaxWidth(),
-                                            textAlign = TextAlign.Center,
-                                            fontSize = uiState.fontSize.sp,
-                                            lineHeight = (uiState.fontSize * 1.5f).sp
-                                        )
-                                    }
+                                    Text(
+                                        text = "全文背誦完畢！",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center,
+                                        fontSize = uiState.fontSize.sp,
+                                        lineHeight = (uiState.fontSize * 1.5f).sp
+                                    )
                                 }
                             }
                         }
