@@ -96,6 +96,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.foundation.layout.Arrangement
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
