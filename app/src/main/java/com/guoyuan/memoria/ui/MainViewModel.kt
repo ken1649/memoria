@@ -357,7 +357,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
 
 
-    fun moveToPrevious() {
+    fun previousSentence() {
         val currentState = _uiState.value
         val currentIdx = currentState.currentSentenceIndex
         val currentParaIdx = currentState.currentParagraphIndex
