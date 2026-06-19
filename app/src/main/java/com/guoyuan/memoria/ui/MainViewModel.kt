@@ -55,32 +55,22 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
     
     private suspend fun loadTheme() {
-        Log.d("ThemeDebug", "loadTheme() 開始執行")
-        try {
-            Log.d("ThemeDebug", "嘗試從DataStore讀取主題")
-            Log.d("ThemeDebug", "準備開始收集 DataStore 數據")
-            dataStore.data.map { preferences ->
-                val themeName = preferences[THEME_KEY]
-                Log.d("ThemeDebug", "從DataStore讀取到主題: $themeName")
-                themeName?.let {
-                    try {
-                        AppTheme.valueOf(it)
-                    } catch (e: Exception) {
-                        Log.e("ThemeDebug", "主題解析失敗，使用預設", e)
-                        AppTheme.SYSTEM
-                    }
-                } ?: AppTheme.SYSTEM
-            }.collect { theme ->
-                Log.d("ThemeDebug", "應用主題: $theme")
-                _uiState.update { currentState ->
-                    currentState.copy(currentTheme = theme)
+        viewModelScope.launch {
+            try {
+                val preferences = dataStore.data.first()
+                val themeName = preferences[THEME_KEY] ?: "SYSTEM"
+                Log.d("ThemeDebug", "成功讀取到持久化主題: $themeName")
+                val theme = try {
+                    AppTheme.valueOf(themeName)
+                } catch (e: Exception) {
+                    Log.e("ThemeDebug", "主題解析失敗，使用預設", e)
+                    AppTheme.SYSTEM
                 }
+                _uiState.update { it.copy(currentTheme = theme) }
+            } catch (e: Exception) {
+                Log.e("ThemeDebug", "讀取失敗: ${e.message}")
             }
-            Log.d("ThemeDebug", "主題載入完成")
-        } catch (e: Exception) {
-            Log.e("ThemeDebug", "載入主題設定失敗", e)
-        }
-        Log.d("ThemeDebug", "loadTheme() 結束執行")
+        }.join()
     }
     
     private suspend fun loadAllTexts() {
