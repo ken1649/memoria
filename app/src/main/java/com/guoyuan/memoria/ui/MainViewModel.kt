@@ -455,6 +455,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         viewModelScope.launch(Dispatchers.IO) {
             dataStore.edit { preferences ->
                 preferences[THEME_KEY] = theme.name
+                Log.d("ThemeDebug", "成功寫入主題: ${theme.name}")
             }
             _uiState.update { currentState ->
                 currentState.copy(currentTheme = theme)
