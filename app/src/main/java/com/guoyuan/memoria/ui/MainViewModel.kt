@@ -364,6 +364,9 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         // 如果沒有內容，直接返回
         if (paragraphs.isEmpty()) return
 
+        // 新增：記錄按鈕點擊時的狀態
+        android.util.Log.d("NavDebug", "Previous clicked: Para=${currentState.currentParagraphIndex}, Sent=${currentState.currentSentenceIndex}")
+
         val currentParaIdx = currentState.currentParagraphIndex
         val currentSentIdx = currentState.currentSentenceIndex
 
@@ -380,7 +383,8 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             }
             // 取得目標段落的句子總數
             val targetSentences = splitParagraphIntoSentences(paragraphs[nextParaIdx])
-            nextSentIdx = targetSentences.size - 1
+            // 如果目標段落有句子，則跳到最後一句；否則，跳到該段落的開頭（索引0）
+            nextSentIdx = if (targetSentences.isNotEmpty()) targetSentences.size - 1 else 0
         }
 
         // 更新狀態
