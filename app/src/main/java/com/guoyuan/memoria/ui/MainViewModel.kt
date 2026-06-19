@@ -39,7 +39,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val gson = Gson()
     private val PUNCTUATION_LIST_KEY = stringPreferencesKey("punctuation_list_json")
     private val FONT_SIZE_KEY = floatPreferencesKey("font_size") // 新增：字體大小儲存鍵
-    private val APP_THEME_KEY = stringPreferencesKey("app_theme")
+    private val THEME_KEY = stringPreferencesKey("theme_mode") // 修復：使用一致的鍵名
 
     init {
         viewModelScope.launch {
@@ -53,7 +53,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private suspend fun loadTheme() {
         try {
             dataStore.data.map { preferences ->
-                preferences[APP_THEME_KEY]?.let { themeName ->
+                preferences[THEME_KEY]?.let { themeName ->
                     try {
                         AppTheme.valueOf(themeName)
                     } catch (e: Exception) {
@@ -441,7 +441,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     fun updateTheme(theme: AppTheme) {
         viewModelScope.launch(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[APP_THEME_KEY] = theme.name
+                preferences[THEME_KEY] = theme.name
             }
             _uiState.update { currentState ->
                 currentState.copy(currentTheme = theme)
