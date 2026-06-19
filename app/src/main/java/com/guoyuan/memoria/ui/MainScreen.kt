@@ -651,6 +651,11 @@ fun MainScreen() {
                                         lineHeight = (uiState.fontSize * 1.5f).sp
                                     )
                                 }
+                                
+                                // 除錯日誌：顯示當前句子數量
+                                LaunchedEffect(uiState.currentSentences.size) {
+                                    Log.d("UI_Debug", "Items size: ${uiState.currentSentences.size}")
+                                }
         
                                 // 顯示已播放的句子列表（合併為單一文字區塊）
                                 Text(
