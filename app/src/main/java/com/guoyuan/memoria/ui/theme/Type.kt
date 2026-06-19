@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.sp
 import com.guoyuan.memoria.R
 
 val NotoSansFontFamily = FontFamily(
-    Font(R.font.notosanstc_regular, FontWeight.Normal)
+    Font(R.font.noto_sans_tc_regular, FontWeight.Normal)
 )
 
 // Set of Material typography styles to start with

@@ -69,5 +69,5 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.google.code.gson:gson:2.10.1") // 添加 Gson 依賴
     implementation("androidx.compose.material:material-icons-extended")
-
+    implementation("androidx.compose.material:material-icons-extended:1.x.x")
 }
