@@ -376,8 +376,13 @@ fun MainScreen() {
             topBar = {
                 TopAppBar(
                     title = { 
-                        val displayTitle = uiState.currentTextTitle.ifEmpty { 
-                            if (uiState.isAddingNewText) "新增文本" else lastSelectedTitle.value
+                        val currentParagraphNum = uiState.currentParagraphIndex + 1
+                        val displayTitle = if (uiState.currentMode == AppMode.PLAY) {
+                            "${uiState.currentTextTitle.ifEmpty { lastSelectedTitle.value }} - 第${currentParagraphNum}段"
+                        } else {
+                            uiState.currentTextTitle.ifEmpty { 
+                                if (uiState.isAddingNewText) "新增文本" else lastSelectedTitle.value
+                            }
                         }
                         
                         Log.d("MemoriaDebug", "TopBar 重繪！模式: ${uiState.currentMode}, 新增中: ${uiState.isAddingNewText}, 當前標題: '${uiState.currentTextTitle}', 最後標題: '${lastSelectedTitle.value}'")
