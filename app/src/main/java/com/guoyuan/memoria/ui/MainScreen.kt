@@ -837,6 +837,28 @@ fun MainScreen() {
                             contentDescription = "前往"
                         )
                     }
+                    
+                    // 新增：顏色設定選項
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { println("顏色設定被點擊") }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        androidx.compose.foundation.layout.Row {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Palette,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text("顏色設定")
+                        }
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = "前往"
+                        )
+                    }
                 }
             },
             confirmButton = {
