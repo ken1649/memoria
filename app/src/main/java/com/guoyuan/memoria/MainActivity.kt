@@ -20,6 +20,7 @@ import com.guoyuan.memoria.dataStore // 更新导入路径
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(
                 AppDatabase.getDatabase(this).appDao(),

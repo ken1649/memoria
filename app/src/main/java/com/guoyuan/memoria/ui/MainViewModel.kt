@@ -43,34 +43,42 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
     init {
         Log.d("ThemeDebug", "MainViewModel 初始化開始")
+
+        // 獨立啟動一個協程，專門處理主題載入，不與其他任務混在一起
         viewModelScope.launch {
-            Log.d("ThemeDebug", "viewModelScope 啟動")
+            loadTheme()
+        }
+
+        // 其他任務保持原樣
+        viewModelScope.launch {
+            Log.d("ThemeDebug", "viewModelScope 其他任務啟動")
             loadAllTexts()
             loadPunctuationListFromStore()
-            loadFontSize() // 新增：載入字體大小
-            loadTheme() // 新增：載入主題設定
-            Log.d("ThemeDebug", "viewModelScope 任務完成")
+            loadFontSize()
+            Log.d("ThemeDebug", "viewModelScope 其他任務完成")
         }
+
         Log.d("ThemeDebug", "MainViewModel 初始化結束")
     }
-    
-    private suspend fun loadTheme() {
+
+    private fun loadTheme() {
         viewModelScope.launch {
             try {
+                Log.d("ThemeDebug", "嘗試從DataStore讀取主題")
                 val preferences = dataStore.data.first()
                 val themeName = preferences[THEME_KEY] ?: "SYSTEM"
                 Log.d("ThemeDebug", "成功讀取到持久化主題: $themeName")
+
                 val theme = try {
                     AppTheme.valueOf(themeName)
                 } catch (e: Exception) {
-                    Log.e("ThemeDebug", "主題解析失敗，使用預設", e)
                     AppTheme.SYSTEM
                 }
                 _uiState.update { it.copy(currentTheme = theme) }
             } catch (e: Exception) {
                 Log.e("ThemeDebug", "讀取失敗: ${e.message}")
             }
-        }.join()
+        }
     }
     
     private suspend fun loadAllTexts() {
