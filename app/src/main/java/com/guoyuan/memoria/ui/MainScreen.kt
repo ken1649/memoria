@@ -619,14 +619,14 @@ fun MainScreen() {
                         } else {
                             // 播放模式顯示：使用連續文字區塊
                             val scrollState = rememberScrollState()
-                            val displayedSentences = if (uiState.currentMode == AppMode.PLAY && uiState.isPlaying) {
-                                uiState.currentSentences.take(uiState.currentSentenceIndex + 1)
+                            // 直接使用 uiState 計算顯示文本
+                            val displayText = if (uiState.currentMode == AppMode.PLAY && uiState.isPlaying) {
+                                uiState.currentSentences.take(uiState.currentSentenceIndex + 1).joinToString("")
                             } else {
-                                emptyList()
+                                ""
                             }
-                            val displayText = displayedSentences.joinToString("")
     
-                            // 監聽文字內容變化，自動捲動到底部
+                            // 監聽顯示文本變化，自動捲動到底部
                             LaunchedEffect(displayText) {
                                 if (displayText.isNotEmpty()) {
                                     // 延遲一小段時間，確保UI更新完成

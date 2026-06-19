@@ -774,10 +774,12 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             _uiState.value.paragraphs[_uiState.value.currentParagraphIndex]
         } else ""
         val sentences = splitParagraphIntoSentences(paragraph)
-        val newIndex = _uiState.value.currentSentenceIndex.coerceAtMost(sentences.size - 1)
+        // 確保每次都創建新的列表實例
+        val newSentences = sentences.toList()
+        val newIndex = _uiState.value.currentSentenceIndex.coerceAtMost(newSentences.size - 1)
         _uiState.update { currentState ->
             currentState.copy(
-                currentSentences = sentences,
+                currentSentences = newSentences,
                 currentSentenceIndex = newIndex
             )
         }
