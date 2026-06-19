@@ -598,8 +598,34 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             return listOf(paragraph)
         }
         
+        // 建立全形半形對應表
+        val fullWidthToHalfWidth = mapOf(
+            '，' to ',',
+            '。' to '.',
+            '；' to ';',
+            '？' to '?',
+            '！' to '!',
+            '：' to ':'
+        )
+        
+        // 擴展啟用符號列表（加入對應的全形/半形符號）
+        val extendedSymbols = activeSymbols.flatMap { symbol ->
+            if (symbol.length == 1) {
+                val char = symbol[0]
+                val mappedChar = fullWidthToHalfWidth[char] ?: fullWidthToHalfWidth.entries
+                    .firstOrNull { it.value == char }?.key
+                if (mappedChar != null) {
+                    listOf(symbol, mappedChar.toString())
+                } else {
+                    listOf(symbol)
+                }
+            } else {
+                listOf(symbol)
+            }
+        }.distinct()
+        
         // 轉義符號並構建正則表達式
-        val escapedSymbols = activeSymbols.joinToString("") { Regex.escape(it) }
+        val escapedSymbols = extendedSymbols.joinToString("") { Regex.escape(it) }
         val regex = "(?<=[$escapedSymbols])".toRegex()
         
         // 使用正則切分句子
