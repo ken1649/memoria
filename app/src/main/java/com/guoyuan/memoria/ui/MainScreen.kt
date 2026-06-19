@@ -618,27 +618,22 @@ fun MainScreen() {
                                 )
                             }
                         } else {
-                            // 播放模式顯示：使用 LazyColumn 顯示句子列表
-                            val listState = rememberLazyListState()
-                            // 除錯日誌：顯示當前句子列表
-                            Log.d("UI_Debug", "Rendering: ${uiState.currentSentences}")
-                            
-                            LazyColumn(
-                                state = listState,
-                                modifier = Modifier.fillMaxSize()
+                            // 播放模式顯示：使用 FlowRow 實現連續流動佈局
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState())
                             ) {
-                                items(uiState.currentSentences.take(uiState.currentSentenceIndex + 1)) { sentence ->
-                                    Text(
-                                        text = sentence,
-                                        modifier = Modifier.padding(4.dp)
-                                    )
-                                }
-                            }
-                            
-                            // 滾動到當前句子
-                            LaunchedEffect(uiState.currentSentenceIndex) {
-                                if (uiState.currentSentenceIndex >= 0) {
-                                    listState.animateScrollToItem(uiState.currentSentenceIndex)
+                                androidx.compose.foundation.layout.FlowRow(
+                                    modifier = Modifier.padding(8.dp),
+                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Start
+                                ) {
+                                    uiState.currentSentences.take(uiState.currentSentenceIndex + 1).forEach { sentence ->
+                                        Text(
+                                            text = sentence,
+                                            modifier = Modifier.padding(end = 4.dp) // 句子間保持一點點間距
+                                        )
+                                    }
                                 }
                             }
                         }
