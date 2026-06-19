@@ -793,28 +793,6 @@ fun MainScreen() {
             title = { Text("系統設定") },
             text = {
                 Column {
-                    // 新增：文字大小設定選項
-                    androidx.compose.foundation.layout.Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { viewModel.openFontSizeDialog() }
-                            .padding(16.dp),
-                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
-                    ) {
-                        androidx.compose.foundation.layout.Row {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.TextFields,
-                                contentDescription = null,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            Text("文字大小設定")
-                        }
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
-                            contentDescription = "前往"
-                        )
-                    }
-                    
                     // 設定斷句符號選項
                     androidx.compose.foundation.layout.Row(
                         modifier = Modifier
@@ -830,6 +808,28 @@ fun MainScreen() {
                                 modifier = Modifier.padding(end = 8.dp)
                             )
                             Text("設定斷句符號")
+                        }
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = "前往"
+                        )
+                    }
+                    
+                    // 新增：文字大小設定選項
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.openFontSizeDialog() }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        androidx.compose.foundation.layout.Row {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.TextFields,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text("文字大小設定")
                         }
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowRight,
