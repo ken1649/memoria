@@ -596,7 +596,8 @@ fun MainScreen() {
                                         .fillMaxWidth()
                                         .verticalScroll(rememberScrollState()),
                                     textAlign = TextAlign.Start,
-                                    fontSize = uiState.fontSize.sp
+                                    fontSize = uiState.fontSize.sp,
+                                    lineHeight = (uiState.fontSize * 1.5f).sp
                                 )
                             }
                         } else {
@@ -635,7 +636,8 @@ fun MainScreen() {
                                     text = displayText,
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.Start,
-                                    fontSize = uiState.fontSize.sp
+                                    fontSize = uiState.fontSize.sp,
+                                    lineHeight = (uiState.fontSize * 1.5f).sp
                                 )
                             }
                         }
