@@ -360,41 +360,36 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     fun moveToPrevious() {
         val currentState = _uiState.value
         val currentIdx = currentState.currentSentenceIndex
-        val paragraphs = currentState.paragraphs
         val currentParaIdx = currentState.currentParagraphIndex
+        val paragraphs = currentState.paragraphs
 
-        if (currentIdx > 0) {
-            // --- 一般情況：同段落移動 ---
-            _uiState.update { it.copy(currentSentenceIndex = currentIdx - 1) }
-        } else if (currentIdx == 0 && currentParaIdx > 0) {
-            // --- 跨段落情況：跳至前一段最後一句 ---
-            val prevParaIdx = currentParaIdx - 1
-            val prevParaText = paragraphs.getOrNull(prevParaIdx) ?: ""
-            // 重新切分前一段的句子，取得最後一句
-            val sentencesInPrevPara = splitParagraphIntoSentences(prevParaText)
-            val lastIdxOfPrevPara = sentencesInPrevPara.size - 1
-            
-            _uiState.update { 
-                it.copy(
-                    currentParagraphIndex = prevParaIdx,
-                    currentSentenceIndex = lastIdxOfPrevPara
-                )
-            }
-            updateCurrentSentences() // 觸發更新 UI
-        } else {
-            // --- 環形導航：第一段第一句跳到最後一段最後一句 ---
+        if (currentIdx == 0 && currentParaIdx == 0) {
+            // 環形導航：第0段第0句 -> 跳至最後一段最後一句
             val lastParaIdx = paragraphs.size - 1
-            val lastParaText = paragraphs.getOrNull(lastParaIdx) ?: ""
-            val sentencesInLastPara = splitParagraphIntoSentences(lastParaText)
-            
+            val sentences = splitParagraphIntoSentences(paragraphs.getOrNull(lastParaIdx) ?: "")
+            val lastIndex = (sentences.size - 1).coerceAtLeast(0)
             _uiState.update { 
                 it.copy(
                     currentParagraphIndex = lastParaIdx,
-                    currentSentenceIndex = sentencesInLastPara.size - 1
+                    currentSentenceIndex = lastIndex
                 )
             }
-            updateCurrentSentences()
+        } else if (currentIdx <= 0 && currentParaIdx > 0) {
+            // 跨段落：跳至前一段最後一句
+            val prevParaIdx = currentParaIdx - 1
+            val sentences = splitParagraphIntoSentences(paragraphs.getOrNull(prevParaIdx) ?: "")
+            val lastIndex = (sentences.size - 1).coerceAtLeast(0)
+            _uiState.update { 
+                it.copy(
+                    currentParagraphIndex = prevParaIdx,
+                    currentSentenceIndex = lastIndex
+                )
+            }
+        } else {
+            // 一般情況：同段內前移一句
+            _uiState.update { it.copy(currentSentenceIndex = currentIdx - 1) }
         }
+        updateCurrentSentences()
     }
 
     fun resetPlayback() {
