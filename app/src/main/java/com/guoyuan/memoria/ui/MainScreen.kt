@@ -746,7 +746,7 @@ fun MainScreen() {
                                 
                                 // 上一步按鈕
                                 IconButton(
-                                    onClick = { viewModel.moveToPrevious() }
+                                    onClick = { viewModel.previousSentence() }
                                 ) {
                                     Icon(
                                         imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowLeft,
