@@ -58,6 +58,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         Log.d("ThemeDebug", "loadTheme() 開始執行")
         try {
             Log.d("ThemeDebug", "嘗試從DataStore讀取主題")
+            Log.d("ThemeDebug", "準備開始收集 DataStore 數據")
             dataStore.data.map { preferences ->
                 val themeName = preferences[THEME_KEY]
                 Log.d("ThemeDebug", "從DataStore讀取到主題: $themeName")
