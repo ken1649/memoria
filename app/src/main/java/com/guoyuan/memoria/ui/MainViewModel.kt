@@ -41,12 +41,34 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val gson = Gson()
     private val PUNCTUATION_LIST_KEY = stringPreferencesKey("punctuation_list_json")
     private val FONT_SIZE_KEY = floatPreferencesKey("font_size") // 新增：字體大小儲存鍵
+    private val APP_THEME_KEY = stringPreferencesKey("app_theme")
 
     init {
         viewModelScope.launch {
             loadAllTexts()
             loadPunctuationListFromStore()
             loadFontSize() // 新增：載入字體大小
+            loadTheme() // 新增：載入主題設定
+        }
+    }
+    
+    private suspend fun loadTheme() {
+        try {
+            dataStore.data.map { preferences ->
+                preferences[APP_THEME_KEY]?.let { themeName ->
+                    try {
+                        AppTheme.valueOf(themeName)
+                    } catch (e: Exception) {
+                        AppTheme.SYSTEM
+                    }
+                } ?: AppTheme.SYSTEM
+            }.collect { theme ->
+                _uiState.update { currentState ->
+                    currentState.copy(currentTheme = theme)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Theme", "載入主題設定失敗", e)
         }
     }
     
@@ -415,6 +437,17 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     fun updateFontSize(size: Float) {
         _uiState.update { currentState ->
             currentState.copy(fontSize = size)
+        }
+    }
+    
+    fun updateTheme(theme: AppTheme) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[APP_THEME_KEY] = theme.name
+            }
+            _uiState.update { currentState ->
+                currentState.copy(currentTheme = theme)
+            }
         }
     }
     
