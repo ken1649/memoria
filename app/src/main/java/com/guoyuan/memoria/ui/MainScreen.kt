@@ -624,31 +624,14 @@ fun MainScreen() {
                             Log.d("UI_Debug", "Rendering: ${uiState.currentSentences}")
                             
                             LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                state = listState
+                                state = listState,
+                                modifier = Modifier.fillMaxSize()
                             ) {
-                                // 顯示已播放的句子（包括當前句子）
                                 items(uiState.currentSentences.take(uiState.currentSentenceIndex + 1)) { sentence ->
                                     Text(
                                         text = sentence,
-                                        modifier = Modifier.padding(horizontal = 2.dp),
-                                        fontSize = uiState.fontSize.sp,
-                                        lineHeight = (uiState.fontSize * 1.5f).sp,
-                                        color = Color.Black
+                                        modifier = Modifier.padding(4.dp)
                                     )
-                                }
-                                
-                                // 全文背誦完畢提示
-                                if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
-                                    item {
-                                        Text(
-                                            text = "全文背誦完畢！",
-                                            modifier = Modifier.fillMaxWidth(),
-                                            textAlign = TextAlign.Center,
-                                            fontSize = uiState.fontSize.sp,
-                                            lineHeight = (uiState.fontSize * 1.5f).sp
-                                        )
-                                    }
                                 }
                             }
                             
