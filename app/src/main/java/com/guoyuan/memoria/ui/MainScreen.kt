@@ -212,7 +212,11 @@ fun MainScreen() {
                                     onDelete = { viewModel.deleteText(it.id) },
                                     onClick = {
                                         if (!uiState.isSidebarManagementMode) {
-                                            viewModel.selectText(it)
+                                            // 只有當點擊的項目不是當前選中的項目時，才執行selectText
+                                            if (uiState.currentTextId != it.id) {
+                                                viewModel.selectText(it)
+                                            }
+                                            // 無論是否相同，都關閉抽屜
                                             scope.launch { drawerState.close() }
                                         }
                                     },
@@ -238,7 +242,7 @@ fun MainScreen() {
                         items(reorderableRegularItems, key = { it.id }) { textEntity ->
                             val index = reorderableRegularItems.indexOf(textEntity)
                             val isDragging = draggedIndex == index
-                            
+                                
                             ManagementListItem(
                                 item = textEntity,
                                 isManagementMode = uiState.isSidebarManagementMode,
@@ -247,14 +251,18 @@ fun MainScreen() {
                                 onDelete = { viewModel.deleteText(textEntity.id) },
                                 onClick = {
                                     if (!uiState.isSidebarManagementMode) {
-                                        viewModel.selectText(textEntity)
+                                        // 只有當點擊的項目不是當前選中的項目時，才執行selectText
+                                        if (uiState.currentTextId != textEntity.id) {
+                                            viewModel.selectText(textEntity)
+                                        }
+                                        // 無論是否相同，都關閉抽屜
                                         scope.launch { drawerState.close() }
                                     }
                                 },
                                 onEditConfirm = { updatedTitle, updatedContent ->
                                     // 1. 呼叫 ViewModel 更新資料庫
                                     viewModel.updateTextContent(updatedTitle, updatedContent)
-                                    
+                                        
                                     // 2. 更新本地快照清單
                                     val targetIndex = reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
                                     if (targetIndex != -1) {
