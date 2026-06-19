@@ -99,6 +99,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.fillMaxHeight
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
