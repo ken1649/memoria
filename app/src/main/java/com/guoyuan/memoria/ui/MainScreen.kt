@@ -916,7 +916,7 @@ fun MainScreen() {
                         
                         Button(
                             onClick = { 
-                                viewModel.saveFontSize()
+                                viewModel.saveFontSize(uiState.fontSize)
                                 viewModel.closeFontSizeDialog()
                             }
                         ) {

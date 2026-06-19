@@ -384,13 +384,17 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
     
     // 新增：保存字體大小到持久化儲存
-    fun saveFontSize() {
+    fun saveFontSize(size: Float) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 dataStore.edit { preferences ->
-                    preferences[FONT_SIZE_KEY] = _uiState.value.fontSize
+                    preferences[FONT_SIZE_KEY] = size
                 }
-                Log.d("FontSize", "字體大小已保存: ${_uiState.value.fontSize}")
+                // 保存成功後更新狀態
+                _uiState.update { currentState ->
+                    currentState.copy(fontSize = size)
+                }
+                Log.d("FontSize", "字體大小已保存: $size")
             } catch (e: Exception) {
                 Log.e("FontSize", "保存字體大小失敗", e)
             }
@@ -400,13 +404,17 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     // 新增：從持久化儲存載入字體大小
     private suspend fun loadFontSize() {
         try {
-            val size = dataStore.data.map { preferences ->
-                preferences[FONT_SIZE_KEY] ?: 18f
-            }.first()
-            _uiState.update { currentState ->
-                currentState.copy(fontSize = size, backupFontSize = size)
+            dataStore.data.map { preferences ->
+                preferences[FONT_SIZE_KEY] ?: 18f // 只在完全沒有儲存值時使用預設值
+            }.collect { size ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        fontSize = size,
+                        backupFontSize = size
+                    )
+                }
+                Log.d("FontSize", "字體大小已載入: $size")
             }
-            Log.d("FontSize", "字體大小已載入: $size")
         } catch (e: Exception) {
             Log.e("FontSize", "載入字體大小失敗", e)
         }
