@@ -631,7 +631,7 @@ fun MainScreen() {
                                 items(uiState.currentSentences.take(uiState.currentSentenceIndex + 1)) { sentence ->
                                     Text(
                                         text = sentence,
-                                        modifier = Modifier.padding(horizontal = 4.dp),
+                                        modifier = Modifier.padding(horizontal = 2.dp),
                                         fontSize = uiState.fontSize.sp,
                                         lineHeight = (uiState.fontSize * 1.5f).sp,
                                         color = Color.Black
