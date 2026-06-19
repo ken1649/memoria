@@ -66,6 +66,7 @@ import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.Row
 import com.guoyuan.memoria.data.AppDatabase
 import com.guoyuan.memoria.data.AppDao
+import com.guoyuan.memoria.dataStore
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.foundation.layout.size
