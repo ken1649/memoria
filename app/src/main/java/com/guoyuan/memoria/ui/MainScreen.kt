@@ -618,23 +618,32 @@ fun MainScreen() {
                                 )
                             }
                         } else {
-                            // 播放模式顯示：使用 FlowRow 實現連續流動佈局
-                            Box(
+                            // 播放模式顯示：改為連續段落文字，自動換行
+                            val scrollState = rememberScrollState()
+                            val displayText = uiState.currentSentences
+                                .take(uiState.currentSentenceIndex + 1)
+                                .joinToString("")
+                            
+                            LaunchedEffect(displayText) {
+                                // 等待一個小延遲，確保UI更新完成
+                                kotlinx.coroutines.delay(10)
+                                scrollState.animateScrollTo(scrollState.maxValue)
+                            }
+                            
+                            Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .verticalScroll(rememberScrollState())
+                                    .verticalScroll(scrollState)
                             ) {
-                                androidx.compose.foundation.layout.FlowRow(
-                                    modifier = Modifier.padding(8.dp),
-                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Start
-                                ) {
-                                    uiState.currentSentences.take(uiState.currentSentenceIndex + 1).forEach { sentence ->
-                                        Text(
-                                            text = sentence,
-                                            modifier = Modifier.padding(end = 4.dp) // 句子間保持一點點間距
-                                        )
-                                    }
-                                }
+                                Text(
+                                    text = displayText,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    fontSize = uiState.fontSize.sp,
+                                    lineHeight = (uiState.fontSize * 1.5f).sp,
+                                    textAlign = TextAlign.Start
+                                )
                             }
                         }
                     }
