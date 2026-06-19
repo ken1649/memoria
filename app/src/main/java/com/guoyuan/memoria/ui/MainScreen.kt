@@ -592,7 +592,8 @@ fun MainScreen() {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .verticalScroll(rememberScrollState()),
-                                    textAlign = TextAlign.Start
+                                    textAlign = TextAlign.Start,
+                                    fontSize = uiState.fontSize.sp
                                 )
                             }
                         } else {
@@ -630,7 +631,8 @@ fun MainScreen() {
                                 Text(
                                     text = displayText,
                                     modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Start
+                                    textAlign = TextAlign.Start,
+                                    fontSize = uiState.fontSize.sp
                                 )
                             }
                         }
@@ -777,6 +779,28 @@ fun MainScreen() {
             title = { Text("系統設定") },
             text = {
                 Column {
+                    // 新增：文字大小設定選項
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.openFontSizeDialog() }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        androidx.compose.foundation.layout.Row {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.TextFields,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text("文字大小設定")
+                        }
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = "前往"
+                        )
+                    }
+                    
                     // 設定斷句符號選項
                     androidx.compose.foundation.layout.Row(
                         modifier = Modifier
@@ -807,7 +831,98 @@ fun MainScreen() {
             }
         )
     }
-
+    
+    // 文字大小設定對話框
+    if (uiState.showFontSizeDialog) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { viewModel.closeFontSizeDialog() },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .background(Color.White.copy(alpha = 0.9f))
+                    .padding(24.dp)
+            ) {
+                Column {
+                    Text(
+                        "文字大小設定",
+                        style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    ) {
+                        IconButton(
+                            onClick = { 
+                                viewModel.updateFontSize(
+                                    (uiState.fontSize - 1).coerceAtLeast(12f)
+                                ) 
+                            }
+                        ) {
+                            Text("T-", style = androidx.compose.material3.MaterialTheme.typography.bodyLarge)
+                        }
+                        
+                        Slider(
+                            value = uiState.fontSize,
+                            onValueChange = { viewModel.updateFontSize(it) },
+                            valueRange = 12f..50f,
+                            steps = 38,
+                            modifier = Modifier.weight(1f)
+                        )
+                        
+                        IconButton(
+                            onClick = { 
+                                viewModel.updateFontSize(
+                                    (uiState.fontSize + 1).coerceAtMost(50f)
+                                ) 
+                            }
+                        ) {
+                            Text("T+", style = androidx.compose.material3.MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                    
+                    Text(
+                        "目前大小: ${uiState.fontSize.toInt()}sp",
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+                    )
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = { 
+                                viewModel.closeFontSizeDialog()
+                                viewModel.updateFontSize(uiState.backupFontSize)
+                            },
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = androidx.compose.material3.MaterialTheme.colorScheme.errorContainer,
+                                contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        ) {
+                            Text("取消")
+                        }
+                        
+                        Button(
+                            onClick = { 
+                                viewModel.saveFontSize()
+                                viewModel.closeFontSizeDialog()
+                            }
+                        ) {
+                            Text("確認")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     // 斷句符號設定彈窗
     if (uiState.showPunctuationDialog) {
         val customInput = remember { mutableStateOf("") }

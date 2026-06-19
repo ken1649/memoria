@@ -26,5 +26,6 @@ data class AppUiState(
     val isSidebarManagementMode: Boolean = false,
     val favoriteTextId: Int? = null,
     val currentTextId: Int? = null,
-    val isAddingNewText: Boolean = false // 新增：是否正在新增文本
+    val isAddingNewText: Boolean = false, // 新增：是否正在新增文本
+    val showFontSizeDialog: Boolean = false // 新增：字体大小对话框状态
 )

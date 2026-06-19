@@ -444,6 +444,20 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
     
+    // 新增：打开字体大小对话框
+    fun openFontSizeDialog() {
+        _uiState.update { currentState ->
+            currentState.copy(showFontSizeDialog = true)
+        }
+    }
+    
+    // 新增：关闭字体大小对话框
+    fun closeFontSizeDialog() {
+        _uiState.update { currentState ->
+            currentState.copy(showFontSizeDialog = false)
+        }
+    }
+    
     fun toggleReadingEditMode() {
         _uiState.update { currentState ->
             currentState.copy(isEditingReadingMode = !currentState.isEditingReadingMode)
