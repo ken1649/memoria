@@ -42,16 +42,22 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val THEME_KEY = stringPreferencesKey("theme_mode") // 修復：使用一致的鍵名
 
     init {
+        Log.d("ThemeDebug", "MainViewModel 初始化開始")
         viewModelScope.launch {
+            Log.d("ThemeDebug", "viewModelScope 啟動")
             loadAllTexts()
             loadPunctuationListFromStore()
             loadFontSize() // 新增：載入字體大小
             loadTheme() // 新增：載入主題設定
+            Log.d("ThemeDebug", "viewModelScope 任務完成")
         }
+        Log.d("ThemeDebug", "MainViewModel 初始化結束")
     }
     
     private suspend fun loadTheme() {
+        Log.d("ThemeDebug", "loadTheme() 開始執行")
         try {
+            Log.d("ThemeDebug", "嘗試從DataStore讀取主題")
             dataStore.data.map { preferences ->
                 val themeName = preferences[THEME_KEY]
                 Log.d("ThemeDebug", "從DataStore讀取到主題: $themeName")
@@ -69,9 +75,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                     currentState.copy(currentTheme = theme)
                 }
             }
+            Log.d("ThemeDebug", "主題載入完成")
         } catch (e: Exception) {
             Log.e("ThemeDebug", "載入主題設定失敗", e)
         }
+        Log.d("ThemeDebug", "loadTheme() 結束執行")
     }
     
     private suspend fun loadAllTexts() {
