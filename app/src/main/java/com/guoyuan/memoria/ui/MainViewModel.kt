@@ -53,20 +53,24 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private suspend fun loadTheme() {
         try {
             dataStore.data.map { preferences ->
-                preferences[THEME_KEY]?.let { themeName ->
+                val themeName = preferences[THEME_KEY]
+                Log.d("ThemeDebug", "從DataStore讀取到主題: $themeName")
+                themeName?.let {
                     try {
-                        AppTheme.valueOf(themeName)
+                        AppTheme.valueOf(it)
                     } catch (e: Exception) {
+                        Log.e("ThemeDebug", "主題解析失敗，使用預設", e)
                         AppTheme.SYSTEM
                     }
                 } ?: AppTheme.SYSTEM
             }.collect { theme ->
+                Log.d("ThemeDebug", "應用主題: $theme")
                 _uiState.update { currentState ->
                     currentState.copy(currentTheme = theme)
                 }
             }
         } catch (e: Exception) {
-            Log.e("Theme", "載入主題設定失敗", e)
+            Log.e("ThemeDebug", "載入主題設定失敗", e)
         }
     }
     
