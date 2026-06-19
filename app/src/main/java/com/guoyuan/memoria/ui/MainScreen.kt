@@ -617,44 +617,64 @@ fun MainScreen() {
                                 )
                             }
                         } else {
-                            // 播放模式顯示
-                            androidx.compose.foundation.layout.Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(rememberScrollState())
+                            // 播放模式顯示：使用 LazyColumn 顯示句子列表
+                            val listState = rememberLazyListState()
+                            val displayedSentences = if (uiState.currentMode == AppMode.PLAY && uiState.isPlaying) {
+                                uiState.currentSentences.take(uiState.currentSentenceIndex + 1)
+                            } else {
+                                emptyList()
+                            }
+
+                            // 監聽 currentSentenceIndex 的變化，並自動捲動到對應項目
+                            LaunchedEffect(uiState.currentSentenceIndex) {
+                                if (displayedSentences.isNotEmpty() && uiState.currentSentenceIndex >= 0) {
+                                    // 延遲一小段時間，確保 UI 已經更新
+                                    kotlinx.coroutines.delay(10)
+                                    listState.scrollToItem(uiState.currentSentenceIndex)
+                                    Log.d("AutoScroll", "捲動至索引: ${uiState.currentSentenceIndex}")
+                                }
+                            }
+
+                            LazyColumn(
+                                state = listState,
+                                modifier = Modifier.fillMaxSize()
                             ) {
-                                // 加入偵錯日誌
-                                val takeCount = uiState.currentSentenceIndex + 1
-                                val sentenceText = if (uiState.currentSentences.isNotEmpty()) {
-                                    uiState.currentSentences.take(takeCount).joinToString("")
-                                } else {
-                                    ""
-                                }
-                                        
-                                val displayText = if (uiState.currentMode == AppMode.PLAY) {
-                                    if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
-                                        "全文背誦完畢！"
-                                    } else if (uiState.isPlaying) {
-                                        sentenceText
-                                    } else {
-                                        "${uiState.currentParagraphIndex + 1}."
+                                // 當不在播放狀態時，顯示段落序號
+                                if (uiState.currentMode == AppMode.PLAY && !uiState.isPlaying) {
+                                    item {
+                                        Text(
+                                            text = "${uiState.currentParagraphIndex + 1}.",
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Start,
+                                            fontSize = uiState.fontSize.sp,
+                                            lineHeight = (uiState.fontSize * 1.5f).sp
+                                        )
                                     }
-                                } else {
-                                    uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
                                 }
-                                        
-                                // 輸出詳細偵錯日誌
-                                Log.d("MemoriaUI", "【UI 刷新】isPlaying = ${uiState.isPlaying}, 索引 = ${uiState.currentSentenceIndex}, " +
-                                    "預計裁切數量 = $takeCount, 裁切出文字 = '$sentenceText', " +
-                                    "最終畫面顯示 = '$displayText'")
-                                        
-                                Text(
-                                    text = displayText,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Start,
-                                    fontSize = uiState.fontSize.sp,
-                                    lineHeight = (uiState.fontSize * 1.5f).sp
-                                )
+        
+                                // 顯示已播放的句子列表
+                                items(displayedSentences) { sentence ->
+                                    Text(
+                                        text = sentence,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Start,
+                                        fontSize = uiState.fontSize.sp,
+                                        lineHeight = (uiState.fontSize * 1.5f).sp
+                                    )
+                                }
+        
+                                // 全文背誦完畢提示
+                                if (uiState.currentParagraphIndex >= uiState.paragraphs.size) {
+                                    item {
+                                        Text(
+                                            text = "全文背誦完畢！",
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Center,
+                                            fontSize = uiState.fontSize.sp,
+                                            lineHeight = (uiState.fontSize * 1.5f).sp
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
