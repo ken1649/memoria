@@ -1,5 +1,7 @@
 package com.guoyuan.memoria.ui
 
+enum class AppTheme { LIGHT, DARK, EYE_CARE, SYSTEM }
+
 enum class AppMode {
     READ,
     PLAY,
@@ -27,5 +29,6 @@ data class AppUiState(
     val favoriteTextId: Int? = null,
     val currentTextId: Int? = null,
     val isAddingNewText: Boolean = false, // 新增：是否正在新增文本
-    val showFontSizeDialog: Boolean = false // 新增：字体大小对话框状态
+    val showFontSizeDialog: Boolean = false, // 新增：字体大小对话框状态
+    val currentTheme: AppTheme = AppTheme.SYSTEM // 新增：當前主題
 )
