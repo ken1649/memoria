@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
-
+import androidx.datastore.preferences.core.floatPreferencesKey
 //
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
