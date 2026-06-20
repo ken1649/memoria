@@ -348,9 +348,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         
         _uiState.update { currentState ->
             if (!currentState.isPlaying) {
-                // 第一次按下播放：直接使用已準備好的句子列表，並將索引設為1（跳過0號索引的段落序號）
+                // 如果已經在某個句子上，就從那裡繼續；如果是在索引 0 (段落開頭)，才跳到 1
+                val nextIndex = if (currentState.currentSentenceIndex == 0) 1 else currentState.currentSentenceIndex
+
                 currentState.copy(
-                    currentSentenceIndex = 1,
+                    currentSentenceIndex = nextIndex,
                     isPlaying = true
                 )
             } else {
