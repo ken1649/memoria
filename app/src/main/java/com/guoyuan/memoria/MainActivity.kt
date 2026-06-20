@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.guoyuan.memoria.data.AppDatabase
 import com.guoyuan.memoria.ui.MainScreen
@@ -22,9 +23,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+            val context = LocalContext.current
             val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(
                 AppDatabase.getDatabase(this).appDao(),
-                this.dataStore
+                this.dataStore,
+                context
             ))
             val uiState by viewModel.uiState.collectAsState()
             
@@ -33,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    MainScreen(context = context)
                 }
             }
         }
