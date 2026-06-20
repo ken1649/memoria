@@ -44,7 +44,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
     init {
         Log.d("ThemeDebug", "MainViewModel 初始化開始")
-
+        // 1. 先處理主題 (獨立的)
         // 獨立啟動一個協程，專門處理主題載入，不與其他任務混在一起
         viewModelScope.launch {
             loadTheme()
@@ -52,44 +52,59 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
         // 其他任務保持原樣
         viewModelScope.launch {
-            Log.d("ThemeDebug", "viewModelScope 其他任務啟動")
-            loadAllTexts()
-            // 檢查是否需要插入預設資料
-            if (_allTexts.value.isEmpty()) {
+            // 2. 將所有資料初始化任務串聯起來，按順序執行
+            Log.d("InitDebug", "開始初始化資料...")
+
+            // 檢查資料庫是否為空 (使用一次性查詢)
+            val dbData = appDao.getAllTexts() // 確保這裡是 suspend 方法或一次性查詢
+            if (dbData.isEmpty()) {
+                Log.d("InitDebug", "資料庫為空，開始從 Assets 載入範例資料...")
                 insertDefaultData()
+            } else {
+                _allTexts.value = dbData
+                Log.d("InitDebug", "從資料庫載入 ${dbData.size} 筆資料")
             }
+            // 3. 其他依賴於資料載入後的任務
             loadPunctuationListFromStore()
             loadFontSize()
-            Log.d("ThemeDebug", "viewModelScope 其他任務完成")
+            Log.d("InitDebug", "所有初始化任務完成")
+        }
+
+        viewModelScope.launch {
+
         }
 
         Log.d("ThemeDebug", "MainViewModel 初始化結束")
     }
-    
+
     private suspend fun insertDefaultData() {
         withContext(Dispatchers.IO) {
             try {
                 // 從 assets 讀取道德經.json
+                Log.d("InitDebug", "正在開啟 Assets 檔案...")
                 val inputStream = context.assets.open("道德經.json")
+                Log.d("InitDebug", "正在讀取並解析 JSON...")
                 val reader = InputStreamReader(inputStream, "UTF-8")
                 val jsonString = reader.readText()
                 reader.close()
                 inputStream.close()
-                
+                Log.d("InitDebug", "JSON 解析中...")
                 // 解析 JSON
                 val type = object : TypeToken<List<TextEntity>>() {}.type
                 val defaultTexts: List<TextEntity> = gson.fromJson(jsonString, type)
-                
+                Log.d("InitDebug", "準備插入 ${defaultTexts.size} 筆資料到資料庫...")
+
+
                 // 插入資料庫
                 defaultTexts.forEach { text ->
                     appDao.insertText(text)
                 }
-                
+
                 // 重新加載文章列表
                 loadAllTexts()
-                Log.d("DefaultData", "成功插入預設資料")
+                Log.d("InitDebug", "成功插入預設資料")
             } catch (e: Exception) {
-                Log.e("DefaultData", "插入預設資料失敗: ${e.message}")
+                Log.e("InitDebug", "插入預設資料失敗: ", e)
             }
         }
     }
@@ -231,7 +246,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
                 val textEntity = TextEntity(
                     title = title,
-                    fullContent = content,
+                    content = content,
                     sourceUrl = "",
                     displayOrder = newDisplayOrder
                 )
@@ -248,11 +263,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                             isLoading = false,
                             currentTextId = newId,
                             currentTextTitle = newText?.title ?: title,
-                            fullTextContent = newText?.fullContent ?: content
+                            fullTextContent = newText?.content ?: content
                         )
                     }
                     // 保存後重新解析內容以更新顯示
-                    splitContentToParagraphs(newText?.fullContent ?: content)
+                    splitContentToParagraphs(newText?.content ?: content)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -670,7 +685,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 Log.d("MemoriaFlow", "【3.1】找到要更新的文本: $text")
                 val updatedText = text.copy(
                     title = newTitle,
-                    fullContent = newContent
+                    content = newContent
                 )
                 Log.d("MemoriaFlow", "【4. Room 寫入前】準備更新資料庫: $updatedText")
                 appDao.updateText(updatedText)
@@ -697,7 +712,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         viewModelScope.launch(Dispatchers.IO) {
             _allTexts.value.firstOrNull { it.id == _uiState.value.currentTextId }?.let { text ->
                 Log.d("MemoriaFlow", "【3.1】找到要更新的文本: $text")
-                val updatedText = text.copy(fullContent = newContent)
+                val updatedText = text.copy(content = newContent)
                 Log.d("MemoriaFlow", "【4. Room 寫入前】準備更新資料庫: $updatedText")
                 appDao.updateText(updatedText)
                 Log.d("MemoriaFlow", "【4.1 Room 寫入完成】已更新內容")
@@ -744,7 +759,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             currentState.copy(
                 currentMode = AppMode.READ,
                 currentTextTitle = text.title,
-                fullTextContent = text.fullContent,
+                fullTextContent = text.content,
                 currentTextId = text.id, // 新增 ID 追蹤
                 currentParagraphIndex = 0,
                 previewParagraphIndex = 0,
@@ -753,7 +768,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 isPlaying = false
             )
         }
-        splitContentToParagraphs(text.fullContent)
+        splitContentToParagraphs(text.content)
     }
 
     fun splitContentToParagraphs(content: String) {

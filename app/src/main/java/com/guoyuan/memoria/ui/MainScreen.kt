@@ -447,7 +447,8 @@ fun MainScreen(context: Context) {
                 )
             },
             floatingActionButton = {
-                if (allTexts.isNotEmpty() && !uiState.isEditingReadingMode && uiState.currentMode != AppMode.EDIT) {
+                //Log.d("FAB_Debug", "Texts size: $allTexts")
+                if (!uiState.fullTextContent.isEmpty() && allTexts.isNotEmpty() && !uiState.isEditingReadingMode && uiState.currentMode != AppMode.EDIT) {
                     FloatingActionButton(
                         onClick = {
                             viewModel.updateMode(
@@ -613,7 +614,7 @@ fun MainScreen(context: Context) {
                                 val displayText = if (uiState.paragraphs.isNotEmpty()) {
                                     uiState.paragraphs.joinToString("\n")
                                 } else {
-                                    uiState.fullTextContent.ifEmpty { "請輸入內容或載入網頁" }
+                                    uiState.fullTextContent.ifEmpty { "請側邊欄選擇文本或新增文本" }
                                 }
                                 
                                 Text(
