@@ -110,11 +110,10 @@ import androidx.compose.material.icons.filled.Palette
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
-    val context = LocalContext.current
+fun MainScreen(context: Context) {
     val dataStore = context.dataStore
     val appDao: AppDao = remember { AppDatabase.getDatabase(context).appDao() }
-    val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(appDao, dataStore))
+    val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(appDao, dataStore, context))
     val uiState by viewModel.uiState.collectAsState()
     val allTexts by viewModel.allTexts.collectAsState()
     val punctuationList by viewModel.punctuationList.collectAsState()
