@@ -70,4 +70,6 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1") // 添加 Gson 依賴
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.material:material-icons-extended:1.x.x")
+    // 加入 AdMob SDK
+    implementation("com.google.android.gms:play-services-ads:23.0.0")
 }
