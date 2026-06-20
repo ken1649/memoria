@@ -894,6 +894,36 @@ fun MainScreen(context: Context) {
                             contentDescription = "前往"
                         )
                     }
+
+                    if (!viewModel.isPremium.value) {
+                        androidx.compose.foundation.layout.Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    android.widget.Toast.makeText(
+                                        context,
+                                        "開發中...",
+                                        android.widget.Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                .padding(16.dp),
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                        ) {
+                            androidx.compose.foundation.layout.Row {
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Default.WorkspacePremium,
+                                    contentDescription = null,
+                                    tint = Color(0xFFFFD700),
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                                Text("付費去除廣告")
+                            }
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = "前往"
+                            )
+                        }
+                    }
                 }
             },
             confirmButton = {
