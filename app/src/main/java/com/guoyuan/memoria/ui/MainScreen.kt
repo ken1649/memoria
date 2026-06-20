@@ -110,6 +110,11 @@ import androidx.compose.material.icons.filled.Palette
 import android.content.Context
 import androidx.compose.ui.res.painterResource
 import com.guoyuan.memoria.R
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import androidx.compose.ui.viewinterop.AndroidView
+import com.guoyuan.memoria.AdConfig
 
 //
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,6 +128,22 @@ fun MainScreen(context: Context) {
     val punctuationList by viewModel.punctuationList.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    
+    // 廣告橫幅元件
+    @Composable
+    fun AdBanner() {
+        val context = LocalContext.current
+        AndroidView(
+            factory = { context ->
+                AdView(context).apply {
+                    setAdSize(AdSize.BANNER)
+                    adUnitId = AdConfig.BANNER_UNIT_ID
+                    loadAd(AdRequest.Builder().build())
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
     
     // 新增狀態變量控制進度保存時機
     var isReady by remember { mutableStateOf(false) }
@@ -466,7 +487,10 @@ fun MainScreen(context: Context) {
                     }
                 }
             },
-            floatingActionButtonPosition = FabPosition.End
+            floatingActionButtonPosition = FabPosition.End,
+            bottomBar = {
+                AdBanner()
+            }
         ) { innerPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
