@@ -33,8 +33,12 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
     
-    private val _isPremium = MutableStateFlow(false)
-    val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
+    private val premiumManager = PremiumManager(dataStore)
+    val isPremium: StateFlow<Boolean> = premiumManager.isPremium.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        false
+    )
     
     private val _allTexts = MutableStateFlow<List<TextEntity>>(emptyList())
     val allTexts: StateFlow<List<TextEntity>> = _allTexts.asStateFlow()
@@ -533,6 +537,12 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
     
     // 新增：從持久化儲存載入字體大小
+    fun setPremium(value: Boolean) {
+        viewModelScope.launch {
+            premiumManager.setPremium(value)
+        }
+    }
+
     private suspend fun loadFontSize() {
         try {
             dataStore.data.map { preferences ->
