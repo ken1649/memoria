@@ -640,7 +640,7 @@ fun MainScreen(context: Context) {
                                 val displayText = if (uiState.paragraphs.isNotEmpty()) {
                                     uiState.paragraphs.joinToString("\n")
                                 } else {
-                                    uiState.fullTextContent.ifEmpty { "請側邊欄選擇文本或新增文本" }
+                                    uiState.fullTextContent.ifEmpty { "請從側邊欄選擇文本或新增文本" }
                                 }
                                 
                                 Text(
