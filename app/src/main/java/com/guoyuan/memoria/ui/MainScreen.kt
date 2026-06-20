@@ -107,6 +107,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material.icons.filled.Palette
+import android.content.Context
+import androidx.compose.ui.res.painterResource
+import com.guoyuan.memoria.R
+
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -248,7 +252,7 @@ fun MainScreen(context: Context) {
                                         if (targetIndex != -1) {
                                             reorderableRegularItems[targetIndex] = reorderableRegularItems[targetIndex].copy(
                                                 title = updatedTitle,
-                                                fullContent = updatedContent
+                                                content = updatedContent
                                             )
                                         }
                                     }
@@ -286,7 +290,7 @@ fun MainScreen(context: Context) {
                                     if (targetIndex != -1) {
                                         reorderableRegularItems[targetIndex] = reorderableRegularItems[targetIndex].copy(
                                             title = updatedTitle,
-                                            fullContent = updatedContent
+                                            content = updatedContent
                                         )
                                     }
                                 },
@@ -1153,7 +1157,7 @@ private fun ManagementListItem(
     var showEditDialog by remember { mutableStateOf(false) } // 新增：編輯對話框狀態
     var showColorDialog by remember { mutableStateOf(false) } // 新增：顏色設定對話框狀態
     var editedTitle by remember { mutableStateOf(item.title) } // 新增：編輯中的標題
-    var editedContent by remember { mutableStateOf(item.fullContent) } // 新增：編輯中的內容
+    var editedContent by remember { mutableStateOf(item.content) } // 新增：編輯中的內容
     
     Row(
         modifier = modifier
@@ -1168,12 +1172,19 @@ private fun ManagementListItem(
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                    // 1. 替換為 painterResource 讀取你的 XML
+                    painter = painterResource(id = R.drawable.baseline_star_24),
                     contentDescription = "設為最愛",
-                    tint = if (isFavorite) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                    // 2. 調整著色邏輯：如果是最愛則設為黃色，否則使用主題預設色
+                    tint = if (isFavorite) {
+                        Color(0xFFFFD700) // 使用金黃色 (Gold)，或直接用 Color.Yellow
+                    } else {
+                        androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        // 建議非最愛時加一點透明度，視覺上比較像「空星」
+                    }
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp)) // 星星與文字標題的間距
+            Spacer(modifier = Modifier.width(12.dp))
         }
 
         // 2. 【中間】文本標題 (自動配重佔滿剩餘空間)
