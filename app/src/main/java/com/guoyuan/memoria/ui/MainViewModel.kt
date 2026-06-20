@@ -26,6 +26,10 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import androidx.datastore.preferences.core.floatPreferencesKey
 import java.io.InputStreamReader
+import kotlinx.coroutines.flow.SharingStarted
+import com.guoyuan.memoria.PremiumManager
+import com.guoyuan.memoria.R
+import kotlinx.coroutines.flow.stateIn
 
 data class PunctuationItem(val symbol: String, val label: String, var isChecked: Boolean, val isCustom: Boolean = false)
 
@@ -33,11 +37,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
     
-    private val premiumManager = PremiumManager(dataStore)
+    private val premiumManager = PremiumManager(context.applicationContext, dataStore)
     val isPremium: StateFlow<Boolean> = premiumManager.isPremium.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        false
+        true  //付費是否啟用定義
     )
     
     private val _allTexts = MutableStateFlow<List<TextEntity>>(emptyList())
@@ -51,6 +55,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
     init {
         Log.d("ThemeDebug", "MainViewModel 初始化開始")
+        // App 啟動時自動檢查
+        viewModelScope.launch {
+            premiumManager.refreshPurchaseStatus()
+        }
+
         // 1. 先處理主題 (獨立的)
         // 獨立啟動一個協程，專門處理主題載入，不與其他任務混在一起
         viewModelScope.launch {
@@ -83,7 +92,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
 
         Log.d("ThemeDebug", "MainViewModel 初始化結束")
     }
-
+    fun onRestorePurchaseClicked() {
+        viewModelScope.launch {
+            premiumManager.refreshPurchaseStatus()
+        }
+    }
     private suspend fun insertDefaultData() {
         withContext(Dispatchers.IO) {
             try {
@@ -155,15 +168,15 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             } else {
                 // 首次啟動使用預設值
                 val defaultList = listOf(
-                    PunctuationItem("，", "逗號", true),
-                    PunctuationItem("。", "句號", true),
-                    PunctuationItem("；", "分號", true),
-                    PunctuationItem("？", "問號", true),
-                    PunctuationItem("！", "驚嘆號", true),
-                    PunctuationItem("：", "冒號", true),
-                    PunctuationItem(" ", "空白", true),
-                    PunctuationItem("／", "正斜線", false),  // 新增正斜線選項（預設不勾選）
-                    PunctuationItem("＼", "反斜線", false)   // 新增反斜線選項（預設不勾選）
+                    PunctuationItem("，", context.getString(R.string.comma), true),
+                    PunctuationItem("。", context.getString(R.string.period), true),
+                    PunctuationItem("；", context.getString(R.string.semicolon), true),
+                    PunctuationItem("？", context.getString(R.string.question_mark), true),
+                    PunctuationItem("！", context.getString(R.string.exclamation_mark), true),
+                    PunctuationItem("：", context.getString(R.string.colon), true),
+                    PunctuationItem(" ", context.getString(R.string.space), true),
+                    PunctuationItem("／", context.getString(R.string.forward_slash), false),  // 新增正斜線選項（預設不勾選）
+                    PunctuationItem("＼", context.getString(R.string.backslash), false)   // 新增反斜線選項（預設不勾選）
                 )
                 punctuationList.value = defaultList
                 savePunctuationListToStore(defaultList)
@@ -172,13 +185,13 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             e.printStackTrace()
             // 解析失敗時使用預設值
             val defaultList = listOf(
-                PunctuationItem("，", "逗號", true),
-                PunctuationItem("。", "句號", true),
-                PunctuationItem("；", "分號", true),
-                PunctuationItem("？", "問號", true),
-                PunctuationItem("！", "驚嘆號", true),
-                PunctuationItem("：", "冒號", true),
-                PunctuationItem(" ", "空白", true)
+                PunctuationItem("，", context.getString(R.string.comma), true),
+                PunctuationItem("。", context.getString(R.string.period), true),
+                PunctuationItem("；", context.getString(R.string.semicolon), true),
+                PunctuationItem("？", context.getString(R.string.question_mark), true),
+                PunctuationItem("！", context.getString(R.string.exclamation_mark), true),
+                PunctuationItem("：", context.getString(R.string.colon), true),
+                PunctuationItem(" ", context.getString(R.string.space), true)
             )
             punctuationList.value = defaultList
             savePunctuationListToStore(defaultList)
@@ -892,6 +905,12 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 currentSentences = newSentences,
                 currentSentenceIndex = newIndex
             )
+        }
+    }
+    // 使用 viewModelScope 開啟協程來執行 suspend 函式
+    fun purchasePremium() {
+        viewModelScope.launch {
+            premiumManager.setPremium(true)
         }
     }
 }

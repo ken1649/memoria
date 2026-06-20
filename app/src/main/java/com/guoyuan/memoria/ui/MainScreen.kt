@@ -1,8 +1,6 @@
 package com.guoyuan.memoria.ui
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Add
@@ -39,7 +36,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,68 +43,46 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.DrawerValue
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.Row
 import com.guoyuan.memoria.data.AppDatabase
 import com.guoyuan.memoria.data.AppDao
 import com.guoyuan.memoria.dataStore
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Alignment
 import android.util.Log
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.guoyuan.memoria.data.TextEntity
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.runtime.toMutableStateList
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.graphics.graphicsLayer
 import java.util.Collections
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material.icons.filled.Palette
 import android.content.Context
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.guoyuan.memoria.R
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -128,20 +102,26 @@ fun MainScreen(context: Context) {
     val punctuationList by viewModel.punctuationList.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    
-    // 廣告橫幅元件
+    val isPremium by viewModel.isPremium.collectAsState()
+
+
     @Composable
-    fun AdBanner() {
-        val context = LocalContext.current
+    fun AdBanner(modifier: Modifier = Modifier) {
+        //val context = LocalContext.current
+
         AndroidView(
-            factory = { context ->
-                AdView(context).apply {
+            modifier = modifier,
+            factory = { ctx ->
+                AdView(ctx).apply {
                     setAdSize(AdSize.BANNER)
                     adUnitId = AdConfig.BANNER_UNIT_ID
                     loadAd(AdRequest.Builder().build())
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            update = { adView ->
+                // 如果你在某些場景需要動態更新廣告，可以在這裡處理
+                // 目前這樣寫可以避免廣告因為 Recomposition 被重複初始化
+            }
         )
     }
     
@@ -195,7 +175,7 @@ fun MainScreen(context: Context) {
                 // 新增文本按鈕
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                    label = { Text("新增文本") },
+                    label = { Text(stringResource(R.string.add_new_article)) },
                     selected = false,
                     onClick = {
                         // 新增時強制清空輸入欄位
@@ -217,7 +197,7 @@ fun MainScreen(context: Context) {
                         )
                     },
                     label = { 
-                        Text(if (uiState.isSidebarManagementMode) "結束管理" else "編輯列表") 
+                        Text(if (uiState.isSidebarManagementMode) stringResource(R.string.end_management) else stringResource(R.string.Manage_list))
                     },
                     selected = false,
                     onClick = {
@@ -325,42 +305,61 @@ fun MainScreen(context: Context) {
                                                 .pointerInput(textEntity.id) {
                                                     detectDragGesturesAfterLongPress(
                                                         onDragStart = {
-                                                            Log.d("SidebarDrag", "【開始拖曳】項目標題: ${textEntity.title}")
+                                                            Log.d(
+                                                                "SidebarDrag",
+                                                                "【開始拖曳】項目標題: ${textEntity.title}"
+                                                            )
                                                             // 初始時直接使用外層索引
-                                                            draggedIndex = reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
+                                                            draggedIndex =
+                                                                reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
                                                             dragOffset = 0f
                                                         },
                                                         onDrag = { change, dragAmount ->
                                                             // 強制消費事件，防止被上層攔截
                                                             change.consume()
                                                             dragOffset += dragAmount.y
-                                                            Log.d("SidebarDrag", "【拖曳中】目前累積位移 dragOffset: $dragOffset")
-                                                            
+                                                            Log.d(
+                                                                "SidebarDrag",
+                                                                "【拖曳中】目前累積位移 dragOffset: $dragOffset"
+                                                            )
+
                                                             // 每次都動態查找最新索引
-                                                            val currentActiveIndex = reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
+                                                            val currentActiveIndex =
+                                                                reorderableRegularItems.indexOfFirst { it.id == textEntity.id }
                                                             if (currentActiveIndex == -1) return@detectDragGesturesAfterLongPress
-                                                            
+
                                                             draggedIndex = currentActiveIndex
-                                                            
+
                                                             // 使用動態量測高度或預設值
-                                                            val currentThreshold = if (itemHeightPx > 0f) itemHeightPx else 180f
-                                                            
+                                                            val currentThreshold =
+                                                                if (itemHeightPx > 0f) itemHeightPx else 180f
+
                                                             // 階梯式距離換位演算法
                                                             when {
                                                                 // 往下拖曳超過閾值
                                                                 dragOffset > currentThreshold -> {
-                                                                    val nextIndex = currentActiveIndex + 1
+                                                                    val nextIndex =
+                                                                        currentActiveIndex + 1
                                                                     if (nextIndex in reorderableRegularItems.indices) {
-                                                                        Collections.swap(reorderableRegularItems, currentActiveIndex, nextIndex)
+                                                                        Collections.swap(
+                                                                            reorderableRegularItems,
+                                                                            currentActiveIndex,
+                                                                            nextIndex
+                                                                        )
                                                                         draggedIndex = nextIndex
                                                                         dragOffset -= currentThreshold // 精確扣除真實高度
                                                                     }
                                                                 }
                                                                 // 往上拖曳超過閾值
                                                                 dragOffset < -currentThreshold -> {
-                                                                    val prevIndex = currentActiveIndex - 1
+                                                                    val prevIndex =
+                                                                        currentActiveIndex - 1
                                                                     if (prevIndex >= 0 && prevIndex in reorderableRegularItems.indices) {
-                                                                        Collections.swap(reorderableRegularItems, currentActiveIndex, prevIndex)
+                                                                        Collections.swap(
+                                                                            reorderableRegularItems,
+                                                                            currentActiveIndex,
+                                                                            prevIndex
+                                                                        )
                                                                         draggedIndex = prevIndex
                                                                         dragOffset += currentThreshold // 精確加回真實高度
                                                                     }
@@ -368,13 +367,21 @@ fun MainScreen(context: Context) {
                                                             }
                                                         },
                                                         onDragEnd = {
-                                                            Log.d("SidebarDrag", "【拖曳結束】已放開手指，準備呼叫 ViewModel 存檔")
-                                                            viewModel.updateItemsOrder(reorderableRegularItems)
+                                                            Log.d(
+                                                                "SidebarDrag",
+                                                                "【拖曳結束】已放開手指，準備呼叫 ViewModel 存檔"
+                                                            )
+                                                            viewModel.updateItemsOrder(
+                                                                reorderableRegularItems
+                                                            )
                                                             draggedIndex = null
                                                             dragOffset = 0f
                                                         },
                                                         onDragCancel = {
-                                                            Log.d("SidebarDrag", "【拖曳取消】手勢中斷")
+                                                            Log.d(
+                                                                "SidebarDrag",
+                                                                "【拖曳取消】手勢中斷"
+                                                            )
                                                             draggedIndex = null
                                                             dragOffset = 0f
                                                         }
@@ -404,23 +411,26 @@ fun MainScreen(context: Context) {
         }
     ) {
         Scaffold(
+
             topBar = {
                 TopAppBar(
                     title = { 
                         val currentParagraphNum = uiState.currentParagraphIndex + 1
                         val displayTitle = if (uiState.currentMode == AppMode.PLAY) {
-                            "${uiState.currentTextTitle.ifEmpty { lastSelectedTitle.value }} - 第${currentParagraphNum}段"
+                            "${uiState.currentTextTitle.ifEmpty { lastSelectedTitle.value }} - ${currentParagraphNum}"
                         } else {
                             uiState.currentTextTitle.ifEmpty { 
-                                if (uiState.isAddingNewText) "新增文本" else lastSelectedTitle.value
+                                if (uiState.isAddingNewText) stringResource(R.string.add_new_article) else lastSelectedTitle.value
                             }
                         }
                         
                         Log.d("MemoriaDebug", "TopBar 重繪！模式: ${uiState.currentMode}, 新增中: ${uiState.isAddingNewText}, 當前標題: '${uiState.currentTextTitle}', 最後標題: '${lastSelectedTitle.value}'")
                         
                         Row(verticalAlignment = Alignment.CenterVertically) {
+
                             Text(text = displayTitle)
                             if (uiState.isEditingReadingMode && !uiState.isAddingNewText) {
+                                Log.d("MemoriaDebug", "edit title icon ")
                                 IconButton(
                                     onClick = { viewModel.openEditTitleDialog() },
                                     modifier = Modifier.size(24.dp)
@@ -467,6 +477,16 @@ fun MainScreen(context: Context) {
                     }
                 )
             },
+            bottomBar = {
+                // 在底部欄位下方加一點 padding，自然會把 Scaffold 的FAB內容往上推
+                Column(modifier = Modifier.padding(bottom = 35.dp)){
+                    // 當 isPremium 變更為 true 時，這裡會自動重新繪製，廣告就會消失
+                    if (!isPremium) {
+                        AdBanner(modifier = Modifier.fillMaxWidth())
+                    }
+                }
+
+            },
             floatingActionButton = {
                 //Log.d("FAB_Debug", "Texts size: $allTexts")
                 if (!uiState.fullTextContent.isEmpty() && allTexts.isNotEmpty() && !uiState.isEditingReadingMode && uiState.currentMode != AppMode.EDIT) {
@@ -476,23 +496,19 @@ fun MainScreen(context: Context) {
                                 if (uiState.currentMode == AppMode.READ) AppMode.PLAY
                                 else AppMode.READ
                             )
-                        }
+                        },
+                        modifier = Modifier.padding(bottom = 35.dp)//與下方拉開margin
                     ) {
                         Text(
-                            text = if (uiState.currentMode == AppMode.READ) 
-                                "開始" 
-                            else 
-                                "返回"
+                            text = if (uiState.currentMode == AppMode.READ)
+                                stringResource(R.string.start)
+                            else
+                                stringResource(R.string.Return)
                         )
                     }
                 }
             },
-            floatingActionButtonPosition = FabPosition.End,
-            bottomBar = {
-                if (!viewModel.isPremium.value) {
-                    AdBanner()
-                }
-            }
+            floatingActionButtonPosition = FabPosition.End
         ) { innerPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
                 // 編輯模式：顯示標題和內容輸入框，以及保存按鈕
@@ -514,7 +530,7 @@ fun MainScreen(context: Context) {
                         OutlinedTextField(
                             value = importUrl,
                             onValueChange = { importUrl = it },
-                            label = { Text("從網址/Google文件匯入") },
+                            label = { Text(stringResource(R.string.import_from_url_google_docs)) },
                             modifier = Modifier.weight(1f),
                             enabled = !uiState.isLoading
                         )
@@ -525,12 +541,12 @@ fun MainScreen(context: Context) {
                             onClick = { viewModel.fetchTextFromUrl(importUrl) },
                             enabled = !uiState.isLoading && importUrl.isNotBlank()
                         ) {
-                            Text("抓取")
+                            Text(stringResource(R.string.Import))
                         }
                     }
                 
                     Text(
-                        text = "💡 提示：若使用 Google 文件，請確保已開啟『知道連結的任何人都可以檢視』分享權限。",
+                        text = "💡"+ stringResource(R.string.it_is_recommended_to_use_google_docs_and_ensure_that_the_anyone_who_knows_the_link_can_view_sharing_permission_is_enabled),//建議使用 Google 文件，並確保已開啟『知道連結的任何人都可以檢視』分享權限。
                         style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -540,7 +556,7 @@ fun MainScreen(context: Context) {
                     OutlinedTextField(
                         value = uiState.currentTextTitle,
                         onValueChange = { viewModel.updateEditTitle(it) },
-                        label = { Text("標題") },
+                        label = { Text(stringResource(R.string.Title)) },
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = TextStyle(
                             fontSize = uiState.fontSize.sp,
@@ -553,7 +569,7 @@ fun MainScreen(context: Context) {
                     OutlinedTextField(
                         value = uiState.fullTextContent,
                         onValueChange = { viewModel.updateEditContent(it) },
-                        label = { Text("內容") },
+                        label = { Text(stringResource(R.string.content)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
@@ -580,7 +596,7 @@ fun MainScreen(context: Context) {
                             modifier = Modifier.weight(1f),
                             enabled = !uiState.isLoading
                         ) {
-                            Text("儲存文章")
+                            Text(stringResource(R.string.save_article))
                         }
                     
                         Button(
@@ -594,7 +610,7 @@ fun MainScreen(context: Context) {
                                 contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
                             )
                         ) {
-                            Text("取消新增")
+                            Text(stringResource(R.string.cancel_add))
                         }
                     }
                 }
@@ -640,7 +656,7 @@ fun MainScreen(context: Context) {
                                 val displayText = if (uiState.paragraphs.isNotEmpty()) {
                                     uiState.paragraphs.joinToString("\n")
                                 } else {
-                                    uiState.fullTextContent.ifEmpty { "請從側邊欄選擇文本或新增文本" }
+                                    uiState.fullTextContent.ifEmpty { stringResource(R.string.please_select_an_article_from_the_sidebar_or_add_a_new_article) }//請從側邊欄選擇文本或新增文本
                                 }
                                 
                                 Text(
@@ -793,12 +809,12 @@ fun MainScreen(context: Context) {
         
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { viewModel.closeEditTitleDialog() },
-            title = { Text("修改文本標題") },
+            title = { Text(stringResource(R.string.modify_article_title)) },
             text = {
                 OutlinedTextField(
                     value = tempTitle,
                     onValueChange = { tempTitle = it },
-                    label = { Text("新標題") },
+                    label = { Text(stringResource(R.string.new_title)) },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(
                         fontSize = uiState.fontSize.sp,
@@ -811,12 +827,12 @@ fun MainScreen(context: Context) {
                     viewModel.updateTextTitle(tempTitle)
                     viewModel.closeEditTitleDialog()
                 }) {
-                    Text("儲存")
+                    Text(stringResource(R.string.Save))
                 }
             },
             dismissButton = {
                 Button(onClick = { viewModel.closeEditTitleDialog() }) {
-                    Text("取消")
+                    Text(stringResource(R.string.Cancel))
                 }
             }
         )
@@ -826,7 +842,7 @@ fun MainScreen(context: Context) {
     if (uiState.showSettingsDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { viewModel.closeSettings() },
-            title = { Text("系統設定") },
+            title = { Text(stringResource(R.string.system_settings)) },
             text = {
                 Column {
                     // 設定斷句符號選項
@@ -843,7 +859,7 @@ fun MainScreen(context: Context) {
                                 contentDescription = null,
                                 modifier = Modifier.padding(end = 8.dp)
                             )
-                            Text("設定斷句符號")
+                            Text(stringResource(R.string.set_sentence_delimiters))
                         }
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowRight,
@@ -865,7 +881,7 @@ fun MainScreen(context: Context) {
                                 contentDescription = null,
                                 modifier = Modifier.padding(end = 8.dp)
                             )
-                            Text("文字大小設定")
+                            Text(stringResource(R.string.text_size_settings))
                         }
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowRight,
@@ -887,7 +903,7 @@ fun MainScreen(context: Context) {
                                 contentDescription = null,
                                 modifier = Modifier.padding(end = 8.dp)
                             )
-                            Text("顏色設定")
+                            Text(stringResource(R.string.color_schemes))
                         }
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowRight,
@@ -895,11 +911,12 @@ fun MainScreen(context: Context) {
                         )
                     }
 
-                    if (!viewModel.isPremium.value) {
+                    if (!isPremium) {
                         androidx.compose.foundation.layout.Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
+                                    viewModel.purchasePremium()
                                     android.widget.Toast.makeText(
                                         context,
                                         "開發中...",
@@ -911,12 +928,35 @@ fun MainScreen(context: Context) {
                         ) {
                             androidx.compose.foundation.layout.Row {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Default.WorkspacePremium,
+                                    painter = painterResource(id = R.drawable.baseline_star_24),
                                     contentDescription = null,
                                     tint = Color(0xFFFFD700),
                                     modifier = Modifier.padding(end = 8.dp)
                                 )
-                                Text("付費去除廣告")
+                                Text(stringResource(R.string.remove_ads))
+                            }
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = "前往"
+                            )
+                        }
+                        androidx.compose.foundation.layout.Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.purchasePremium()//測試用
+                                }
+                                .padding(16.dp),
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                        ) {
+                            androidx.compose.foundation.layout.Row {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_star_24),
+                                    contentDescription = null,
+                                    tint = Color(0xFFFFD700),
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                                Text("Restore Purchases")
                             }
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowRight,
@@ -928,7 +968,7 @@ fun MainScreen(context: Context) {
             },
             confirmButton = {
                 Button(onClick = { viewModel.closeSettings() }) {
-                    Text("關閉")
+                    Text(stringResource(R.string.close))
                 }
             }
         )
@@ -948,7 +988,7 @@ fun MainScreen(context: Context) {
             ) {
                 Column {
                     Text(
-                        "文字大小設定",
+                        stringResource(R.string.text_size_settings),
                         style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -987,7 +1027,7 @@ fun MainScreen(context: Context) {
                     }
                     
                     Text(
-                        "目前大小: ${uiState.fontSize.toInt()}sp",
+                        stringResource(R.string.current_size_sp, uiState.fontSize.toInt()),
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
                     )
@@ -1008,7 +1048,7 @@ fun MainScreen(context: Context) {
                                 contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
                             )
                         ) {
-                            Text("取消")
+                            Text(stringResource(R.string.Cancel))
                         }
                         
                         Button(
@@ -1017,7 +1057,7 @@ fun MainScreen(context: Context) {
                                 viewModel.closeFontSizeDialog()
                             }
                         ) {
-                            Text("確認")
+                            Text(stringResource(R.string.ok))
                         }
                     }
                 }
@@ -1031,7 +1071,7 @@ fun MainScreen(context: Context) {
         
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { viewModel.closePunctuationDialog() },
-            title = { Text("自定義斷句符號") },
+            title = { Text(stringResource(R.string.custom_sentence_delimiters)) },
             text = {
                 Column {
                     // 上半部：Checkbox 列表
@@ -1080,7 +1120,7 @@ fun MainScreen(context: Context) {
                                     customInput.value = it
                                 }
                             },
-                            label = { Text("新符號") },
+                            label = { Text(stringResource(R.string.new_symbol)) },
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
@@ -1094,14 +1134,14 @@ fun MainScreen(context: Context) {
                             },
                             modifier = Modifier.padding(start = 8.dp)
                         ) {
-                            Text("新增")
+                            Text(stringResource(R.string.add))
                         }
                     }
                 }
             },
             confirmButton = {
                 Button(onClick = { viewModel.closePunctuationDialog() }) {
-                    Text("確定")
+                    Text(stringResource(R.string.ok))
                 }
             }
         )
@@ -1111,7 +1151,7 @@ fun MainScreen(context: Context) {
     if (showColorDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showColorDialog = false },
-            title = { Text("選擇主題") },
+            title = { Text(stringResource(R.string.select_theme)) },
             text = {
                 Column {
                     androidx.compose.foundation.layout.Row(
@@ -1123,7 +1163,7 @@ fun MainScreen(context: Context) {
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
                     ) {
-                        Text("明亮模式")
+                        Text(stringResource(R.string.light_mode))
                         if (uiState.currentTheme == AppTheme.LIGHT) {
                             Icon(
                                 imageVector = Icons.Default.Done,
@@ -1141,7 +1181,7 @@ fun MainScreen(context: Context) {
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
                     ) {
-                        Text("夜間模式")
+                        Text(stringResource(R.string.dark_mode))
                         if (uiState.currentTheme == AppTheme.DARK) {
                             Icon(
                                 imageVector = Icons.Default.Done,
@@ -1159,7 +1199,7 @@ fun MainScreen(context: Context) {
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
                     ) {
-                        Text("護眼模式")
+                        Text(stringResource(R.string.warm_tint))
                         if (uiState.currentTheme == AppTheme.EYE_CARE) {
                             Icon(
                                 imageVector = Icons.Default.Done,
@@ -1177,7 +1217,7 @@ fun MainScreen(context: Context) {
                             .padding(16.dp),
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
                     ) {
-                        Text("跟隨系統")
+                        Text(stringResource(R.string.system_default))
                         if (uiState.currentTheme == AppTheme.SYSTEM) {
                             Icon(
                                 imageVector = Icons.Default.Done,
@@ -1190,7 +1230,7 @@ fun MainScreen(context: Context) {
             },
             confirmButton = {
                 Button(onClick = { showColorDialog = false }) {
-                    Text("關閉")
+                    Text(stringResource(R.string.close))
                 }
             }
         )
@@ -1281,7 +1321,9 @@ private fun ManagementListItem(
             
             // 拖曳把手（非最愛項目顯示把手，最愛項目留白保持對齊）
             if (isFavorite) {
-                Spacer(modifier = Modifier.size(24.dp).padding(start = 8.dp))
+                Spacer(modifier = Modifier
+                    .size(24.dp)
+                    .padding(start = 8.dp))
             } else {
                 Box(modifier = Modifier.padding(start = 8.dp)) {
                     dragHandle()
@@ -1294,8 +1336,12 @@ private fun ManagementListItem(
     if (showDeleteDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("確認刪除文本") },
-            text = { Text("確定要刪除「${item.title}」嗎？此動作將無法還原。") },
+            title = { Text("Confirm Delete Article") },
+            text = { Text(
+                stringResource(
+                    R.string.are_you_sure_you_want_to_delete_this_action_cannot_be_undone,
+                    item.title
+                )) }, //確定要刪除「${item.title}」嗎？此動作將無法還原。
             confirmButton = {
                 Button(
                     onClick = {
@@ -1307,12 +1353,12 @@ private fun ManagementListItem(
                         contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
                     )
                 ) {
-                    Text("確定")
+                    Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
                 Button(onClick = { showDeleteDialog = false }) {
-                    Text("取消")
+                    Text(stringResource(R.string.Cancel))
                 }
             }
         )
@@ -1322,12 +1368,20 @@ private fun ManagementListItem(
     if (showFavoriteDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showFavoriteDialog = false },
-            title = { Text("確認設為最愛置頂") },
+            title = { Text(stringResource(R.string.add_to_favorites_and_pin_to_top)) },
             text = {
                 if (isFavorite) {
-                    Text("確定要取消「${item.title}」的最愛置頂狀態嗎？")
+                    Text(
+                        stringResource(
+                            R.string.are_you_sure_you_want_to_unpin_from_favorites,
+                            item.title
+                        ))
                 } else {
-                    Text("確定要將「${item.title}」設為最愛置頂嗎？（注意：原本的最愛項目將會被自動取代）")
+                    Text(
+                        stringResource(
+                            R.string.are_you_sure_you_want_to_pin_to_the_top_note_the_existing_favorite_item_will_be_automatically_replaced,
+                            item.title
+                        ))
                 }
             },
             confirmButton = {
@@ -1337,7 +1391,7 @@ private fun ManagementListItem(
                         showFavoriteDialog = false
                     }
                 ) {
-                    Text("確定")
+                    Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
@@ -1348,7 +1402,7 @@ private fun ManagementListItem(
                         contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer
                     )
                 ) {
-                    Text("取消")
+                    Text(stringResource(R.string.Cancel))
                 }
             }
         )
