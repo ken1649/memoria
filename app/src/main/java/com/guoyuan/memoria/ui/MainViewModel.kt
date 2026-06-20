@@ -852,11 +852,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         
         // 轉義符號並構建正則表達式
         val escapedSymbols = extendedSymbols.joinToString("") { Regex.escape(it) }
+        // 關鍵：只切分在符號後，不移除符號後的空格
         val regex = "(?<=[$escapedSymbols])".toRegex()
-        
-        // 使用正則切分句子
+
         return paragraph.split(regex)
-            .map { it.trim() }
+            .map { it.replace(Regex("^\\s+"), "") } // 只移除句子「最開頭」的空白，保留標點後的空白
             .filter { it.isNotEmpty() }
     }
 

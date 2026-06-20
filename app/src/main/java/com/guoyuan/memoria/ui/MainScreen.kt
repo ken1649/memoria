@@ -675,7 +675,7 @@ fun MainScreen(context: Context) {
                             val displayText = uiState.currentSentences
                                 .take(uiState.currentSentenceIndex + 1)
                                 .joinToString("")
-                            
+                            //Log.d("UIDebug", "${uiState.currentSentences.take(uiState.currentSentenceIndex + 1)}")
                             LaunchedEffect(displayText) {
                                 // 等待一個小延遲，確保UI更新完成
                                 kotlinx.coroutines.delay(10)
