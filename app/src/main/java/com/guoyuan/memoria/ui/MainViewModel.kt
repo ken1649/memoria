@@ -33,6 +33,9 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
     
+    private val _isPremium = MutableStateFlow(false)
+    val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
+    
     private val _allTexts = MutableStateFlow<List<TextEntity>>(emptyList())
     val allTexts: StateFlow<List<TextEntity>> = _allTexts.asStateFlow()
 

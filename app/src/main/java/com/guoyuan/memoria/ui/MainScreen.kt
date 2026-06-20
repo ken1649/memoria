@@ -489,7 +489,9 @@ fun MainScreen(context: Context) {
             },
             floatingActionButtonPosition = FabPosition.End,
             bottomBar = {
-                AdBanner()
+                if (!viewModel.isPremium.value) {
+                    AdBanner()
+                }
             }
         ) { innerPadding ->
             if (uiState.currentMode == AppMode.EDIT) {
