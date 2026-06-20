@@ -25,10 +25,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import androidx.datastore.preferences.core.floatPreferencesKey
+import java.io.InputStreamReader
 
 data class PunctuationItem(val symbol: String, val label: String, var isChecked: Boolean, val isCustom: Boolean = false)
 
-class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore<Preferences>) : ViewModel() {
+class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore<Preferences>, private val context: Context) : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
     
@@ -53,12 +54,44 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         viewModelScope.launch {
             Log.d("ThemeDebug", "viewModelScope 其他任務啟動")
             loadAllTexts()
+            // 檢查是否需要插入預設資料
+            if (_allTexts.value.isEmpty()) {
+                insertDefaultData()
+            }
             loadPunctuationListFromStore()
             loadFontSize()
             Log.d("ThemeDebug", "viewModelScope 其他任務完成")
         }
 
         Log.d("ThemeDebug", "MainViewModel 初始化結束")
+    }
+    
+    private suspend fun insertDefaultData() {
+        withContext(Dispatchers.IO) {
+            try {
+                // 從 assets 讀取道德經.json
+                val inputStream = context.assets.open("道德經.json")
+                val reader = InputStreamReader(inputStream, "UTF-8")
+                val jsonString = reader.readText()
+                reader.close()
+                inputStream.close()
+                
+                // 解析 JSON
+                val type = object : TypeToken<List<TextEntity>>() {}.type
+                val defaultTexts: List<TextEntity> = gson.fromJson(jsonString, type)
+                
+                // 插入資料庫
+                defaultTexts.forEach { text ->
+                    appDao.insertText(text)
+                }
+                
+                // 重新加載文章列表
+                loadAllTexts()
+                Log.d("DefaultData", "成功插入預設資料")
+            } catch (e: Exception) {
+                Log.e("DefaultData", "插入預設資料失敗: ${e.message}")
+            }
+        }
     }
 
     private fun loadTheme() {
@@ -835,11 +868,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
 }
 
-class MainViewModelFactory(private val appDao: AppDao, private val dataStore: DataStore<Preferences>) : ViewModelProvider.Factory {
+class MainViewModelFactory(private val appDao: AppDao, private val dataStore: DataStore<Preferences>, private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(appDao, dataStore) as T
+            return MainViewModel(appDao, dataStore, context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
