@@ -81,6 +81,7 @@ import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.filled.Palette
 import android.content.Context
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.guoyuan.memoria.R
@@ -89,6 +90,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import androidx.compose.ui.viewinterop.AndroidView
 import com.guoyuan.memoria.AdConfig
+import com.guoyuan.memoria.components.TutorialDialog
 
 //
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,7 +105,7 @@ fun MainScreen(context: Context) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val isPremium by viewModel.isPremium.collectAsState()
-
+    val showTutorial by viewModel.showTutorial.collectAsState()
 
     @Composable
     fun AdBanner(modifier: Modifier = Modifier) {
@@ -143,7 +145,12 @@ fun MainScreen(context: Context) {
             viewModel.toggleSidebarManagementMode()
         }
     }
-    
+    // 監聽教學視窗是否顯示
+    if (showTutorial) {
+        TutorialDialog(
+            onDismiss = { viewModel.closeTutorial() }
+        )
+    }
     // 當選中的文本改變時，自動載入進度
     LaunchedEffect(uiState.currentTextId) {
         isReady = false // 載入中，暫停進度保存
@@ -416,7 +423,9 @@ fun MainScreen(context: Context) {
                 TopAppBar(
                     title = { 
                         val currentParagraphNum = uiState.currentParagraphIndex + 1
-                        val displayTitle = if (uiState.currentMode == AppMode.PLAY) {
+                        val displayTitle = if(uiState.currentMode == AppMode.INIT){
+                            stringResource(R.string.app_name)
+                        }else if (uiState.currentMode == AppMode.PLAY) {
                             "${uiState.currentTextTitle.ifEmpty { lastSelectedTitle.value }} - ${currentParagraphNum}"
                         } else {
                             uiState.currentTextTitle.ifEmpty { 
@@ -427,7 +436,6 @@ fun MainScreen(context: Context) {
                         Log.d("MemoriaDebug", "TopBar 重繪！模式: ${uiState.currentMode}, 新增中: ${uiState.isAddingNewText}, 當前標題: '${uiState.currentTextTitle}', 最後標題: '${lastSelectedTitle.value}'")
                         
                         Row(verticalAlignment = Alignment.CenterVertically) {
-
                             Text(text = displayTitle)
                             if (uiState.isEditingReadingMode && !uiState.isAddingNewText) {
                                 Log.d("MemoriaDebug", "edit title icon ")
@@ -918,6 +926,28 @@ fun MainScreen(context: Context) {
                         )
                     }
 
+                    // 新增：教學選項
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.openTutorial() }
+                            .padding(16.dp),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        androidx.compose.foundation.layout.Row {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Book,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(stringResource(R.string.tutorial))
+                        }
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = "前往"
+                        )
+                    }
+
                     if (!isPremium) {
                         androidx.compose.foundation.layout.Row(
                             modifier = Modifier
@@ -1105,7 +1135,18 @@ fun MainScreen(context: Context) {
                                         }
                                     )
                                     Text(
-                                        text = item.label,
+                                        text = when (item.symbol) {
+                                            "，" -> stringResource(R.string.comma)
+                                            "。" -> stringResource(R.string.period)
+                                            "；" -> stringResource(R.string.semicolon)
+                                            "？" -> stringResource(R.string.question_mark)
+                                            "！" -> stringResource(R.string.exclamation_mark)
+                                            "：" -> stringResource(R.string.colon)
+                                            " " -> stringResource(R.string.space)
+                                            "／" -> stringResource(R.string.forward_slash)
+                                            "＼" -> stringResource(R.string.backslash)
+                                            else -> item.symbol
+                                        },
                                         modifier = Modifier.padding(start = 16.dp)
                                     )
                                 }

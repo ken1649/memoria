@@ -46,4 +46,5 @@
     <string name="add_to_favorites_and_pin_to_top">Add to Favorites and Pin to Top</string>
     <string name="are_you_sure_you_want_to_unpin_from_favorites">Are you sure you want to unpin 「%1$s」 from favorites?</string>
     <string name="are_you_sure_you_want_to_pin_to_the_top_note_the_existing_favorite_item_will_be_automatically_replaced">Are you sure you want to pin 「%1$s」 to the top? (Note: The existing favorite item will be automatically replaced.)</string>
+    <string name="tutorial">Tutorial</string>
 </resources>

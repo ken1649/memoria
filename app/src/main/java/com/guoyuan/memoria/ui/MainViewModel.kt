@@ -31,12 +31,16 @@ import com.guoyuan.memoria.PremiumManager
 import com.guoyuan.memoria.R
 import kotlinx.coroutines.flow.stateIn
 
-data class PunctuationItem(val symbol: String, val label: String, var isChecked: Boolean, val isCustom: Boolean = false)
+data class PunctuationItem(val symbol: String, var isChecked: Boolean, val isCustom: Boolean = false)
 
 class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore<Preferences>, private val context: Context) : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
-    
+
+    // 定義一個教學狀態，預設為關閉
+    private val _showTutorial = MutableStateFlow(false)
+    val showTutorial = _showTutorial.asStateFlow()
+
     private val premiumManager = PremiumManager(context.applicationContext, dataStore)
     val isPremium: StateFlow<Boolean> = premiumManager.isPremium.stateIn(
         viewModelScope,
@@ -102,6 +106,16 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             premiumManager.refreshPurchaseStatus()
         }
     }
+    // 提供給選單呼叫的教學開啟方法
+    fun openTutorial() {
+        _showTutorial.value = true
+    }
+
+    // 提供給彈窗內的關閉按鈕呼叫教學關閉
+    fun closeTutorial() {
+        _showTutorial.value = false
+    }
+
     private suspend fun insertDefaultData() {
         withContext(Dispatchers.IO) {
             try {
@@ -173,15 +187,15 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             } else {
                 // 首次啟動使用預設值
                 val defaultList = listOf(
-                    PunctuationItem("，", context.getString(R.string.comma), true),
-                    PunctuationItem("。", context.getString(R.string.period), true),
-                    PunctuationItem("；", context.getString(R.string.semicolon), true),
-                    PunctuationItem("？", context.getString(R.string.question_mark), true),
-                    PunctuationItem("！", context.getString(R.string.exclamation_mark), true),
-                    PunctuationItem("：", context.getString(R.string.colon), true),
-                    PunctuationItem(" ", context.getString(R.string.space), true),
-                    PunctuationItem("／", context.getString(R.string.forward_slash), false),  // 新增正斜線選項（預設不勾選）
-                    PunctuationItem("＼", context.getString(R.string.backslash), false)   // 新增反斜線選項（預設不勾選）
+                    PunctuationItem("，", true),
+                    PunctuationItem("。", true),
+                    PunctuationItem("；", true),
+                    PunctuationItem("？", true),
+                    PunctuationItem("！", true),
+                    PunctuationItem("：", true),
+                    PunctuationItem(" ", true),
+                    PunctuationItem("／", false),  // 新增正斜線選項（預設不勾選）
+                    PunctuationItem("＼", false)   // 新增反斜線選項（預設不勾選）
                 )
                 punctuationList.value = defaultList
                 savePunctuationListToStore(defaultList)
@@ -190,13 +204,13 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             e.printStackTrace()
             // 解析失敗時使用預設值
             val defaultList = listOf(
-                PunctuationItem("，", context.getString(R.string.comma), true),
-                PunctuationItem("。", context.getString(R.string.period), true),
-                PunctuationItem("；", context.getString(R.string.semicolon), true),
-                PunctuationItem("？", context.getString(R.string.question_mark), true),
-                PunctuationItem("！", context.getString(R.string.exclamation_mark), true),
-                PunctuationItem("：", context.getString(R.string.colon), true),
-                PunctuationItem(" ", context.getString(R.string.space), true)
+                PunctuationItem("，",  true),
+                PunctuationItem("。",  true),
+                PunctuationItem("；",  true),
+                PunctuationItem("？",  true),
+                PunctuationItem("！",  true),
+                PunctuationItem("：",  true),
+                PunctuationItem(" ",  true)
             )
             punctuationList.value = defaultList
             savePunctuationListToStore(defaultList)
@@ -889,7 +903,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         // 檢查是否已存在相同符號
         val exists = punctuationList.value.any { it.symbol == trimmedSymbol }
         if (!exists) {
-            val newItem = PunctuationItem(trimmedSymbol, trimmedSymbol, true, true)
+            val newItem = PunctuationItem(trimmedSymbol, true, true)
             val updatedList = punctuationList.value + newItem
             punctuationList.value = updatedList
             savePunctuationListToStore(updatedList)
