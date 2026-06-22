@@ -73,6 +73,6 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.x.x")
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
     // 加入 AdMob SDK
-    implementation("com.google.android.gms:play-services-ads:23.0.0")
+    implementation("com.google.android.gms:play-services-ads:25.4.0")
     implementation("com.android.billingclient:billing-ktx:7.0.0")
 }

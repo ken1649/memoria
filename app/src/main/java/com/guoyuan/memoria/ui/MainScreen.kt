@@ -116,7 +116,7 @@ fun MainScreen(context: Context) {
             factory = { ctx ->
                 AdView(ctx).apply {
                     setAdSize(AdSize.BANNER)
-                    adUnitId = AdConfig.BANNER_UNIT_ID
+                    adUnitId = AdConfig.MAIN_BANNER_ID
                     loadAd(AdRequest.Builder().build())
                 }
             },
@@ -965,7 +965,7 @@ fun MainScreen(context: Context) {
                         ) {
                             androidx.compose.foundation.layout.Row {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.baseline_star_24),
+                                    painter = painterResource(id = R.drawable.outline_crown_24),
                                     contentDescription = null,
                                     tint = Color(0xFFFFD700),
                                     modifier = Modifier.padding(end = 8.dp)
@@ -993,7 +993,7 @@ fun MainScreen(context: Context) {
                                     tint = Color(0xFFFFD700),
                                     modifier = Modifier.padding(end = 8.dp)
                                 )
-                                Text("Restore Purchases")
+                                Text(stringResource(R.string.restore_purchases))
                             }
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowRight,

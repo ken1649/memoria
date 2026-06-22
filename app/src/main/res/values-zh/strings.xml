@@ -48,4 +48,5 @@
     <string name="are_you_sure_you_want_to_unpin_from_favorites">確定要取消「%1$s」的最愛置頂狀態嗎？</string>
     <string name="are_you_sure_you_want_to_pin_to_the_top_note_the_existing_favorite_item_will_be_automatically_replaced">確定要將「%1$s」設為最愛置頂嗎？（注意：原本的最愛項目將會被自動取代）</string>
     <string name="tutorial">操作教學</string>
+    <string name="restore_purchases">恢復購買紀錄</string>
 </resources>
