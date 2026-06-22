@@ -87,6 +87,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
 
         viewModelScope.launch {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    currentMode = AppMode.INIT
+                )
+            }
 
         }
 
@@ -219,13 +224,15 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 currentState.copy(
                     currentMode = newMode,
                     currentSentenceIndex = 0,
-                    isPlaying = true
+                    isPlaying = true,
+                    isAddingNewText = false
                 )
             } else if (newMode == AppMode.EDIT) {
                 // 進入編輯模式時標記為新增文本狀態
                 currentState.copy(
                     currentMode = newMode,
-                    isAddingNewText = true
+                    isAddingNewText = true,
+                    isPlaying = false
                 )
             } else {
                 // 退出編輯模式時清除新增狀態

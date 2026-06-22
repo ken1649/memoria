@@ -5,7 +5,8 @@ enum class AppTheme { LIGHT, DARK, EYE_CARE, SYSTEM }
 enum class AppMode {
     READ,
     PLAY,
-    EDIT
+    EDIT,
+    INIT
 }
 
 data class AppUiState(

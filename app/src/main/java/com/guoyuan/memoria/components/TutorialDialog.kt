@@ -30,9 +30,9 @@ fun TutorialDialog(onDismiss: () -> Unit) {
                     modifier = Modifier.fillMaxWidth().height(300.dp)
                 ) { page ->
                     val imageRes = when (page) {
-                        //0 -> R.drawable.tutorial_1
-                        //1 -> R.drawable.tutorial_2
-                        else -> 0
+                        //0 -> R.drawable.R.tutorial_1
+                        //1 -> R.drawable.R.tutorial_2
+                        else ->0
                     }
                     Image(
                         painter = painterResource(id = imageRes),

@@ -431,6 +431,7 @@ fun MainScreen(context: Context) {
                             Text(text = displayTitle)
                             if (uiState.isEditingReadingMode && !uiState.isAddingNewText) {
                                 Log.d("MemoriaDebug", "edit title icon ")
+                                Log.d("MemoriaFlow", "currentMode ${uiState.currentMode}  isEditingReadingMode  ${uiState.isEditingReadingMode}   isAddingNewText ${uiState.isAddingNewText}")
                                 IconButton(
                                     onClick = { viewModel.openEditTitleDialog() },
                                     modifier = Modifier.size(24.dp)
@@ -454,11 +455,14 @@ fun MainScreen(context: Context) {
                         }
                     },
                     actions = {
-                        if (uiState.currentMode == AppMode.READ && !uiState.isEditingReadingMode) {
+                        if (uiState.currentMode == AppMode.READ && !uiState.isEditingReadingMode && !(uiState.currentMode==AppMode.INIT)) {
+                            //Log.d("MemoriaFlow", "1 currentMode ${uiState.currentMode}  uiState  ${uiState.isEditingReadingMode}")
+
                             IconButton(onClick = { viewModel.toggleReadingEditMode() }) {
                                 Icon(Icons.Filled.Edit, contentDescription = "編輯內容")
                             }
-                        } else if (uiState.currentMode == AppMode.READ && uiState.isEditingReadingMode) {
+                        } else if (uiState.currentMode == AppMode.READ && uiState.isEditingReadingMode && !(uiState.currentMode==AppMode.INIT)) {
+                            //Log.d("MemoriaFlow", "2 currentMode ${uiState.currentMode}  uiState  ${uiState.isEditingReadingMode}")
                             IconButton(onClick = {
                                 Log.d("MemoriaFlow", "【V打勾按鈕觸發】用戶點擊了右上角 V 儲存編輯！")
                                 Log.d("MemoriaFlow", "【1. UI 提交】準備寫入閱讀模式修改的內容: ${uiState.fullTextContent}")
@@ -592,6 +596,7 @@ fun MainScreen(context: Context) {
                                     return@Button
                                 }
                                 viewModel.saveTextToDatabase()
+                                viewModel.updateMode(AppMode.READ)
                             },
                             modifier = Modifier.weight(1f),
                             enabled = !uiState.isLoading
@@ -628,11 +633,13 @@ fun MainScreen(context: Context) {
                             .fillMaxWidth()
                             .weight(1f)
                     ) {
-                        if (uiState.currentMode == AppMode.READ) {
+                        if (uiState.currentMode == AppMode.READ || uiState.currentMode == AppMode.INIT) {
                             var editableText by remember(uiState.isEditingReadingMode) { 
                                 mutableStateOf(uiState.fullTextContent) 
                             }
-                            
+                            if(uiState.currentMode == AppMode.INIT) {
+                                uiState.fullTextContent.ifEmpty { stringResource(R.string.please_select_an_article_from_the_sidebar_or_add_a_new_article) }//請從側邊欄選擇文本或新增文本
+                            }
                             if (uiState.isEditingReadingMode) {
                                 // 編輯狀態：原地變身為輸入框
                                 LaunchedEffect(uiState.currentTextId) {
@@ -658,7 +665,7 @@ fun MainScreen(context: Context) {
                                 } else {
                                     uiState.fullTextContent.ifEmpty { stringResource(R.string.please_select_an_article_from_the_sidebar_or_add_a_new_article) }//請從側邊欄選擇文本或新增文本
                                 }
-                                
+
                                 Text(
                                     text = displayText,
                                     modifier = Modifier
@@ -983,13 +990,14 @@ fun MainScreen(context: Context) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .background(Color.White.copy(alpha = 0.9f))
+                    .background(androidx.compose.material3.MaterialTheme.colorScheme.surface)
                     .padding(24.dp)
             ) {
                 Column {
                     Text(
                         stringResource(R.string.text_size_settings),
                         style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                     
