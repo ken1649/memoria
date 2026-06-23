@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import androidx.datastore.preferences.core.floatPreferencesKey
+import com.android.billingclient.api.BillingClient
 import java.io.InputStreamReader
 import kotlinx.coroutines.flow.SharingStarted
 import com.guoyuan.memoria.PremiumManager
@@ -56,6 +57,7 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val PUNCTUATION_LIST_KEY = stringPreferencesKey("punctuation_list_json")
     private val FONT_SIZE_KEY = floatPreferencesKey("font_size") // 新增：字體大小儲存鍵
     private val THEME_KEY = stringPreferencesKey("theme_mode") // 修復：使用一致的鍵名
+    private lateinit var billingClient: PremiumManager
 
     init {
         Log.d("ThemeDebug", "MainViewModel 初始化開始")

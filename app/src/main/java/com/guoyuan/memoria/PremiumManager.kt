@@ -35,7 +35,7 @@ class PremiumManager(private val context: Context, private val dataStore: DataSt
         .build()
 
     // 2. 核心查詢函式：整合「自動檢查」與「手動恢復」
-    suspend fun refreshPurchaseStatus() {
+    fun refreshPurchaseStatus() {
         billingClient.startConnection(object : BillingClientStateListener {
             // 必須使用 override 關鍵字
             override fun onBillingSetupFinished(billingResult: BillingResult) {
