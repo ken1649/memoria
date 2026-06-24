@@ -1,5 +1,6 @@
 package com.guoyuan.memoria.ui
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
@@ -26,6 +27,8 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import androidx.datastore.preferences.core.floatPreferencesKey
 import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingResult
 import java.io.InputStreamReader
 import kotlinx.coroutines.flow.SharingStarted
 import com.guoyuan.memoria.PremiumManager
@@ -34,7 +37,7 @@ import kotlinx.coroutines.flow.stateIn
 
 data class PunctuationItem(val symbol: String, var isChecked: Boolean, val isCustom: Boolean = false)
 
-class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore<Preferences>, private val context: Context) : ViewModel() {
+class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore<Preferences>, private val context: Context,private val premiumManager: PremiumManager) : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
 
@@ -42,11 +45,12 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val _showTutorial = MutableStateFlow(false)
     val showTutorial = _showTutorial.asStateFlow()
 
-    private val premiumManager = PremiumManager(context.applicationContext, dataStore)
+    //premiumManager = PremiumManager(context.applicationContext, dataStore)
+
     val isPremium: StateFlow<Boolean> = premiumManager.isPremium.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        true  //付費是否啟用定義
+        false  //初始付費是否啟用定義
     )
     
     private val _allTexts = MutableStateFlow<List<TextEntity>>(emptyList())
@@ -176,6 +180,27 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
 
+    fun buyPremiumProduct(activity: Activity) {
+        // 修正：使用 premiumManager 的方法
+        if (premiumManager.isBillingReady) {
+            premiumManager.getProductDetails("memoria_remove_ads_permanent") { details ->
+                details?.let {
+                    premiumManager.launchPurchaseFlow(activity, it)
+                }
+            }
+        } else {
+            // 如果沒連線，先嘗試連線再購買
+            premiumManager.startBillingConnection { success ->
+                if (success) {
+                    premiumManager.getProductDetails("memoria_remove_ads_permanent") { details ->
+                        details?.let {
+                            premiumManager.launchPurchaseFlow(activity, it)
+                        }
+                    }
+                }
+            }
+        }
+    }
     private suspend fun loadPunctuationListFromStore() {
         try {
             val json = dataStore.data.map { preferences ->
@@ -938,11 +963,11 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     }
 }
 
-class MainViewModelFactory(private val appDao: AppDao, private val dataStore: DataStore<Preferences>, private val context: Context) : ViewModelProvider.Factory {
+class MainViewModelFactory(private val appDao: AppDao, private val dataStore: DataStore<Preferences>, private val context: Context,private val premiumManager: PremiumManager) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(appDao, dataStore, context) as T
+            return MainViewModel(appDao, dataStore, context,premiumManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

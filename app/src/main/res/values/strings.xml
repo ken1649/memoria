@@ -48,4 +48,6 @@
     <string name="are_you_sure_you_want_to_pin_to_the_top_note_the_existing_favorite_item_will_be_automatically_replaced">Are you sure you want to pin 「%1$s」 to the top? (Note: The existing favorite item will be automatically replaced.)</string>
     <string name="tutorial">Tutorial</string>
     <string name="restore_purchases">Restore Purchases</string>
+    <string name="permanently_remove_memoria_ads">Permanently remove Memoria ads</string>
+    <string name="buy_no_ads_now">Buy No-Ads Now</string>
 </resources>

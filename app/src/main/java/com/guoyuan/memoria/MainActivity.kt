@@ -8,6 +8,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,11 +31,18 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val context = LocalContext.current
+            val scope = rememberCoroutineScope() // 建立 CoroutineScope
+            // 1. 在這裡初始化 PremiumManager
+            val premiumManager = remember { PremiumManager(applicationContext, dataStore, scope) }
+
+            // 2. 在 ViewModelFactory 中補上 premiumManager
             val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(
                 AppDatabase.getDatabase(this).appDao(),
                 this.dataStore,
-                context
+                context,
+                premiumManager // 補上這個參數
             ))
+
             val uiState by viewModel.uiState.collectAsState()
             
             MemoriaTheme(appTheme = uiState.currentTheme) {
@@ -41,7 +50,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(context = context)
+                    MainScreen(viewModel = viewModel)
                 }
             }
         }

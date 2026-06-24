@@ -1,5 +1,6 @@
 package com.guoyuan.memoria.ui
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.Spacer
@@ -82,6 +83,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.filled.Palette
 import android.content.Context
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.guoyuan.memoria.R
@@ -90,22 +95,36 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import androidx.compose.ui.viewinterop.AndroidView
 import com.guoyuan.memoria.AdConfig
+import com.guoyuan.memoria.PremiumManager
 import com.guoyuan.memoria.components.TutorialDialog
 
 //
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(context: Context) {
-    val dataStore = context.dataStore
-    val appDao: AppDao = remember { AppDatabase.getDatabase(context).appDao() }
-    val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(appDao, dataStore, context))
+fun MainScreen(viewModel: MainViewModel) {
+    // 透過 LocalContext 獲取 context (如果真的有需要用到)
+    val context = LocalContext.current
+
+    // 移除掉所有的初始化代碼 (appDao, dataStore, premiumManager, viewModel 建立)
+    // 直接從 viewModel 獲取狀態
     val uiState by viewModel.uiState.collectAsState()
     val allTexts by viewModel.allTexts.collectAsState()
     val punctuationList by viewModel.punctuationList.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val isPremium by viewModel.isPremium.collectAsState(initial = false)
+    val showTutorial by viewModel.showTutorial.collectAsState(initial = false)
     val scope = rememberCoroutineScope()
-    val isPremium by viewModel.isPremium.collectAsState()
-    val showTutorial by viewModel.showTutorial.collectAsState()
+    var showPurchaseDialog by remember { mutableStateOf(false) }
+    /*
+    val dataStore = context.dataStore
+    val appDao: AppDao = remember { AppDatabase.getDatabase(context).appDao() }
+    // 1. 先宣告 premiumManager (記得存放在 remember 中以免重建)
+    val premiumManager = remember { PremiumManager(context, dataStore, scope) }
+    // 2. 在 Factory 中補上 premiumManager
+    val viewModel: MainViewModel = viewModel(
+        factory = MainViewModelFactory(appDao, dataStore, context, premiumManager)
+    )
+    */
 
     @Composable
     fun AdBanner(modifier: Modifier = Modifier) {
@@ -817,7 +836,8 @@ fun MainScreen(context: Context) {
             }
         }
     }
-    
+
+
     // 標題編輯對話框
     if (uiState.isEditingTitleDialogVisible) {
         var tempTitle by remember { mutableStateOf(uiState.currentTextTitle) }
@@ -953,12 +973,7 @@ fun MainScreen(context: Context) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    viewModel.purchasePremium()
-                                    android.widget.Toast.makeText(
-                                        context,
-                                        "開發中...",
-                                        android.widget.Toast.LENGTH_SHORT
-                                    ).show()
+                                    showPurchaseDialog = true
                                 }
                                 .padding(16.dp),
                             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -981,7 +996,7 @@ fun MainScreen(context: Context) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    viewModel.purchasePremium()//測試用
+                                    viewModel.onRestorePurchaseClicked()
                                 }
                                 .padding(16.dp),
                             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
@@ -1010,7 +1025,38 @@ fun MainScreen(context: Context) {
             }
         )
     }
-    
+    // 付費移除廣告購買UI，當狀態變為 true 時顯示購買取消廣告視窗
+    if (showPurchaseDialog && !isPremium) {
+        val context = LocalContext.current
+        val activity = context as? Activity
+
+        ModalBottomSheet(
+            onDismissRequest = { showPurchaseDialog = false }
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(stringResource(R.string.permanently_remove_memoria_ads), style = MaterialTheme.typography.headlineSmall)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // 這裡直接放按鈕，不需要巢狀在另一個 onClick 裡
+                Button(
+                    onClick = {
+                        // 在這裡呼叫購買邏輯
+                        activity?.let { viewModel.buyPremiumProduct(it) }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.buy_no_ads_now))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 額外建議：加入一個關閉按鈕，提升 UX
+                TextButton(onClick = { showPurchaseDialog = false }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            }
+        }
+    }
     // 文字大小設定對話框
     if (uiState.showFontSizeDialog) {
         androidx.compose.ui.window.Dialog(
