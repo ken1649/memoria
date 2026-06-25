@@ -2,7 +2,7 @@ package com.guoyuan.memoria
 
 object AdConfig {
     // 建議將環境設定分開
-    private const val IS_TEST_MODE = true
+    private const val IS_TEST_MODE = false
 
     // 將 const val 改為 val，並定義一個 getter
     val MAIN_BANNER_ID: String

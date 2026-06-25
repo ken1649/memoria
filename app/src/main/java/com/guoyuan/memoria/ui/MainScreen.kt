@@ -136,6 +136,8 @@ fun MainScreen(viewModel: MainViewModel) {
                 AdView(ctx).apply {
                     setAdSize(AdSize.BANNER)
                     adUnitId = AdConfig.MAIN_BANNER_ID
+                    // 連結 ViewModel 的 Listener
+                    adListener = viewModel.getAdListener()
                     loadAd(AdRequest.Builder().build())
                 }
             },
@@ -512,6 +514,7 @@ fun MainScreen(viewModel: MainViewModel) {
                 // 在底部欄位下方加一點 padding，自然會把 Scaffold 的FAB內容往上推
                 Column(modifier = Modifier.padding(bottom = 35.dp)){
                     // 當 isPremium 變更為 true 時，這裡會自動重新繪製，廣告就會消失
+                    //Text("現在狀態: ${if (isPremium) "Premium" else "Free"}")
                     if (!isPremium) {
                         AdBanner(modifier = Modifier.fillMaxWidth())
                     }

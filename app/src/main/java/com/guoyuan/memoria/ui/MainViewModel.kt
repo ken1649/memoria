@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -34,6 +35,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import com.guoyuan.memoria.PremiumManager
 import com.guoyuan.memoria.R
 import kotlinx.coroutines.flow.stateIn
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.LoadAdError
 
 data class PunctuationItem(val symbol: String, var isChecked: Boolean, val isCustom: Boolean = false)
 
@@ -62,6 +65,9 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     private val FONT_SIZE_KEY = floatPreferencesKey("font_size") // 新增：字體大小儲存鍵
     private val THEME_KEY = stringPreferencesKey("theme_mode") // 修復：使用一致的鍵名
     private lateinit var billingClient: PremiumManager
+    private val _adStatus = MutableStateFlow<String>("Loading")
+    val adStatus: StateFlow<String> = _adStatus
+
 
     init {
         Log.d("ThemeDebug", "MainViewModel 初始化開始")
@@ -104,7 +110,12 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
             }
 
         }
-
+        viewModelScope.launch {
+            dataStore.data.collect { preferences ->
+                val isPremiumValue = preferences[booleanPreferencesKey("is_premium")] ?: false
+                Log.d("DataStoreDebug", "目前 DataStore 狀態: isPremium = $isPremiumValue")
+            }
+        }
         Log.d("ThemeDebug", "MainViewModel 初始化結束")
     }
     fun onRestorePurchaseClicked() {
@@ -121,7 +132,18 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
     fun closeTutorial() {
         _showTutorial.value = false
     }
+    // 建立一個提供給 AdView 使用的 Listener
+    fun getAdListener() = object : AdListener() {
+        override fun onAdLoaded() {
+            Log.d("AdTest", "廣告成功載入！")
+        }
 
+        override fun onAdFailedToLoad(error: LoadAdError) {
+            // 使用 Log.e (Error) 來印出錯誤，這樣在 Logcat 裡會是紅色的，最顯眼
+            Log.e("AdTest", "廣告加載失敗: ${error.code}, 訊息: ${error.message}")
+            Log.e("AdTest", "詳細錯誤原因: ${error.responseInfo}")
+        }
+    }
     private suspend fun insertDefaultData() {
         withContext(Dispatchers.IO) {
             try {
@@ -597,12 +619,6 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
         }
     }
     
-    // 新增：從持久化儲存載入字體大小
-    fun setPremium(value: Boolean) {
-        viewModelScope.launch {
-            premiumManager.setPremium(value)
-        }
-    }
 
     private suspend fun loadFontSize() {
         try {
@@ -953,12 +969,6 @@ class MainViewModel(private val appDao: AppDao, private val dataStore: DataStore
                 currentSentences = newSentences,
                 currentSentenceIndex = newIndex
             )
-        }
-    }
-    // 使用 viewModelScope 開啟協程來執行 suspend 函式
-    fun purchasePremium() {
-        viewModelScope.launch {
-            premiumManager.setPremium(true)
         }
     }
 }

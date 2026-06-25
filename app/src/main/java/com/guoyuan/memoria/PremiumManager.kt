@@ -98,10 +98,18 @@ class PremiumManager(
 
     private fun handlePurchases(purchases: List<Purchase>) {
         // 1. 先根據你的邏輯更新 DataStore (這是為了讓 UI 知道已擁有購買權)
+        Log.d("BillingDebug", "收到的購買清單大小: ${purchases.size}")
+
+        purchases.forEach { purchase ->
+            Log.d("BillingDebug", "購買項目 ID: ${purchase.products}")
+            Log.d("BillingDebug", "購買狀態: ${purchase.purchaseState}")
+            Log.d("BillingDebug", "購買 Token: ${purchase.purchaseToken}")
+        }
+
         val isPurchased = purchases.any {
             it.products.contains(PRODUCT_ID) && it.purchaseState == Purchase.PurchaseState.PURCHASED
         }
-
+        Log.d("BillingDebug", "最終判斷結果 isPurchased: $isPurchased")
         externalScope.launch {
             dataStore.edit { preferences ->
                 preferences[PREMIUM_KEY] = isPurchased
@@ -178,9 +186,6 @@ class PremiumManager(
     }
 
     // 當購買成功時，只需寫入 DataStore，StateFlow 會自動收到通知更新
-    private suspend fun updatePremiumStatus(isPurchased: Boolean) {
-        setPremium(isPurchased)
-    }
     suspend fun setPremium(value: Boolean) {
 
         dataStore.edit { preferences ->
